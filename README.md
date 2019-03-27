@@ -26,10 +26,12 @@ Features To Be Implemented
   - Users can watch the automated picker robots navigate the warehouse and collect items for shipping
   - Users can view the queue of order numbers (including current order)
   - Allow users to select individual order pickers
-    - View path, destination, item
+    - View path, destination, item, etc...
 - A back-end
   - PHP to manipulate MySQL database and deliver relevant content to front-end pages
   - Maintain user sessions
+  - Allow warehouse to request items from vendors. These must be ordered in groups (i.e. don't request
+    a shipment for a single item), and only once the order pickers have cleared the receiving area
   - C++ programs for some of the heavy lifting (eg. A* Pathfinding routine)
   - User should receive email confirmation stating that the order has been received
   - User should receive email confirmation stating that the order has shipped
