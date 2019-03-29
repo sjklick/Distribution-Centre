@@ -1,6 +1,15 @@
 #include <iostream>
 #include <cstring>
-using namespace std;
+
+enum Direction { up, down, left, right };
+
+struct Position {
+    int row;
+    int column;
+    Direction facing;
+};
+
+char DirectionToChar (Direction dir);
 
 int main() {
     // initial warehouse map
@@ -21,21 +30,33 @@ int main() {
     memcpy(display_map, init_map, 100);
 
     // testing start and end points
-    int start_row = 1;
-    int start_column = 1;
-    int end_row = 7;
-    int end_column = 5;
+    Position start, end;
+    start.row = 1;
+    start.column = 1;
+    start.facing = down;
+    end.row = 7;
+    end.column = 5;
+    end.facing = left;
 
     // add start and end points to display map
-    // 'S' => start, 'E' => end
-    display_map[start_row][start_column] = 'S';
-    display_map[end_row][end_column] = 'E';
+    display_map[start.row][start.column] = DirectionToChar(start.facing);
+    display_map[end.row][end.column] = DirectionToChar(end.facing);
 
     // print map
     for (int row=0; row<10; row++) {
         for (int column=0; column<10; column++) {
-            cout << display_map[row][column];
+            std::cout << display_map[row][column];
         }
-        cout << endl;
+        std::cout << std::endl;
+    }
+}
+
+char DirectionToChar (Direction dir) {
+    switch (dir) {
+        case up:    return 'u';
+        case down:  return 'd';
+        case left:  return 'l';
+        case right: return 'r';
+        default:    return '?';
     }
 }
