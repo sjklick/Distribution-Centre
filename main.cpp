@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
+#include <vector>
 
 enum Direction { up, down, left, right };
 
@@ -9,6 +11,7 @@ struct Position {
     Direction facing;
 };
 
+// function prototypes
 char DirectionToChar (Direction dir);
 
 int main() {
@@ -24,30 +27,88 @@ int main() {
                                    {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
                                    {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
                                    {'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}};
-
-    // map copy for display
     char display_map[10][10];
-    memcpy(display_map, init_map, 100);
 
-    // testing start and end points
-    Position start, end;
-    start.row = 1;
-    start.column = 1;
-    start.facing = down;
-    end.row = 7;
-    end.column = 5;
-    end.facing = left;
+    // a test path => delete later
+    std::vector<Position> path;
+    Position next;
+    next.row = 1;
+    next.column = 1;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 2;
+    next.column = 1;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 3;
+    next.column = 1;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 4;
+    next.column = 1;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 1;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 1;
+    next.facing = right;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 2;
+    next.facing = right;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 3;
+    next.facing = right;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 4;
+    next.facing = right;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 5;
+    next.facing = right;
+    path.push_back(next);
+    next.row = 5;
+    next.column = 5;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 6;
+    next.column = 5;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 7;
+    next.column = 5;
+    next.facing = down;
+    path.push_back(next);
+    next.row = 7;
+    next.column = 5;
+    next.facing = left;
+    path.push_back(next);
 
-    // add start and end points to display map
-    display_map[start.row][start.column] = DirectionToChar(start.facing);
-    display_map[end.row][end.column] = DirectionToChar(end.facing);
+    char c;
+    for (std::vector<Position>::iterator it = path.begin(); it != path.end(); it++) {
 
-    // print map
-    for (int row=0; row<10; row++) {
-        for (int column=0; column<10; column++) {
-            std::cout << display_map[row][column];
+        // map copy for display
+        memcpy(display_map, init_map, 100);
+
+        // add current position to display map
+        display_map[(*it).row][(*it).column] = DirectionToChar((*it).facing);
+
+        // print map
+        system("clear");
+        for (int row=0; row<10; row++) {
+            for (int column=0; column<10; column++) {
+                std::cout << display_map[row][column];
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
+
+        std::cin.get(c);
+
     }
 }
 
