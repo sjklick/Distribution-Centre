@@ -11,6 +11,11 @@ struct Position {
     Direction facing;
 };
 
+struct PathNode {
+    Position position;
+    float F, G, H;
+};
+
 // function prototypes
 char DirectionToChar (Direction dir);
 std::vector<Position> getValidMoves(Position current, char map[10][10]);
