@@ -13,6 +13,7 @@ struct Position {
 
 // function prototypes
 char DirectionToChar (Direction dir);
+std::vector<Position> getValidMoves(Position current, char map[10][10]);
 
 int main() {
     // initial warehouse map
@@ -120,4 +121,53 @@ char DirectionToChar (Direction dir) {
         case right: return 'r';
         default:    return '?';
     }
+}
+
+std::vector<Position> getValidMoves(Position current, char map[10][10]) {
+    std::vector<Position> moves;
+    Position temp;
+    
+    // start by adding valid rotations
+    temp.row = current.row;
+    temp.column = current.column;
+    switch (current.facing) {
+        case up: case down:
+            temp.facing = left;
+            moves.push_back(temp);
+            temp.facing = right;
+            moves.push_back(temp);
+            break;
+        case left: case right:
+            temp.facing = up;
+            moves.push_back(temp);
+            temp.facing = down;
+            moves.push_back(temp);
+            break;
+    }
+
+    // add moving forward, if valid
+    temp.facing = current.facing;
+    switch (current.facing) {
+        case up:
+            temp.row -= 1;
+            break;
+        case down:
+            temp.row += 1;
+            break;
+        case left:
+            temp.column -= 1;
+            break;
+        case right:
+            temp.column += 1;
+            break;
+    }
+    if ((temp.row >= 0) && (temp.row <= 9)) {
+        if ((temp.column >= 0) && (temp.column <= 9)) {
+            if (map[temp.row][temp.column] == '.') {
+                moves.push_back(temp);
+            }
+        }
+    }
+
+    return moves;
 }
