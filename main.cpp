@@ -19,6 +19,7 @@ struct PathNode {
 // function prototypes
 char DirectionToChar (Direction dir);
 std::vector<Position> getValidMoves(Position current, char map[10][10]);
+float getHeuristicDistance (Position current, Position destination);
 
 int main() {
     // initial warehouse map
@@ -175,4 +176,9 @@ std::vector<Position> getValidMoves(Position current, char map[10][10]) {
     }
 
     return moves;
+}
+
+float getHeuristicDistance (Position current, Position destination) {
+    // will use simple manhattan distance, ignoring rotations too
+    return float(abs(destination.row-current.row) + abs(destination.column-current.column));
 }
