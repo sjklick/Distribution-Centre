@@ -14,19 +14,22 @@ stock -----> going to place item in an inventory bin
 receive ---> getting an item from a bin in receiving
 ship ------> going to place an item in the current order's bin
 */
-enum State { idle, yield, home, retrieve, stock, receive, ship };
+enum class State { idle, yield, home, retrieve, stock, receive, ship };
 
 class OrderPicker {
 private:
-    Position home, current;
-    std::vector<Position> path;
-    State state;
+	Position home, current, target;
+	std::vector<Position> path;
+	State state;
+	bool hasItem;
 public:
-    OrderPicker(Position home);
-    Position getPosition();
-    std::vector<Position> getPath();
-    State getState();
-    ~OrderPicker();
+	OrderPicker(Position home);
+	Position getPosition();
+	std::vector<Position> getPath();
+	State getState();
+	bool processItem(Position bin);
+	void update(char map[10][10]);
+	~OrderPicker();
 };
 
 #endif

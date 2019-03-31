@@ -9,15 +9,10 @@ struct Position {
     Direction facing;
 };
 
-bool operator==(const Position &lhs, const Position &rhs) {
-    if (lhs.row == rhs.row) {
-        if (lhs.column == rhs.column) {
-            if (lhs.facing == rhs.facing) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+bool operator==(const Position &lhs, const Position &rhs);
+
+bool operator!=(const Position &lhs, const Position &rhs);
+
+Position getFacingPosition(Position pos);
 
 #endif
