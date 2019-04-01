@@ -11,7 +11,8 @@ OrderPicker::OrderPicker(Position home) {
     target = home;
     path.clear();
     state = State::idle;
-    hasItem = false;
+    item = false;
+	delivered = false;
 }
 
 Position OrderPicker::getPosition() {
@@ -25,8 +26,12 @@ State OrderPicker::getState() {
     return state;
 }
 
+bool OrderPicker::hasItem() {
+	return item;
+}
+
 bool OrderPicker::processItem(Position bin) {
-    if ((state == State::idle) || (state == State::home) || ((state == State::yield) && (hasItem == false))) {
+    if ((state == State::idle) || (state == State::home) || ((state == State::yield) && (item == false))) {
         target = getFacingPosition(bin);
         state = State::retrieve;
         return true;
@@ -35,16 +40,67 @@ bool OrderPicker::processItem(Position bin) {
 }
 
 void OrderPicker::update(char map[10][10]) {
-    if (state == State::retrieve) {
-        if (path.empty()) {
-            path = findPath(current, target, map);
-        }
-        if (current != target) {
-            current = path.back();
-            path.pop_back();
-        } else {
-            state = State::stock;
-        }
+	switch (state) {
+		case State::yield:
+			if (delivered) {
+				state = State::home;
+			} else if (item) {
+				state = State::ship;
+			} else {
+				state = State::retrieve;
+			}
+			break;
+		case State::home:
+			if (current != home) {
+				path = findPath(current, home, map);
+				if (path.empty()) state = State::yield;
+				else {
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			if (delivered) {
+				delivered = false;
+				state = State::idle;
+			} else if (item) {
+				state = State::ship;
+			} else {
+				state = State::retrieve;
+			}
+			break;
+		case State::retrieve:
+			if (current != target) {
+				path = findPath(current, target, map);
+				if (path.empty()) state = State::yield;
+				else {
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			item = true;
+			state = State::ship;
+			break;
+		case State::ship:
+			Position bin;
+			bin.row = 9;
+			bin.column = 1;
+			bin.facing = up;
+			bin = getFacingPosition(bin);
+			if (current != bin) {
+				path = findPath(current, bin, map);
+				if (path.empty()) state = State::yield;
+				else {
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			item = false;
+			delivered = true;
+			state = State::home;
+			break;
     }
 }
 
@@ -143,7 +199,18 @@ static std::vector<Position> findPath(Position start, Position end, char map[10]
         openList.erase(current_it);
 
         // stop if the end node was just placed on the closed list (i.e. path found)
-        if (current.position == end) break;
+        if (current.position == end) {
+			// Save the found path to the path vector. Start with the target square, going
+			// through the parents until start node is reached.
+			temp = closedList.back();
+        	while (temp.parent != NULL) {
+		        temp_pos = temp.position;
+		        path.push_back(temp_pos);
+		        temp = *(temp.parent);
+		    }
+			// Go return our populated path.
+			break;
+		}
 
         // for each valid move from current position...
         std::vector<Position> moves = getValidMoves(current.position, map);
@@ -192,27 +259,10 @@ static std::vector<Position> findPath(Position start, Position end, char map[10]
             }
         }
 
-        // if the open list is empty, and we are here, then there were no new nodes
-        // to try and no path to destination was found
+        // Ff the open list is empty, and we are here, then there were no new nodes
+        // to try and no path to destination was found (return empty path)
         if (openList.empty()) break;
 
-    }
-
-    // Save the found path to the path vector. Start with the target square, going
-    // through the parents until start node is reached.
-    if (!openList.empty()) {
-        // If we are here, a path was found (open list was not empty), and the target
-        // node was just pushed onto the back of the closed list.
-        temp = closedList.back();
-        while (temp.parent != NULL) {
-            temp_pos = temp.position;
-            path.push_back(temp_pos);
-            temp = *(temp.parent);
-        }
-        // For the moment, don't include start in vector of path, and target at front of vector.
-        //temp_pos = temp.position;
-        //path.push_back(temp_pos);
-        //std::reverse(path.begin(), path.end());
     }
 
     return path;

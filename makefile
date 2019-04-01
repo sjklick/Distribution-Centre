@@ -1,14 +1,21 @@
-all: main.o order-picker.o position.o
-	g++ -std=c++11 -o warehouse main.o order-picker.o position.o
+CFLAGS = -std=c++11
+
+all: warehouse
+
+debug: CFLAGS += -ggdb
+debug: warehouse
+
+warehouse: main.o order-picker.o position.o
+	g++ $(CFLAGS) -o warehouse main.o order-picker.o position.o
 
 main.o: main.cpp
-	g++ -std=c++11 -c main.cpp
+	g++ $(CFLAGS) -c main.cpp
 
 order-picker.o: order-picker.hpp order-picker.cpp
-	g++ -std=c++11 -c order-picker.cpp
+	g++ $(CFLAGS) -c order-picker.cpp
 
 position.o: position.hpp position.cpp
-	g++ -std=c++11 -c position.cpp
+	g++ $(CFLAGS) -c position.cpp
 
 clean:
 	rm -f *.o *.out

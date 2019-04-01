@@ -21,12 +21,13 @@ private:
 	Position home, current, target;
 	std::vector<Position> path;
 	State state;
-	bool hasItem;
+	bool item, delivered;
 public:
 	OrderPicker(Position home);
 	Position getPosition();
 	std::vector<Position> getPath();
 	State getState();
+	bool hasItem();
 	bool processItem(Position bin);
 	void update(char map[10][10]);
 	~OrderPicker();
