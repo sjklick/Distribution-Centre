@@ -33,7 +33,7 @@
 	background-color: blue;
 }
 
-.warehouse {
+#warehouse-div {
 	margin: 0;
 	padding: 0;
 	width: calc(10*var(--tile) + 9*1vmin);

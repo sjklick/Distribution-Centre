@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Warehouse-View</title>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" href="warehouse-view.css"/>
+	</head>
+	<body>
+		<p>Unable to reach warehouse.</p>
+		<div id='warehouse-div'></div>
+		<script>
+			// Create warehouse map.
+			var warehouse = [];
+			warehouse[0] = ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'];
+			warehouse[1] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
+			warehouse[2] = ['X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'];
+			warehouse[3] = ['X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'];
+			warehouse[4] = ['X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'];
+			warehouse[5] = ['X', '.', '.', '.', '.', '.', 'B', 'B', '.', 'X'];
+			warehouse[6] = ['X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'];
+			warehouse[7] = ['X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'];
+			warehouse[8] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
+			warehouse[9] = ['X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'];
+			
+			// Add tile divs to the DOM.
+			let row, column;
+			let warehouse_element = document.getElementById("warehouse-div");
+			for (row=0; row<10; row++) {
+				for (column=0; column<10; column++) {
+					let tile_div = document.createElement("div");
+					tile_div.classList.add("tile");
+					tile_div.id = row.toString()+","+column.toString();
+					warehouse_element.appendChild(tile_div);
+				}
+			}
+
+			// Update tile classes.
+			for (row=0; row<10; row++) {
+				for (column=0; column<10; column++) {
+					let id = row.toString()+","+column.toString();
+					let tile_div = document.getElementById(id);
+					if (warehouse[row][column] == '.') {
+						tile_div.classList.add("floor");
+					} else if (warehouse[row][column] == 'X') {
+						tile_div.classList.add("wall");
+					} else if (warehouse[row][column] == 'B') {
+						tile_div.classList.add("bin");
+					} else if (warehouse[row][column] == 'S') {
+						tile_div.classList.add("shipping");
+					} else {
+						tile_div.classList.add("unknown");
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
