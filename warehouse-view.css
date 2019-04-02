@@ -9,6 +9,10 @@
 	height: var(--tile);
 }
 
+.unknown {
+	background-color: red;
+}
+
 .floor {
 	background-color: gray;
 }
@@ -23,6 +27,10 @@
 
 .picker {
 	background-color: cyan;
+}
+
+.shipping {
+	background-color: blue;
 }
 
 .warehouse {
