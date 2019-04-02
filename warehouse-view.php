@@ -1,42 +1,19 @@
-<html>
-	<head>
-		<title>Warehouse-View</title>
-		<link rel="stylesheet" href="warehouse-view.css"/>
-	</head>
-	<body>
-		<?php echo "<p>Unable to reach warehouse.</p>"; ?>
-		<?php echo "<div class='warehouse'>"; ?>
-		<?php
-			$warehouse =	array
-							(
-							array('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
-							array('X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'),
-							array('X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', '.', '.', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'),
-							array('X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'),
-							array('X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X')
-							);
-			array_push($warehouse); 
-			for ($row=0; $row<10; $row++) {
-				for ($column=0; $column<10; $column++) {
-					if ($warehouse[$row][$column] == '.') {
-						echo "<div class='tile floor'></div>";
-					} elseif ($warehouse[$row][$column] == 'X') {
-						echo "<div class='tile wall'></div>";
-					} elseif ($warehouse[$row][$column] == 'B') {
-						echo "<div class='tile bin'></div>";
-					} elseif ($warehouse[$row][$column] == 'S') {
-						echo "<div class='tile shipping'></div>";
-					} else {
-						echo "<div class='tile unknown'>?</div>";
-					}
-				}
-			}
-		?>
-		<?php echo "</div>"; ?>
-	</body>
-</html>
+<?php
+	$picker =	array
+				(
+				['row' => 1, 'column' => 1, 'facing' => 'r'],
+				['row' => 2, 'column' => 1, 'facing' => 'r'],
+				['row' => 3, 'column' => 1, 'facing' => 'u'],
+				['row' => 4, 'column' => 1, 'facing' => 'r']
+				);
+	$data = json_encode($picker);
+	/*$picker = json_decode($data);
+	echo $picker[0]->row;
+	echo $picker[0]->column;
+	echo $picker[0]->facing;
+	echo "\n";
+	echo $picker[2]->row;
+	echo $picker[2]->column;
+	echo $picker[2]->facing;
+	echo "\n";*/
+?>
