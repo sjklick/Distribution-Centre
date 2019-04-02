@@ -54,17 +54,24 @@
 
 			// Set initial picker positions.
 			var picker = [];
-			picker[0] = [-1, -1, -1];
-			picker[1] = [-1, -1, -1];
-			picker[2] = [-1, -1, -1];
-			picker[3] = [-1, -1, -1];
+			picker[0] = [-1, -1, '?'];
+			picker[1] = [-1, -1, '?'];
+			picker[2] = [-1, -1, '?'];
+			picker[3] = [-1, -1, '?'];
 
 			function updatePickerPositions() {
 				var xhttp = new XMLHttpRequest();
 				xhttp.onreadystatechange = function() {
 					if (this.readyState == 4 && this.status == 200) {
 						document.getElementById("status").innerText = "Status: Picker positions received.";
-						setTimeout(updatePickerPositions, 500);
+						let data = JSON.parse(this.responseText);
+						for (p=0; p<4; p++) {
+							let id = data[p].row.toString()+","+data[p].column.toString();
+							let tile_div = document.getElementById(id);
+							tile_div.classList.add("floor");
+							tile_div.classList.add("picker");
+						}
+						//setTimeout(updatePickerPositions, 500);
 					} else if (this.readyState == 4 && this.status != 200) {
 						document.getElementById("status").innerText = "Status: Failed to update picker positions.";
 						setTimeout(updatePickerPositions, 500);
