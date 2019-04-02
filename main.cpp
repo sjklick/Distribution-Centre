@@ -25,6 +25,10 @@ std::string StateToString (State state) {
 		case State::stock:		return "stock";
 		case State::receive:	return "receive";
 		case State::ship:		return "ship";
+		case State::extend:		return "extend";
+		case State::retract:	return "retract";
+		case State::pick:		return "pick";
+		case State::place:		return "place";
 		default:				return "?";
 	}
 }

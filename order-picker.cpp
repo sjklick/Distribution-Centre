@@ -79,8 +79,7 @@ void OrderPicker::update(char map[10][10]) {
 				}
 				break;
 			}
-			item = true;
-			state = State::ship;
+			state = State::extend;
 			break;
 		case State::ship:
 			Position bin;
@@ -97,9 +96,28 @@ void OrderPicker::update(char map[10][10]) {
 				}
 				break;
 			}
+			state = State::extend;
+			break;
+		case State::extend:
+			if (item) state = State::place;
+			else state = State::pick;
+			break;
+		case State::retract:
+			if (item) {
+				state = State::ship;
+			} else {
+				delivered = true;
+				state = State::home;
+			}
+			break;
+		case State::pick:
+			item = true;
+			state = State::retract;
+			break;
+		case State::place:
 			item = false;
 			delivered = true;
-			state = State::home;
+			state = State::retract;
 			break;
     }
 }

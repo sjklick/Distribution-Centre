@@ -6,7 +6,7 @@ debug: CFLAGS += -ggdb
 debug: warehouse
 
 warehouse: main.o order-picker.o position.o
-	g++ $(CFLAGS) -o warehouse main.o order-picker.o position.o
+	g++ $(CFLAGS) -o warehouse.out main.o order-picker.o position.o
 
 main.o: main.cpp
 	g++ $(CFLAGS) -c main.cpp
