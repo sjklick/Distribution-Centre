@@ -71,7 +71,7 @@
 							tile_div.classList.add("floor");
 							tile_div.classList.add("picker");
 						}
-						//setTimeout(updatePickerPositions, 500);
+						setTimeout(updatePickerPositions, 500);
 					} else if (this.readyState == 4 && this.status != 200) {
 						document.getElementById("status").innerText = "Status: Failed to update picker positions.";
 						setTimeout(updatePickerPositions, 500);
