@@ -36,11 +36,9 @@
 #warehouse-div {
 	margin: 0;
 	padding: 0;
-	width: calc(10*var(--tile) + 9*1vmin);
-	height: calc(10*var(--tile) + 9*1vmin);
+	width: calc(10*var(--tile));
+	height: calc(10*var(--tile));
 	display: grid;
 	grid-template-rows: repeat(10, var(--tile));
 	grid-template-columns: repeat(10, var(--tile));
-	grid-row-gap: 1vmin;
-	grid-column-gap: 1vmin;
 }
