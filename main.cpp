@@ -5,6 +5,7 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
+#include <fstream>
 #include "position.hpp"
 #include "order-picker.hpp"
 
@@ -118,20 +119,42 @@ int main() {
         	display_map[current.row][current.column] = ss.str()[0];
 		}
         // print map
-        system("clear");
+        /*system("clear");
         for (int row=0; row<10; row++) {
             for (int column=0; column<10; column++) {
                 std::cout << display_map[row][column];
             }
             std::cout << std::endl;
-        }
-		// print picker info
+        }*/
+
+		// Write a JSON file for picker positions.
+		// [{"row":1,"column":1,"facing":"r"},{"row":2,"column":1,"facing":"r"},{"row":3,"column":1,"facing":"u"},{"row":4,"column":1,"facing":"r"}]
+		std::ofstream pickerFile;
+		pickerFile.open("pickers.json", std::ios::out | std::ios::trunc);
+		pickerFile << "[";
 		for (int i=0; i<numPickers; i++) {
+			current = picker[i]->getPosition();
+			pickerFile << "{";
+			pickerFile << "\"row\":";
+			pickerFile << current.row;
+			pickerFile << ",\"column\":";
+			pickerFile << current.column;
+			//pickerFile << ",\"facing\":";
+			//pickerFile << "\"" << current.facing << "\"";
+			pickerFile << "}";
+			if (i != (numPickers-1)) pickerFile << ",";
+		}
+		pickerFile << "]";
+		pickerFile.close();
+
+		// print picker info
+		/*for (int i=0; i<numPickers; i++) {
 			std::cout << "Picker " << i << ": state=" << StateToString(picker[i]->getState());
 			std::cout << " facing=" << DirectionToChar(picker[i]->getPosition().facing);
 			if (picker[i]->hasItem()) std::cout << " item=yes" << std::endl;
 			else std::cout << " item=no" << std::endl;
-		}
+		}*/
+
         // Sleep for 1 second.
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
 		// map copy for path calculations

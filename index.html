@@ -52,24 +52,24 @@
 				}
 			}
 
-			// Set initial picker positions.
-			var picker = [];
-			picker[0] = [-1, -1, '?'];
-			picker[1] = [-1, -1, '?'];
-			picker[2] = [-1, -1, '?'];
-			picker[3] = [-1, -1, '?'];
-
 			function updatePickerPositions() {
 				var xhttp = new XMLHttpRequest();
 				xhttp.onreadystatechange = function() {
 					if (this.readyState == 4 && this.status == 200) {
 						document.getElementById("status").innerText = "Status: Picker positions received.";
 						let data = JSON.parse(this.responseText);
+						let old_tile = document.getElementsByClassName("picker");
+						if (typeof old_tile !== 'undefined') {
+							for (i=0; i<old_tile.length; i++) {
+								old_tile[i].classList.remove("picker");
+								old_tile[i].innerText = "";			
+							}
+						}
 						for (p=0; p<4; p++) {
 							let id = data[p].row.toString()+","+data[p].column.toString();
 							let tile_div = document.getElementById(id);
-							tile_div.classList.add("floor");
 							tile_div.classList.add("picker");
+							tile_div.innerText = p.toString();
 						}
 						setTimeout(updatePickerPositions, 500);
 					} else if (this.readyState == 4 && this.status != 200) {
@@ -77,7 +77,8 @@
 						setTimeout(updatePickerPositions, 500);
 					}
 				}
-				xhttp.open("GET", "warehouse-view.php", true);
+				xhttp.overrideMimeType("application/json");
+				xhttp.open("GET", "pickers.json", true);
   				xhttp.send();
 			}
 
