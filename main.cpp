@@ -139,8 +139,10 @@ int main() {
 			pickerFile << current.row;
 			pickerFile << ",\"column\":";
 			pickerFile << current.column;
-			//pickerFile << ",\"facing\":";
-			//pickerFile << "\"" << current.facing << "\"";
+			pickerFile << ",\"facing\":";
+			pickerFile << "\"" << DirectionToChar(current.facing) << "\"";
+			pickerFile << ",\"state\":";
+			pickerFile << "\"" << StateToString(picker[i]->getState()) << "\"";
 			pickerFile << "}";
 			if (i != (numPickers-1)) pickerFile << ",";
 		}

@@ -66,7 +66,7 @@ function updatePickerPositions() {
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
 				tile_div.classList.add("picker");
-				tile_div.innerText = p.toString();
+				tile_div.innerText = p.toString() + " " + data[p].facing + "\n" + data[p].state;
 			}
 			setTimeout(updatePickerPositions, 500);
 		} else if (this.readyState == 4 && this.status != 200) {
