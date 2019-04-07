@@ -27,6 +27,7 @@ CREATE TABLE `bins` (
   `row` int(11) DEFAULT NULL,
   `col` int(11) DEFAULT NULL,
   `dir` char(1) DEFAULT NULL,
+  `nItems` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -37,7 +38,7 @@ CREATE TABLE `bins` (
 
 LOCK TABLES `bins` WRITE;
 /*!40000 ALTER TABLE `bins` DISABLE KEYS */;
-INSERT INTO `bins` VALUES (1,2,3,'l'),(2,3,3,'l'),(3,4,3,'l'),(4,2,4,'r'),(5,3,4,'r'),(6,4,4,'r'),(7,6,3,'l'),(8,7,3,'l'),(9,6,4,'r'),(10,7,4,'r'),(11,2,6,'u'),(12,3,6,'l'),(13,4,6,'l'),(14,5,6,'l'),(15,6,6,'l'),(16,7,6,'d'),(17,2,7,'u'),(18,3,7,'r'),(19,4,7,'r'),(20,5,7,'r'),(21,6,7,'r'),(22,7,7,'d');
+INSERT INTO `bins` VALUES (1,2,3,'l',4),(2,3,3,'l',3),(3,4,3,'l',6),(4,2,4,'r',9),(5,3,4,'r',4),(6,4,4,'r',4),(7,6,3,'l',9),(8,7,3,'l',9),(9,6,4,'r',6),(10,7,4,'r',9),(11,2,6,'u',6),(12,3,6,'l',7),(13,4,6,'l',7),(14,5,6,'l',8),(15,6,6,'l',7),(16,7,6,'d',6),(17,2,7,'u',2),(18,3,7,'r',5),(19,4,7,'r',4),(20,5,7,'r',9),(21,6,7,'r',4),(22,7,7,'d',6);
 /*!40000 ALTER TABLE `bins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,7 +66,7 @@ CREATE TABLE `items` (
 
 LOCK TABLES `items` WRITE;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` VALUES (1,'apple',2),(1,'milk',2),(2,'apple',1),(2,'plate',2),(3,'apple',4),(3,'milk',2),(4,'banana',5),(4,'cup',6),(5,'banana',2),(5,'plate',2),(6,'banana',1),(6,'fork',3),(7,'chair',4),(7,'fork',5),(8,'chair',6),(8,'milk',3),(9,'plate',3),(9,'table cloth',3),(10,'apple',4),(10,'banana',3),(10,'bread',3),(11,'beef',2),(11,'carrot',4),(12,'carrot',2),(12,'chicken',5),(13,'beef',5),(13,'milk',2),(14,'cup',5),(14,'table cloth',3),(15,'bread',2),(15,'grapes',5),(16,'carrot',3),(16,'table',3),(17,'carrot',1),(17,'table cloth',1),(18,'grapes',5),(19,'cup',2),(19,'table',2),(20,'bread',5),(20,'cup',3),(20,'knife',2),(21,'chair',1),(21,'knife',3),(22,'apple',1),(22,'knife',3),(22,'milk',2);
+INSERT INTO `items` VALUES (1,'apple',2),(1,'milk',2),(2,'apple',1),(2,'plate',2),(3,'apple',4),(3,'milk',2),(4,'banana',5),(4,'cup',4),(5,'banana',2),(5,'plate',2),(6,'banana',1),(6,'fork',3),(7,'chair',4),(7,'fork',5),(8,'chair',6),(8,'milk',3),(9,'plate',3),(9,'table cloth',3),(10,'apple',4),(10,'banana',2),(10,'bread',3),(11,'beef',2),(11,'carrot',4),(12,'carrot',2),(12,'chicken',5),(13,'beef',5),(13,'milk',2),(14,'cup',5),(14,'table cloth',3),(15,'bread',2),(15,'grapes',5),(16,'carrot',3),(16,'table',3),(17,'carrot',1),(17,'table cloth',1),(18,'grapes',5),(19,'cup',2),(19,'table',2),(20,'bread',4),(20,'cup',3),(20,'knife',2),(21,'chair',1),(21,'knife',3),(22,'apple',1),(22,'knife',3),(22,'milk',2);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -80,6 +81,7 @@ CREATE TABLE `products` (
   `name` varchar(50) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `category` varchar(15) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -90,7 +92,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food'),('banana',NULL,'food'),('beef',NULL,'food'),('bread',NULL,'food'),('carrot',NULL,'food'),('chair',NULL,'furniture'),('chicken',NULL,'food'),('cup',NULL,'symbel'),('fork',NULL,'symbel'),('grapes',NULL,'food'),('knife',NULL,'symbel'),('milk',NULL,'food'),('plate',NULL,'symbel'),('table',NULL,'furniture'),('table cloth',NULL,'symbel');
+INSERT INTO `products` VALUES ('apple',NULL,'food',12),('banana',NULL,'food',10),('beef',NULL,'food',7),('bread',NULL,'food',9),('carrot',NULL,'food',10),('chair',NULL,'furniture',11),('chicken',NULL,'food',5),('cup',NULL,'symbel',14),('fork',NULL,'symbel',8),('grapes',NULL,'food',10),('knife',NULL,'symbel',8),('milk',NULL,'food',11),('plate',NULL,'symbel',7),('table',NULL,'furniture',5),('table cloth',NULL,'symbel',7);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -103,4 +105,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-06 11:00:39
+-- Dump completed on 2019-04-07 11:26:38
