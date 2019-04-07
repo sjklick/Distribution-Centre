@@ -1,7 +1,7 @@
 #ifndef __POSITION__
 #define __POSITION__
 
-enum Direction { up, down, left, right };
+enum Direction { up, down, left, right, invalid};
 
 struct Position {
     int row;
