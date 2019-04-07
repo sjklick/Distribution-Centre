@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <mysql.h>
 #include "position.hpp"
 #include "order-picker.hpp"
 
@@ -37,6 +38,49 @@ std::string StateToString (State state) {
 }
 
 int main() {
+	// Load credentials.
+	// Save username and password on separate lines of "credentials.txt".
+	std::ifstream credFile;
+	std::string username, password;
+	credFile.open("credentials.txt", std::ios::in);
+	credFile >> username;
+	credFile >> password;
+	credFile.close();
+
+	// MariaDB test.
+	MYSQL* connection;
+	MYSQL_RES* result;
+	//MYSQL_FIELD* field;
+	unsigned int numFields;
+	MYSQL_ROW row;
+	connection = mysql_init(NULL);
+	if (connection != NULL) {
+		std::cout << "Successful init!" << std::endl;
+		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, NULL, 0)) {
+			std::cout << "Failed real init." << std::endl;
+			std::cout << std::string(mysql_error(connection)) << std::endl;
+		} else {
+			std::cout << "Successful real init!" << std::endl;
+			if (mysql_query(connection, "SHOW TABLES;") == 0) {
+				std::cout << "Successful query!" << std::endl;
+				result = mysql_use_result(connection);
+				if (!result) std::cout << "No result set." << std::endl;
+				else {
+					std::cout << "Have results!" << std::endl;
+					numFields = mysql_num_fields(result);
+					std::cout << "There are " << numFields << " field(s)." << std::endl;
+					for (int i=0; i<numFields; i++) {
+						//field = mysql_fetch_field(result);
+						while(row = mysql_fetch_row(result)) std::cout << row[i] << std::endl;
+					}
+				}
+			} else std::cout << "Failed query." << std::endl;
+		}
+		std::cout << "Closing connection." << std::endl;
+		mysql_close(connection);
+	}
+	else std::cout << "Failed init." << std::endl;
+
     // initial warehouse map
     // 'X' => wall, 'B' => bin, 'S' => shipping, '.' => empty
     char init_map[10][10] = {{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
@@ -49,7 +93,6 @@ int main() {
                              {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
                              {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
                              {'X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}};
-    char display_map[10][10];
 	char path_map[10][10];
 
 	Position home[4];
@@ -109,24 +152,6 @@ int main() {
 			}
 		}
 
-        // map copy for display
-        memcpy(display_map, init_map, 100);
-        // add current picker positions to display map
-		for (int i=0; i<numPickers; i++) {
-        	current = picker[i]->getPosition();
-			ss.str("");
-			ss << i;
-        	display_map[current.row][current.column] = ss.str()[0];
-		}
-        // print map
-        /*system("clear");
-        for (int row=0; row<10; row++) {
-            for (int column=0; column<10; column++) {
-                std::cout << display_map[row][column];
-            }
-            std::cout << std::endl;
-        }*/
-
 		// Write a JSON file for picker positions.
 		// [{"row":1,"column":1,"facing":"r"},{"row":2,"column":1,"facing":"r"},{"row":3,"column":1,"facing":"u"},{"row":4,"column":1,"facing":"r"}]
 		std::ofstream pickerFile;
@@ -148,14 +173,6 @@ int main() {
 		}
 		pickerFile << "]";
 		pickerFile.close();
-
-		// print picker info
-		/*for (int i=0; i<numPickers; i++) {
-			std::cout << "Picker " << i << ": state=" << StateToString(picker[i]->getState());
-			std::cout << " facing=" << DirectionToChar(picker[i]->getPosition().facing);
-			if (picker[i]->hasItem()) std::cout << " item=yes" << std::endl;
-			else std::cout << " item=no" << std::endl;
-		}*/
 
         // Sleep for 1 second.
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
