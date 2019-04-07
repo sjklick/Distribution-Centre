@@ -71,6 +71,7 @@ Position* getBinPosition(MYSQL* connection, int binId) {
 
 // Returns -1 if bin ID is not found or there was an error.
 int getBinItemCount(MYSQL* connection, int binId) {
+	int nItems;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string query("SELECT SUM(quantity) FROM items WHERE bin="+std::to_string(binId)+";");
@@ -78,11 +79,59 @@ int getBinItemCount(MYSQL* connection, int binId) {
 		result = mysql_use_result(connection);
 		if (result) {
 			if(row = mysql_fetch_row(result)) {
-				return std::stoi(row[0]);
+				nItems = std::stoi(row[0]);
+				mysql_free_result(result);
+				return nItems;
 			}
 		}
 	}
 	return -1;
+}
+
+void writeStateJSON(int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
+	Position current;
+	std::ofstream stateFile;
+	stateFile.open("state.json", std::ios::out | std::ios::trunc);
+	stateFile << "{";
+
+	// pickers
+	stateFile << "\"picker\":[";
+	for (int i=0; i<numPickers; i++) {
+		current = picker[i]->getPosition();
+		stateFile << "{\"position\":{";
+		stateFile << "\"row\":";
+		stateFile << current.row;
+		stateFile << ",\"column\":";
+		stateFile << current.column;
+		stateFile << ",\"facing\":";
+		stateFile << "\"" << DirectionToChar(current.facing) << "\"}";
+		stateFile << ",\"state\":";
+		stateFile << "\"" << StateToString(picker[i]->getState()) << "\"";
+		stateFile << "}";
+		if (i != (numPickers-1)) stateFile << ",";
+	}
+	stateFile << "]";
+
+	// bins
+	stateFile << ",\"bin\":[";
+	for (int i=0; i<numBins; i++) {
+		current = *bin[i];
+		stateFile << "{\"position\":{";
+		stateFile << "\"row\":";
+		stateFile << current.row;
+		stateFile << ",\"column\":";
+		stateFile << current.column;
+		stateFile << ",\"facing\":";
+		stateFile << "\"" << DirectionToChar(current.facing) << "\"}";
+		stateFile << ",\"nItems\":";
+		stateFile << nItems[i];
+		stateFile << "}";
+		if (i != (numBins-1)) stateFile << ",";
+	}
+	stateFile << "]";
+
+	stateFile << "}";
+	stateFile.close();
 }
 
 int main() {
@@ -124,8 +173,13 @@ int main() {
 	char path_map[10][10];
 
 	// Get bin positions from server.
-	Position* bin[22];
-	for (int i=0; i<22; i++) bin[i] = getBinPosition(connection, i+1);
+	const int numBins = 22;
+	Position* bin[numBins];
+	int nItems[numBins];
+	for (int i=0; i<numBins; i++) {
+		bin[i] = getBinPosition(connection, i+1);
+		nItems[i] = getBinItemCount(connection, i+1);
+	}
 
 	Position home[4];
 	const int numPickers = 4;
@@ -159,27 +213,7 @@ int main() {
 	std::stringstream ss;
     while (true) {
 
-		// Write a JSON file for picker positions.
-		// [{"row":1,"column":1,"facing":"r"},{"row":2,"column":1,"facing":"r"},{"row":3,"column":1,"facing":"u"},{"row":4,"column":1,"facing":"r"}]
-		std::ofstream pickerFile;
-		pickerFile.open("pickers.json", std::ios::out | std::ios::trunc);
-		pickerFile << "[";
-		for (int i=0; i<numPickers; i++) {
-			current = picker[i]->getPosition();
-			pickerFile << "{";
-			pickerFile << "\"row\":";
-			pickerFile << current.row;
-			pickerFile << ",\"column\":";
-			pickerFile << current.column;
-			pickerFile << ",\"facing\":";
-			pickerFile << "\"" << DirectionToChar(current.facing) << "\"";
-			pickerFile << ",\"state\":";
-			pickerFile << "\"" << StateToString(picker[i]->getState()) << "\"";
-			pickerFile << "}";
-			if (i != (numPickers-1)) pickerFile << ",";
-		}
-		pickerFile << "]";
-		pickerFile.close();
+		writeStateJSON(numPickers, picker, numBins, bin, nItems);
 
 		// TEMPORARY
 		// If all robots are idle, kill the process so that the server connection ends cleanly.
@@ -212,5 +246,5 @@ int main() {
 	if (connection != NULL) mysql_close(connection);
 
 	// Cleanly free memory.
-	for (int i=0; i<22; i++) delete bin[i];
+	for (int i=0; i<numBins; i++) delete bin[i];
 }
