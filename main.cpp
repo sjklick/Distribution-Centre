@@ -10,6 +10,11 @@
 #include "position.hpp"
 #include "order-picker.hpp"
 
+struct Item {
+	std::string name;
+	int quantity;
+};
+
 char DirectionToChar(Direction dir) {
     switch (dir) {
         case up:    return 'u';
@@ -107,6 +112,26 @@ int getNextOrderId(MYSQL* connection) {
 	return -1;
 }
 
+std::vector<Item> getBinContents(MYSQL* connection, int binId) {
+	std::vector<Item> items;
+	Item temp;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[1]);
+				temp.quantity = std::stoi(row[2]);
+				items.push_back(temp);
+			}
+			mysql_free_result(result);
+		}
+	}
+	return items;
+}
+
 void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
 	Position current;
 	std::ofstream stateFile;
@@ -155,6 +180,23 @@ void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], i
 
 	stateFile << "}";
 	stateFile.close();
+}
+
+// CHECK: Will this crash and burn if the bin is empty?
+void writeBinJSON(int binId, std::vector<Item> binContents) {
+	std::ofstream binFile;
+	binFile.open("bin_"+std::to_string(binId)+".json", std::ios::out | std::ios::trunc);
+	binFile << "{\"item\":[";
+
+	for (std::vector<Item>::iterator it = binContents.begin(); it != binContents.end(); it++) {
+		binFile << "{\"name\":";
+		binFile << "\"" << (*it).name << "\",";
+		binFile << "\"quantity\":";
+		binFile << std::to_string((*it).quantity) << "}";
+	}
+
+	binFile << "]}";
+	binFile.close();
 }
 
 int main() {
@@ -231,6 +273,12 @@ int main() {
     home[3].facing = right;
 	picker[3] = new OrderPicker(home[3]);
 	picker[3]->processItem(*bin[15]);
+
+	// Get initial bin contents.
+	for (int i=0; i<numBins; i++) {
+		std::vector<Item> currentBin = getBinContents(connection, i+1);
+		writeBinJSON(i+1, currentBin);
+	}
 
     Position current;
 	std::stringstream ss;

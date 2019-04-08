@@ -22,6 +22,9 @@ for (row=0; row<10; row++) {
 		let tile_div = document.createElement("div");
 		tile_div.classList.add("tile");
 		tile_div.id = row.toString()+","+column.toString();
+		tile_div.onclick = function() {
+			console.log("clicked");
+		};
 		warehouse_element.appendChild(tile_div);
 	}
 }
