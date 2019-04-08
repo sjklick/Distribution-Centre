@@ -52,7 +52,7 @@ Position* getBinPosition(MYSQL* connection, int binId) {
 	Position* bin;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
-	std::string query("SELECT * FROM bins WHERE id="+std::to_string(binId)+";");
+	std::string query("SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
@@ -74,7 +74,7 @@ int getBinItemCount(MYSQL* connection, int binId) {
 	int nItems;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
-	std::string query("SELECT SUM(quantity) FROM items WHERE bin="+std::to_string(binId)+";");
+	std::string query("SELECT SUM(quantity) FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
@@ -88,14 +88,37 @@ int getBinItemCount(MYSQL* connection, int binId) {
 	return -1;
 }
 
-void writeStateJSON(int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
+// Returns -1 if no orders or there was an error.
+int getNextOrderId(MYSQL* connection) {
+	int nextId;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM orders LIMIT 1;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				nextId = std::stoi(row[0]);
+				mysql_free_result(result);
+				return nextId;
+			}
+		}
+	}
+	return -1;
+}
+
+void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
 	Position current;
 	std::ofstream stateFile;
 	stateFile.open("state.json", std::ios::out | std::ios::trunc);
 	stateFile << "{";
 
+	// order
+	stateFile << "\"order\":";
+	stateFile << currentOrderId;
+
 	// pickers
-	stateFile << "\"picker\":[";
+	stateFile << ",\"picker\":[";
 	for (int i=0; i<numPickers; i++) {
 		current = picker[i]->getPosition();
 		stateFile << "{\"position\":{";
@@ -211,9 +234,13 @@ int main() {
 
     Position current;
 	std::stringstream ss;
+	int currentOrderId = -1;
     while (true) {
 
-		writeStateJSON(numPickers, picker, numBins, bin, nItems);
+		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
+
+		// Check for a new order.
+		if (currentOrderId == -1) currentOrderId = getNextOrderId(connection);
 
 		// TEMPORARY
 		// If all robots are idle, kill the process so that the server connection ends cleanly.

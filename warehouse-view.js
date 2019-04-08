@@ -47,8 +47,10 @@ function updateState() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			document.getElementById("status").innerText = "Status: state received.";
 			var data = JSON.parse(this.responseText);
+			// Update current order.
+			if (data.order == -1) document.getElementById("order").innerText = "Processing no order.";
+			else document.getElementById("order").innerText = "Processing order #"+data.order.toString()+".";
 			// Remove old picker positions from display.
 			if (typeof previous_tile_id !== "undefined") {
 				for (let p=0; p<4; p++) {
@@ -85,7 +87,6 @@ function updateState() {
 			// Set an update request for half a second from now.
 			setTimeout(updateState, 500);
 		} else if (this.readyState == 4 && this.status != 200) {
-			document.getElementById("status").innerText = "Status: Failed to update state.";
 			setTimeout(updateState, 500);
 		}
 	}
