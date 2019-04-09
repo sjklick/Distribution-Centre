@@ -18,4 +18,4 @@ position.o: position.hpp position.cpp
 	g++ $(CFLAGS) -c position.cpp
 
 clean:
-	rm -f *.o *.out
+	rm -f *.o *.out *.json

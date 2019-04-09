@@ -1,5 +1,6 @@
 var previous_tile_id;
 var bin_tile_div;
+var selected_bin_id = -1;
 
 // Create warehouse map.
 var warehouse = [];
@@ -14,6 +15,16 @@ warehouse[7] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[8] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[9] = ['X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'];
 
+function onTileClick(tile_div) {
+	for (let b=0; b<22; b++) {
+		if (bin_tile_div[b].id == tile_div.id) {
+			selected_bin_id = b+1;
+			document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
+			break;
+		}
+	}
+}
+
 // Add tile divs to the DOM.
 let row, column;
 let warehouse_element = document.getElementById("warehouse-div");
@@ -22,11 +33,24 @@ for (row=0; row<10; row++) {
 		let tile_div = document.createElement("div");
 		tile_div.classList.add("tile");
 		tile_div.id = row.toString()+","+column.toString();
-		tile_div.onclick = function() {
-			console.log("clicked");
-		};
 		warehouse_element.appendChild(tile_div);
+		tile_div.onclick = function(){onTileClick(this)};
 	}
+}
+
+// Add rows to bin table in the DOM.
+let table_element = document.getElementById("bin-table");
+for (row=0; row<12; row++) {
+	let table_row = document.createElement("tr");
+	let table_item = document.createElement("td");
+	let table_quantity = document.createElement("td");
+	table_item.id = "table-item-"+row.toString();
+	table_item.innerText = "?";
+	table_quantity.id = "table-quantity-"+row.toString();
+	table_quantity.innerText = "?";
+	table_row.appendChild(table_item);
+	table_row.appendChild(table_quantity);
+	table_element.appendChild(table_row);
 }
 
 // Update tile classes.
@@ -50,7 +74,7 @@ function updateState() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var data = JSON.parse(this.responseText);
+			let data = JSON.parse(this.responseText);
 			// Update current order.
 			if (data.order == -1) document.getElementById("order").innerText = "Processing no order.";
 			else document.getElementById("order").innerText = "Processing order #"+data.order.toString()+".";
@@ -84,9 +108,9 @@ function updateState() {
 			}
 			// Update bin text.
 			for (let b=0; b<22; b++) {
-					let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-					bin_tile_div[b].innerText = data.bin[b].position.facing + "\n" + data.bin[b].nItems.toString();
-				}
+				let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
+				bin_tile_div[b].innerText = data.bin[b].position.facing + "\n" + data.bin[b].nItems.toString();
+			}
 			// Set an update request for half a second from now.
 			setTimeout(updateState, 500);
 		} else if (this.readyState == 4 && this.status != 200) {
@@ -98,5 +122,35 @@ function updateState() {
 	xhttp.send();
 }
 
+function updateBinTable() {
+	if (selected_bin_id == -1) {
+		setTimeout(updateBinTable, 500);
+	} else {
+		var xhttpTable = new XMLHttpRequest();
+		xhttpTable.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let data = JSON.parse(this.responseText);
+				for (let i=0; i<12; i++) {
+					let table_item = document.getElementById("table-item-"+i.toString());
+					let table_quantity = document.getElementById("table-quantity-"+i.toString());
+					if (i<data.item.length) {
+						table_item.innerText = data.item[i].name;
+						table_quantity.innerText = data.item[i].quantity.toString();
+					} else {
+						table_item.innerText = "";
+						table_quantity.innerText = "";
+					}
+				}
+				
+			}
+			setTimeout(updateBinTable, 500);
+		}
+		xhttpTable.overrideMimeType("application/json");
+		xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
+		xhttpTable.send();
+	}
+}
+
 // Kick-start updates.
 updateState();
+updateBinTable();

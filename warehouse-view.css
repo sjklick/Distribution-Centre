@@ -42,3 +42,16 @@
 	grid-template-rows: repeat(10, var(--tile));
 	grid-template-columns: repeat(10, var(--tile));
 }
+
+table {
+	width: calc(5*var(--tile));
+	height: calc(10*var(--tile));
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+#layout-div {
+	display: flex;
+}

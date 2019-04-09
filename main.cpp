@@ -193,6 +193,7 @@ void writeBinJSON(int binId, std::vector<Item> binContents) {
 		binFile << "\"" << (*it).name << "\",";
 		binFile << "\"quantity\":";
 		binFile << std::to_string((*it).quantity) << "}";
+		if (binContents.end() - it != 1) binFile << ",";
 	}
 
 	binFile << "]}";
