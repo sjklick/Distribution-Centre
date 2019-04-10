@@ -103,7 +103,11 @@ function updateState() {
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
 				tile_div.classList.add("picker");
-				tile_div.innerText = p.toString() + " " + data.picker[p].position.facing + "\n" + data.picker[p].state;
+				if (data.picker[p].hasItem) {
+					tile_div.innerText = p.toString() + " " + data.picker[p].position.facing + " *\n" + data.picker[p].state;
+				} else {
+					tile_div.innerText = p.toString() + " " +data.picker[p].position.facing + "\n" + data.picker[p].state;
+				}
 			}
 			// Update bin text.
 			for (let b=0; b<22; b++) {

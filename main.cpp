@@ -153,6 +153,9 @@ void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], i
 		stateFile << current.column;
 		stateFile << ",\"facing\":";
 		stateFile << "\"" << DirectionToChar(current.facing) << "\"}";
+		stateFile << ",\"hasItem\":";
+		if (picker[i]->hasItem()) stateFile << "true";
+		else stateFile << "false";
 		stateFile << ",\"state\":";
 		stateFile << "\"" << StateToString(picker[i]->getState()) << "\"";
 		stateFile << "}";
