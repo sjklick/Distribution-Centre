@@ -7,6 +7,7 @@
 	padding: 0;
 	width: var(--tile);
 	height: var(--tile);
+	font-size: 3vmin;
 }
 
 .unknown {
@@ -44,12 +45,14 @@
 }
 
 table {
-	width: calc(5*var(--tile));
-	height: calc(10*var(--tile));
+	border-collapse: collapse;
 }
 
-table, th, td {
+th, td {
 	border: 1px solid black;
+	height: calc(var(--tile)/1.7);
+	width: calc(3*var(--tile));
+	font-size: 3vmin;
 }
 
 #layout-div {

@@ -1,6 +1,8 @@
 var previous_tile_id;
 var bin_tile_div;
-var selected_bin_id = -1;
+var selected_bin_id = 1;
+var table_item = [];
+var table_quantity = [];
 
 // Create warehouse map.
 var warehouse = [];
@@ -19,7 +21,6 @@ function onTileClick(tile_div) {
 	for (let b=0; b<22; b++) {
 		if (bin_tile_div[b].id == tile_div.id) {
 			selected_bin_id = b+1;
-			document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
 			break;
 		}
 	}
@@ -42,14 +43,12 @@ for (row=0; row<10; row++) {
 let table_element = document.getElementById("bin-table");
 for (row=0; row<12; row++) {
 	let table_row = document.createElement("tr");
-	let table_item = document.createElement("td");
-	let table_quantity = document.createElement("td");
-	table_item.id = "table-item-"+row.toString();
-	table_item.innerText = "?";
-	table_quantity.id = "table-quantity-"+row.toString();
-	table_quantity.innerText = "?";
-	table_row.appendChild(table_item);
-	table_row.appendChild(table_quantity);
+	table_item[row] = document.createElement("td");
+	table_quantity[row] = document.createElement("td");
+	table_item[row].id = "table-item-"+row.toString();
+	table_quantity[row].id = "table-quantity-"+row.toString();
+	table_row.appendChild(table_item[row]);
+	table_row.appendChild(table_quantity[row]);
 	table_element.appendChild(table_row);
 }
 
@@ -123,32 +122,28 @@ function updateState() {
 }
 
 function updateBinTable() {
-	if (selected_bin_id == -1) {
-		setTimeout(updateBinTable, 500);
-	} else {
-		var xhttpTable = new XMLHttpRequest();
-		xhttpTable.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				let data = JSON.parse(this.responseText);
-				for (let i=0; i<12; i++) {
-					let table_item = document.getElementById("table-item-"+i.toString());
-					let table_quantity = document.getElementById("table-quantity-"+i.toString());
-					if (i<data.item.length) {
-						table_item.innerText = data.item[i].name;
-						table_quantity.innerText = data.item[i].quantity.toString();
-					} else {
-						table_item.innerText = "";
-						table_quantity.innerText = "";
-					}
+	var xhttpTable = new XMLHttpRequest();
+	xhttpTable.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let data = JSON.parse(this.responseText);
+			document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
+			for (let i=0; i<12; i++) {
+				if (i<data.item.length) {
+					table_item[i].innerText = data.item[i].name;
+					table_quantity[i].innerText = data.item[i].quantity.toString();
+				} else {
+					table_item[i].innerText = "";
+					table_quantity[i].innerText = "";
 				}
-				
 			}
+			setTimeout(updateBinTable, 500);	
+		} else if (this.readyState == 4 && this.status != 200) {
 			setTimeout(updateBinTable, 500);
 		}
-		xhttpTable.overrideMimeType("application/json");
-		xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
-		xhttpTable.send();
 	}
+	xhttpTable.overrideMimeType("application/json");
+	xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
+	xhttpTable.send();
 }
 
 // Kick-start updates.
