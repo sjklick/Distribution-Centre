@@ -13,6 +13,7 @@ OrderPicker::OrderPicker(Position home) {
     state = State::idle;
     item = false;
 	delivered = false;
+	itemName = "";
 }
 
 Position OrderPicker::getPosition() {
@@ -30,10 +31,11 @@ bool OrderPicker::hasItem() {
 	return item;
 }
 
-bool OrderPicker::processItem(Position bin) {
+bool OrderPicker::processItem(Position bin, std::string itemName) {
     if ((state == State::idle) || (state == State::home) || ((state == State::yield) && (item == false))) {
         target = getFacingPosition(bin);
         state = State::retrieve;
+		this->itemName = itemName;
         return true;
     }
     return false;
@@ -116,6 +118,7 @@ void OrderPicker::update(char map[10][10]) {
 			break;
 		case State::place:
 			item = false;
+			itemName = "";
 			delivered = true;
 			state = State::retract;
 			break;

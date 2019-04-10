@@ -2,6 +2,7 @@
 #define __ORDER_PICKER__
 
 #include <vector>
+#include <string>
 #include "position.hpp"
 
 /*
@@ -26,13 +27,15 @@ private:
 	std::vector<Position> path;
 	State state;
 	bool item, delivered;
+	std::string itemName;
 public:
 	OrderPicker(Position home);
 	Position getPosition();
 	std::vector<Position> getPath();
 	State getState();
 	bool hasItem();
-	bool processItem(Position bin);
+	std::string getItemName();
+	bool processItem(Position bin, std::string itemName);
 	void update(char map[10][10]);
 	~OrderPicker();
 };

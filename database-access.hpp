@@ -2,6 +2,7 @@
 #define __DATABASE_ACCESS__
 
 #include <vector>
+#include <string>
 #include "position.hpp"
 
 struct Item {
@@ -29,6 +30,9 @@ class Database {
 	std::vector<Item> getBinContents(int binId);
 
 	std::vector<Item> getOrderItems(int orderId);
+
+	// Returns 1st bin found containing the item, or -1 otherwise.
+	int whichBinHasItem(std::string item);
 };
 
 #endif

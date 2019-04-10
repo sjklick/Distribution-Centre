@@ -29,9 +29,6 @@ std::string StateToString(State state) {
 	}
 }
 
-/*int whichBinHasItem(MYSQL* connection, Item item) {
-}*/
-
 void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
 	Position current;
 	std::ofstream stateFile;
@@ -138,25 +135,21 @@ int main() {
     home[0].column = 1;
     home[0].facing = right;
 	picker[0] = new OrderPicker(home[0]);
-	picker[0]->processItem(*bin[0]);
 
 	home[1].row = 2;
     home[1].column = 1;
     home[1].facing = right;
 	picker[1] = new OrderPicker(home[1]);
-	picker[1]->processItem(*bin[5]);
 
 	home[2].row = 3;
     home[2].column = 1;
     home[2].facing = right;
 	picker[2] = new OrderPicker(home[2]);
-	picker[2]->processItem(*bin[10]);
 
 	home[3].row = 4;
     home[3].column = 1;
     home[3].facing = right;
 	picker[3] = new OrderPicker(home[3]);
-	picker[3]->processItem(*bin[15]);
 
 	// Get initial bin contents.
 	for (int i=0; i<numBins; i++) {
@@ -168,6 +161,7 @@ int main() {
 	std::stringstream ss;
 	int currentOrderId = -1;
 	std::vector<Item> orderItems;
+	int pickerAssignment[numBins];
     while (true) {
 
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
@@ -176,36 +170,38 @@ int main() {
 		if (currentOrderId == -1) {
 			// Update order number.
 			currentOrderId = db.getNextOrderId();
-			// Get list of items required.
+			// Get the manifest of order items.
 			orderItems = db.getOrderItems(currentOrderId);
+			// Initially, no bins are assigned to pickers.
+			for (int i=0; i<numBins; i++) pickerAssignment[i] = -1;
 		}
 
-		// Check for any idle pickers.
-		/*for (int i=0; i<numPickers; i++) {
+		// Check for any idle pickers, or if a bin can be unassigned.
+		for (int i=0; i<numPickers; i++) {
 			if (picker[i]->getState() == State::idle) {
 				// If there are any outstanding order items, process them.
-				if (!orderItems.empty()) {
-					int binId;
-					binId = whichBinHasItem(connection, orderItems.back());
-					picker[i]->processItem(*bin[binId-1]);
-					// Decrement quantity, remove from list if fulfilled.
-					orderItems.back().quantity--;
-					if (orderItems.back() == 0) orderItems.pop_back();
+				if (currentOrderId != -1) {
+					for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
+						if ((*it).quantity != 0) {
+							int binId;
+							binId = db.whichBinHasItem((*it).name);
+							if ((binId != -1) && (pickerAssignment[binId-1] == -1)) {
+								pickerAssignment[binId-1] = i;
+								picker[i]->processItem(*bin[binId-1], (*it).name);
+								(*it).quantity--;
+								break;
+							}
+						}
+					}
+				}
+			} else if (picker[i]->getState() == State::pick) {
+				for (int b=0; b<numBins; b++) {
+					if (pickerAssignment[b] == i) {
+						pickerAssignment[b] = -1;
+						break;
+					}
 				}
 			}
-		}*/
-
-		// TEMPORARY
-		// If all robots are idle, kill the process so that the server connection ends cleanly.
-		bool allIdle = true;
-		for (int i=0; i<numPickers; i++) {
-			if (picker[i]->getState() != State::idle) allIdle = false;
-		}
-		if (allIdle) {
-			/*for (int i=0; i<numPickers; i++) {
-				picker[i]->processItem(bin[i]);
-			}*/
-			break;
 		}
 
         // Sleep for 1 second.

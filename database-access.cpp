@@ -125,3 +125,21 @@ std::vector<Item> Database::getOrderItems(int orderId) {
 	}
 	return items;
 }
+
+int Database::whichBinHasItem(std::string item) {
+	int binId;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM stock_items WHERE name=\""+item+"\" LIMIT 1;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				binId = std::stoi(row[0]);
+				mysql_free_result(result);
+				return binId;
+			}
+		}
+	}
+	return -1;
+}
