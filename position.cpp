@@ -44,3 +44,23 @@ Position getFacingPosition(Position pos) {
     }
     return temp;
 }
+
+char DirectionToChar(Direction dir) {
+    switch (dir) {
+        case up:    return 'u';
+        case down:  return 'd';
+        case left:  return 'l';
+        case right: return 'r';
+        default:    return '?';
+    }
+}
+
+Direction CharToDirection(char c) {
+	switch (c) {
+		case 'u':	return up;
+		case 'd':	return down;
+		case 'l':	return left;
+		case 'r':	return right;
+		default:	return invalid;
+	}
+}

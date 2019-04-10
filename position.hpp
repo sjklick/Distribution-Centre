@@ -15,4 +15,8 @@ bool operator!=(const Position &lhs, const Position &rhs);
 
 Position getFacingPosition(Position pos);
 
+char DirectionToChar(Direction dir);
+
+Direction CharToDirection(char c);
+
 #endif

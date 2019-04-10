@@ -6,34 +6,11 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
-#include <mysql.h>
 #include "position.hpp"
 #include "order-picker.hpp"
+#include "database-access.hpp"
 
-struct Item {
-	std::string name;
-	int quantity;
-};
-
-char DirectionToChar(Direction dir) {
-    switch (dir) {
-        case up:    return 'u';
-        case down:  return 'd';
-        case left:  return 'l';
-        case right: return 'r';
-        default:    return '?';
-    }
-}
-
-Direction CharToDirection(char c) {
-	switch (c) {
-		case 'u':	return up;
-		case 'd':	return down;
-		case 'l':	return left;
-		case 'r':	return right;
-		default:	return invalid;
-	}
-}
+struct Item;
 
 std::string StateToString(State state) {
 	switch (state) {
@@ -52,85 +29,8 @@ std::string StateToString(State state) {
 	}
 }
 
-// Returns NULL if bin ID is not found or there was an error.
-Position* getBinPosition(MYSQL* connection, int binId) {
-	Position* bin;
-	MYSQL_RES* result;
-	MYSQL_ROW row;
-	std::string query("SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";");
-	if (mysql_query(connection, query.c_str()) == 0) {
-		result = mysql_use_result(connection);
-		if (result) {
-			bin = new Position;
-			if(row = mysql_fetch_row(result)) {
-				bin->row = std::stoi(row[1]);
-				bin->column = std::stoi(row[2]);
-				bin->facing = CharToDirection(row[3][0]);
-				mysql_free_result(result);
-				return bin;
-			}
-		}
-	}
-	return NULL;
-}
-
-// Returns -1 if bin ID is not found or there was an error.
-int getBinItemCount(MYSQL* connection, int binId) {
-	int nItems;
-	MYSQL_RES* result;
-	MYSQL_ROW row;
-	std::string query("SELECT SUM(quantity) FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
-	if (mysql_query(connection, query.c_str()) == 0) {
-		result = mysql_use_result(connection);
-		if (result) {
-			if(row = mysql_fetch_row(result)) {
-				nItems = std::stoi(row[0]);
-				mysql_free_result(result);
-				return nItems;
-			}
-		}
-	}
-	return -1;
-}
-
-// Returns -1 if no orders or there was an error.
-int getNextOrderId(MYSQL* connection) {
-	int nextId;
-	MYSQL_RES* result;
-	MYSQL_ROW row;
-	std::string query("SELECT * FROM orders LIMIT 1;");
-	if (mysql_query(connection, query.c_str()) == 0) {
-		result = mysql_use_result(connection);
-		if (result) {
-			if(row = mysql_fetch_row(result)) {
-				nextId = std::stoi(row[0]);
-				mysql_free_result(result);
-				return nextId;
-			}
-		}
-	}
-	return -1;
-}
-
-std::vector<Item> getBinContents(MYSQL* connection, int binId) {
-	std::vector<Item> items;
-	Item temp;
-	MYSQL_RES* result;
-	MYSQL_ROW row;
-	std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
-	if (mysql_query(connection, query.c_str()) == 0) {
-		result = mysql_use_result(connection);
-		if (result) {
-			while (row = mysql_fetch_row(result)) {
-				temp.name = std::string(row[1]);
-				temp.quantity = std::stoi(row[2]);
-				items.push_back(temp);
-			}
-			mysql_free_result(result);
-		}
-	}
-	return items;
-}
+/*int whichBinHasItem(MYSQL* connection, Item item) {
+}*/
 
 void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
 	Position current;
@@ -204,28 +104,8 @@ void writeBinJSON(int binId, std::vector<Item> binContents) {
 }
 
 int main() {
-	// Load credentials.
-	// Save username and password on separate lines of "credentials.txt".
-	std::ifstream credFile;
-	std::string username, password;
-	credFile.open("credentials.txt", std::ios::in);
-	credFile >> username;
-	credFile >> password;
-	credFile.close();
-
-	// Make SQL server connection.
-	MYSQL* connection;
-	connection = mysql_init(NULL);
-	if (connection != NULL) {
-		std::cout << "Successful init!" << std::endl;
-		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, NULL, 0)) {
-			std::cout << "Failed real init." << std::endl;
-			std::cout << std::string(mysql_error(connection)) << std::endl;
-		} else {
-			std::cout << "Successful real init!" << std::endl;;
-		}
-	}
-	else std::cout << "Failed init." << std::endl;
+	Database db;
+	db.connect();
 
     // initial warehouse map
     // 'X' => wall, 'B' => bin, 'S' => shipping, '.' => empty
@@ -246,8 +126,8 @@ int main() {
 	Position* bin[numBins];
 	int nItems[numBins];
 	for (int i=0; i<numBins; i++) {
-		bin[i] = getBinPosition(connection, i+1);
-		nItems[i] = getBinItemCount(connection, i+1);
+		bin[i] = db.getBinPosition(i+1);
+		nItems[i] = db.getBinItemCount(i+1);
 	}
 
 	Position home[4];
@@ -280,19 +160,40 @@ int main() {
 
 	// Get initial bin contents.
 	for (int i=0; i<numBins; i++) {
-		std::vector<Item> currentBin = getBinContents(connection, i+1);
+		std::vector<Item> currentBin = db.getBinContents(i+1);
 		writeBinJSON(i+1, currentBin);
 	}
 
     Position current;
 	std::stringstream ss;
 	int currentOrderId = -1;
+	std::vector<Item> orderItems;
     while (true) {
 
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 
 		// Check for a new order.
-		if (currentOrderId == -1) currentOrderId = getNextOrderId(connection);
+		if (currentOrderId == -1) {
+			// Update order number.
+			currentOrderId = db.getNextOrderId();
+			// Get list of items required.
+			orderItems = db.getOrderItems(currentOrderId);
+		}
+
+		// Check for any idle pickers.
+		/*for (int i=0; i<numPickers; i++) {
+			if (picker[i]->getState() == State::idle) {
+				// If there are any outstanding order items, process them.
+				if (!orderItems.empty()) {
+					int binId;
+					binId = whichBinHasItem(connection, orderItems.back());
+					picker[i]->processItem(*bin[binId-1]);
+					// Decrement quantity, remove from list if fulfilled.
+					orderItems.back().quantity--;
+					if (orderItems.back() == 0) orderItems.pop_back();
+				}
+			}
+		}*/
 
 		// TEMPORARY
 		// If all robots are idle, kill the process so that the server connection ends cleanly.
@@ -321,8 +222,7 @@ int main() {
 		}
     }
 
-	// Cleanly close SQL server connection.
-	if (connection != NULL) mysql_close(connection);
+	db.disconnect();
 
 	// Cleanly free memory.
 	for (int i=0; i<numBins; i++) delete bin[i];
