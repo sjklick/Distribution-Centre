@@ -178,29 +178,49 @@ int main() {
 
 		// Check for any idle pickers, or if a bin can be unassigned.
 		for (int i=0; i<numPickers; i++) {
-			if (picker[i]->getState() == State::idle) {
-				// If there are any outstanding order items, process them.
-				if (currentOrderId != -1) {
-					for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
-						if ((*it).quantity != 0) {
-							int binId;
-							binId = db.whichBinHasItem((*it).name);
-							if ((binId != -1) && (pickerAssignment[binId-1] == -1)) {
-								pickerAssignment[binId-1] = i;
-								picker[i]->processItem(*bin[binId-1], (*it).name);
-								(*it).quantity--;
-								break;
+			int binId;
+			std::string itemName;
+			std::vector<Item> currentBin;
+			switch (picker[i]->getState()) {
+				case State::idle:
+					// If there are any outstanding order items, process them.
+					if (currentOrderId != -1) {
+						for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
+							if ((*it).quantity != 0) {
+								int binId;
+								binId = db.whichBinHasItem((*it).name);
+								if ((binId != -1) && (pickerAssignment[binId-1] == -1)) {
+									pickerAssignment[binId-1] = i;
+									picker[i]->processItem(binId, *bin[binId-1], (*it).name);
+									(*it).quantity--;
+									break;
+								}
 							}
 						}
 					}
-				}
-			} else if (picker[i]->getState() == State::pick) {
-				for (int b=0; b<numBins; b++) {
-					if (pickerAssignment[b] == i) {
-						pickerAssignment[b] = -1;
-						break;
+					break;
+				case State::pick:
+					for (int b=0; b<numBins; b++) {
+						if (pickerAssignment[b] == i) {
+							pickerAssignment[b] = -1;
+							break;
+						}
 					}
-				}
+					// Remove item from stock bin.
+					binId = picker[i]->getTargetBinId();
+					itemName = picker[i]->getItemName();
+					db.removeItemFromStockBin(binId, itemName);
+					// Update bin JSON.
+					currentBin = db.getBinContents(binId);
+					writeBinJSON(binId, currentBin);
+					nItems[binId-1] = db.getBinItemCount(binId);
+					break;
+				case State::place:
+					// Remove item from order items.
+					// Insert item into product bin.
+					// Check database to see if there are no order items left for this order.
+					// If not, remove current order from orders, and set currentOrderId = -1.
+					break;
 			}
 		}
 

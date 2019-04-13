@@ -130,7 +130,7 @@ int Database::whichBinHasItem(std::string item) {
 	int binId;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
-	std::string query("SELECT * FROM stock_items WHERE name=\""+item+"\" LIMIT 1;");
+	std::string query("SELECT * FROM stock_items WHERE name=\""+item+"\" AND QUANTITY>0 LIMIT 1;");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
@@ -142,4 +142,25 @@ int Database::whichBinHasItem(std::string item) {
 		}
 	}
 	return -1;
+}
+
+void Database::removeItemFromStockBin(int binId, std::string itemName) {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	int quantity;
+	std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if (row = mysql_fetch_row(result)) {
+				// Get current quantity, decrement.
+				quantity = std::stoi(row[2]);
+				mysql_free_result(result);
+				quantity--;
+				query = "UPDATE stock_items SET quantity="+std::to_string(quantity);
+				query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+				mysql_query(connection, query.c_str());
+			} else mysql_free_result(result);
+		}
+	}
 }

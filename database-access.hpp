@@ -33,6 +33,8 @@ class Database {
 
 	// Returns 1st bin found containing the item, or -1 otherwise.
 	int whichBinHasItem(std::string item);
+
+	void removeItemFromStockBin(int binId, std::string itemName);
 };
 
 #endif

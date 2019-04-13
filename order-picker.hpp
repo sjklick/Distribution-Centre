@@ -28,14 +28,16 @@ private:
 	State state;
 	bool item, delivered;
 	std::string itemName;
+	int binId;
 public:
 	OrderPicker(Position home);
 	Position getPosition();
 	std::vector<Position> getPath();
 	State getState();
 	bool hasItem();
+	int getTargetBinId();
 	std::string getItemName();
-	bool processItem(Position bin, std::string itemName);
+	bool processItem(int binId, Position bin, std::string itemName);
 	void update(char map[10][10]);
 	~OrderPicker();
 };
