@@ -10,6 +10,11 @@ struct Item {
 	int quantity;
 };
 
+struct ShippingItem {
+	std::string name;
+	int quantity, needed;
+};
+
 class Database {
 	public:
 	// Returns True if connection established.
@@ -41,6 +46,8 @@ class Database {
 	void emptyShippingBin();
 
 	void putItemInShipping(std::string itemName);
+
+	std::vector<ShippingItem> getShippingContents();
 
 	bool orderFulfilled(int orderId);
 

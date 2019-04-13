@@ -11,6 +11,7 @@
 #include "database-access.hpp"
 
 struct Item;
+struct ShippingItem;
 
 std::string StateToString(State state) {
 	switch (state) {
@@ -100,6 +101,25 @@ void writeBinJSON(int binId, std::vector<Item> binContents) {
 	binFile.close();
 }
 
+void writeShippingJSON(std::vector<ShippingItem> shippingContents) {
+	std::ofstream shippingFile;
+	shippingFile.open("shipping.json", std::ios::out | std::ios::trunc);
+	shippingFile << "{\"shippingItem\":[";
+
+	for (std::vector<ShippingItem>::iterator it = shippingContents.begin(); it != shippingContents.end(); it++) {
+		shippingFile << "{\"name\":";
+		shippingFile << "\"" << (*it).name << "\",";
+		shippingFile << "\"quantity\":";
+		shippingFile << std::to_string((*it).quantity) << ",";
+		shippingFile << "\"needed\":";
+		shippingFile << std::to_string((*it).needed) << "}";
+		if (shippingContents.end() - it != 1) shippingFile << ",";
+	}
+
+	shippingFile << "]}";
+	shippingFile.close();
+}
+
 int main() {
 	Database db;
 	db.connect();
@@ -157,6 +177,10 @@ int main() {
 		writeBinJSON(i+1, currentBin);
 	}
 
+	// Setup initial (empty) shipping contents.
+	std::vector<ShippingItem> shippingItems;
+	writeShippingJSON(shippingItems);
+
     Position current;
 	std::stringstream ss;
 	int currentOrderId = -1;
@@ -180,6 +204,9 @@ int main() {
 			db.prepareShippingBin(currentOrderId);
 			// Remove items from order items (now tracked in shipping bin).
 			db.removeOrderItems(currentOrderId);
+			// Update shipping JSON with empty shipping bin;
+			shippingItems.clear();
+			writeShippingJSON(shippingItems);
 		}
 
 		// Check for any idle pickers, or if a bin can be unassigned.
@@ -223,6 +250,8 @@ int main() {
 					break;
 				case State::place:
 					db.putItemInShipping(picker[i]->getItemName());
+					shippingItems = db.getShippingContents();
+					writeShippingJSON(shippingItems);
 					if (db.orderFulfilled(currentOrderId)) {
 						db.removeOrder(currentOrderId);
 						currentOrderId = -1;

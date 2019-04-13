@@ -178,6 +178,27 @@ void Database::putItemInShipping(std::string itemName) {
 	mysql_query(connection, query.c_str());
 }
 
+std::vector<ShippingItem> Database::getShippingContents() {
+	std::vector<ShippingItem> items;
+	ShippingItem temp;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM shipping_items;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[0]);
+				temp.quantity = std::stoi(row[1]);
+				temp.needed = std::stoi(row[2]);
+				items.push_back(temp);
+			}
+		}
+		mysql_free_result(result);
+	}
+	return items;
+}
+
 bool Database::orderFulfilled(int orderId) {
 	MYSQL_RES* result;
 	MYSQL_ROW row;
