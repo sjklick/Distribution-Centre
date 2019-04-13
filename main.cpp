@@ -205,7 +205,7 @@ int main() {
 			// Remove items from order items (now tracked in shipping bin).
 			db.removeOrderItems(currentOrderId);
 			// Update shipping JSON with empty shipping bin;
-			shippingItems.clear();
+			shippingItems = db.getShippingContents();
 			writeShippingJSON(shippingItems);
 		}
 

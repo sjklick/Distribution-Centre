@@ -1,6 +1,8 @@
 var previous_tile_id;
 var bin_tile_div;
 var selected_bin_id = 1;
+var shipping_tile_div;
+var selected_shipping = false;
 var table_item = [];
 var table_quantity = [];
 
@@ -21,8 +23,13 @@ function onTileClick(tile_div) {
 	for (let b=0; b<22; b++) {
 		if (bin_tile_div[b].id == tile_div.id) {
 			selected_bin_id = b+1;
-			break;
+			selected_shipping = false;
+			return;
 		}
+	}
+	if (shipping_tile_div.id == tile_div.id) {
+		selected_shipping = true;
+		selected_bin_id = -1;
 	}
 }
 
@@ -86,6 +93,10 @@ function updateState() {
 				}
 			}
 			// Initialize bin tiles.
+			if (typeof shipping_tile_div === 'undefined') {
+				let id = "9,1";
+				shipping_tile_div = document.getElementById(id);
+			}
 			if (typeof bin_tile_div === 'undefined') {
 				bin_tile_div = [];
 				for (let b=0; b<22; b++) {
@@ -126,28 +137,53 @@ function updateState() {
 }
 
 function updateBinTable() {
-	var xhttpTable = new XMLHttpRequest();
-	xhttpTable.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			let data = JSON.parse(this.responseText);
-			document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
-			for (let i=0; i<12; i++) {
-				if (i<data.item.length) {
-					table_item[i].innerText = data.item[i].name;
-					table_quantity[i].innerText = data.item[i].quantity.toString();
-				} else {
-					table_item[i].innerText = "";
-					table_quantity[i].innerText = "";
+	if (selected_bin_id != -1) {
+		var xhttpTable = new XMLHttpRequest();
+		xhttpTable.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let data = JSON.parse(this.responseText);
+				document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
+				for (let i=0; i<12; i++) {
+					if (i<data.item.length) {
+						table_item[i].innerText = data.item[i].name;
+						table_quantity[i].innerText = data.item[i].quantity.toString();
+					} else {
+						table_item[i].innerText = "";
+						table_quantity[i].innerText = "";
+					}
 				}
+				setTimeout(updateBinTable, 500);	
+			} else if (this.readyState == 4 && this.status != 200) {
+				setTimeout(updateBinTable, 500);
 			}
-			setTimeout(updateBinTable, 500);	
-		} else if (this.readyState == 4 && this.status != 200) {
-			setTimeout(updateBinTable, 500);
 		}
-	}
-	xhttpTable.overrideMimeType("application/json");
-	xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
-	xhttpTable.send();
+		xhttpTable.overrideMimeType("application/json");
+		xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
+		xhttpTable.send();
+	} else if (selected_shipping) {
+		var xhttpTable = new XMLHttpRequest();
+		xhttpTable.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let data = JSON.parse(this.responseText);
+				document.getElementById("table-bin").innerText = "Bin: Shipping";
+				for (let i=0; i<12; i++) {
+					if (i<data.shippingItem.length) {
+						table_item[i].innerText = data.shippingItem[i].name;
+						table_quantity[i].innerText = data.shippingItem[i].quantity.toString()+"/"+data.shippingItem[i].needed.toString();
+					} else {
+						table_item[i].innerText = "";
+						table_quantity[i].innerText = "";
+					}
+				}
+				setTimeout(updateBinTable, 500);	
+			} else if (this.readyState == 4 && this.status != 200) {
+				setTimeout(updateBinTable, 500);
+			}
+		}
+		xhttpTable.overrideMimeType("application/json");
+		xhttpTable.open("GET", "shipping.json", true);
+		xhttpTable.send();
+	} else setTimeout(updateBinTable, 500);
 }
 
 // Kick-start updates.
