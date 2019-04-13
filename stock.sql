@@ -128,6 +128,7 @@ DROP TABLE IF EXISTS `shipping_items`;
 CREATE TABLE `shipping_items` (
   `name` varchar(50) NOT NULL,
   `quantity` int(11) DEFAULT NULL,
+  `needed` int(11) DEFAULT NULL,
   PRIMARY KEY (`name`),
   CONSTRAINT `shipping_items_ibfk_1` FOREIGN KEY (`name`) REFERENCES `products` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -206,4 +207,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-07 22:27:50
+-- Dump completed on 2019-04-13  7:31:23
