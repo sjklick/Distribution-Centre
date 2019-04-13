@@ -174,6 +174,12 @@ int main() {
 			orderItems = db.getOrderItems(currentOrderId);
 			// Initially, no bins are assigned to pickers.
 			for (int i=0; i<numBins; i++) pickerAssignment[i] = -1;
+			// Clear shipping bin.
+			db.emptyShippingBin();
+			// Setup shipping bin.
+			db.prepareShippingBin(currentOrderId);
+			// Remove items from order items (now tracked in shipping bin).
+			db.removeOrderItems(currentOrderId);
 		}
 
 		// Check for any idle pickers, or if a bin can be unassigned.
@@ -216,10 +222,11 @@ int main() {
 					nItems[binId-1] = db.getBinItemCount(binId);
 					break;
 				case State::place:
-					// Remove item from order items.
-					// Insert item into product bin.
-					// Check database to see if there are no order items left for this order.
-					// If not, remove current order from orders, and set currentOrderId = -1.
+					db.putItemInShipping(picker[i]->getItemName());
+					if (db.orderFulfilled(currentOrderId)) {
+						db.removeOrder(currentOrderId);
+						currentOrderId = -1;
+					}
 					break;
 			}
 		}

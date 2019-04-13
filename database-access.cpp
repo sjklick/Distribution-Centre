@@ -144,6 +144,62 @@ int Database::whichBinHasItem(std::string item) {
 	return -1;
 }
 
+void Database::prepareShippingBin(int orderId) {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::vector<Item> items;
+	Item temp;
+	std::string query("SELECT * FROM order_items WHERE order_id="+std::to_string(orderId));
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[1]);
+				temp.quantity = std::stoi(row[2]);
+				items.push_back(temp);
+			}
+		}
+		mysql_free_result(result);
+	}
+	for (std::vector<Item>::iterator it = items.begin(); it != items.end(); it++) {
+		query = "INSERT INTO shipping_items (name, quantity, needed) VALUES (";
+		query += "\""+(*it).name + "\", 0, " + std::to_string((*it).quantity) + ");";
+		mysql_query(connection, query.c_str());
+	}
+}
+
+void Database::emptyShippingBin() {
+	std::string query("TRUNCATE shipping_items;");
+	mysql_query(connection, query.c_str());
+}
+
+void Database::putItemInShipping(std::string itemName) {
+	std::string query("UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";");
+	mysql_query(connection, query.c_str());
+}
+
+bool Database::orderFulfilled(int orderId) {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM shipping_items WHERE quantity<>needed;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				mysql_free_result(result);
+				return false;
+			}
+		}
+		mysql_free_result(result);
+	}
+	return true;
+}
+
+void Database::removeOrder(int orderId) {
+	std::string query("DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";");
+	mysql_query(connection, query.c_str());
+}
+
 void Database::removeItemFromStockBin(int binId, std::string itemName) {
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -163,4 +219,35 @@ void Database::removeItemFromStockBin(int binId, std::string itemName) {
 			} else mysql_free_result(result);
 		}
 	}
+}
+
+void Database::removeItemFromOrderItems(int orderId, std::string itemName) {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	int quantity;
+	std::string query("SELECT * FROM order_items WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if (row = mysql_fetch_row(result)) {
+				// Get current quantity, decrement.
+				quantity = std::stoi(row[2]);
+				mysql_free_result(result);
+				quantity--;
+				if (quantity > 0) {
+					query = "UPDATE order_items SET quantity="+std::to_string(quantity);
+					query += " WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";";
+				} else {
+					query = "DELETE FROM order_items";
+					query += " WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";";
+				}
+				mysql_query(connection, query.c_str());
+			} else mysql_free_result(result);
+		}
+	}
+}
+
+void Database::removeOrderItems(int orderId) {
+	std::string query("DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";");
+	mysql_query(connection, query.c_str());
 }

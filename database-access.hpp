@@ -34,7 +34,24 @@ class Database {
 	// Returns 1st bin found containing the item, or -1 otherwise.
 	int whichBinHasItem(std::string item);
 
+	// Updates the contents of the shipping bin to reflect what
+	// is needed for the current order.
+	void prepareShippingBin(int orderId);
+
+	void emptyShippingBin();
+
+	void putItemInShipping(std::string itemName);
+
+	bool orderFulfilled(int orderId);
+
+	void removeOrder(int orderId);
+
 	void removeItemFromStockBin(int binId, std::string itemName);
+
+	// MAY NO LONGER BE NEEDED.
+	void removeItemFromOrderItems(int orderId, std::string itemName);
+
+	void removeOrderItems(int orderId);
 };
 
 #endif
