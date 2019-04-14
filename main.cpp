@@ -209,6 +209,16 @@ int main() {
 
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 
+		// Update time until new stock arrives.
+		if (receivingItems.empty() && (timeUntilRestock == 0)) {
+			db.placeNewStock(db.getLowInventory());
+			receivingItems = db.getReceivingItems();
+			writeReceivingJSON(receivingItems);
+			timeUntilRestock = 30;
+		} else if (receivingItems.empty()){
+			timeUntilRestock--;
+		}
+
 		// Check for a new order.
 		if (currentOrderId == -1) {
 			// Update order number.
