@@ -81,7 +81,6 @@ int main() {
 	std::stringstream ss;
 	int currentOrderId = -1;
 	std::vector<Item> orderItems;
-	int pickerAssignment[numBins];
     while (true) {
 
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
@@ -102,8 +101,6 @@ int main() {
 			currentOrderId = db.getNextOrderId();
 			// Get the manifest of order items.
 			orderItems = db.getOrderItems(currentOrderId);
-			// Initially, no bins are assigned to pickers.
-			for (int i=0; i<numBins; i++) pickerAssignment[i] = -1;
 			// Clear shipping bin.
 			db.emptyShippingBin();
 			// Setup shipping bin.
@@ -126,10 +123,15 @@ int main() {
 					if (currentOrderId != -1) {
 						for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
 							if ((*it).quantity != 0) {
-								int binId;
-								binId = db.whichBinHasItem((*it).name);
-								if ((binId != -1) && (pickerAssignment[binId-1] == -1)) {
-									pickerAssignment[binId-1] = i;
+								int binId = db.whichBinHasItem((*it).name);
+								bool assigned = false;
+								for (int j=0; j<numPickers; j++) {
+									if (picker[j]->getTargetBinId() == binId) {
+										assigned = true;
+										break;
+									}
+								}
+								if ((binId != -1) && (!assigned)) {
 									picker[i]->processItem(binId, *bin[binId-1], (*it).name);
 									(*it).quantity--;
 									break;
@@ -139,12 +141,6 @@ int main() {
 					}
 					break;
 				case State::pick:
-					for (int b=0; b<numBins; b++) {
-						if (pickerAssignment[b] == i) {
-							pickerAssignment[b] = -1;
-							break;
-						}
-					}
 					// Remove item from stock bin.
 					binId = picker[i]->getTargetBinId();
 					itemName = picker[i]->getItemName();

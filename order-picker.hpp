@@ -19,18 +19,19 @@ retract ---> bring arms back to rest position
 pick ------> take the item from the bin
 place -----> place the item in the bin
 */
-enum class State { idle, yield, home, retrieve, stock, receive, ship, extend, retract, pick, place };
+enum class State { idle, yield, home, retrieve, stock, receive, ship, extend, retract, pick, place, extricate };
 
 std::string StateToString(State state);
 
 class OrderPicker {
 private:
-	Position home, current, target;
+	Position home, current, target, extricate;
 	std::vector<Position> path;
 	State state;
 	bool item, delivered;
 	std::string itemName;
 	int binId;
+	int yieldCount;
 public:
 	OrderPicker(Position home);
 	Position getPosition();

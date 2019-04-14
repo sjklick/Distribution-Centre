@@ -1,6 +1,7 @@
 #include "order-picker.hpp"
 #include <list>
 #include <algorithm>
+#include <cstdlib>
 
 std::string StateToString(State state) {
 	switch (state) {
@@ -15,6 +16,7 @@ std::string StateToString(State state) {
 		case State::retract:	return "retract";
 		case State::pick:		return "pick";
 		case State::place:		return "place";
+		case State::extricate:	return "extricate";
 		default:				return "?";
 	}
 }
@@ -32,6 +34,7 @@ OrderPicker::OrderPicker(Position home) {
 	delivered = false;
 	itemName = "";
 	binId = -1;
+	yieldCount = 0;
 }
 
 Position OrderPicker::getPosition() {
@@ -71,7 +74,19 @@ bool OrderPicker::processItem(int binId, Position bin, std::string itemName) {
 void OrderPicker::update(char map[10][10]) {
 	switch (state) {
 		case State::yield:
-			if (delivered) {
+			yieldCount++;
+			if (yieldCount > 5) {
+				state = State::extricate;
+				// Pick a random position to target.
+				extricate.row = rand() % 10;
+				extricate.column = rand() % 10;
+				switch (rand() % 4) {
+					case 0:	extricate.facing = up;
+					case 1: extricate.facing = down;
+					case 2: extricate.facing = left;
+					case 3: extricate.facing = right;
+				}
+			} else if (delivered) {
 				state = State::home;
 			} else if (item) {
 				state = State::ship;
@@ -84,6 +99,7 @@ void OrderPicker::update(char map[10][10]) {
 				path = findPath(current, home, map);
 				if (path.empty()) state = State::yield;
 				else {
+					yieldCount = 0;
 					current = path.back();
 					map[current.row][current.column] = 'X';
 				}
@@ -105,6 +121,7 @@ void OrderPicker::update(char map[10][10]) {
 				path = findPath(current, target, map);
 				if (path.empty()) state = State::yield;
 				else {
+					yieldCount = 0;
 					current = path.back();
 					map[current.row][current.column] = 'X';
 				}
@@ -122,6 +139,7 @@ void OrderPicker::update(char map[10][10]) {
 				path = findPath(current, bin, map);
 				if (path.empty()) state = State::yield;
 				else {
+					yieldCount = 0;
 					current = path.back();
 					map[current.row][current.column] = 'X';
 				}
@@ -149,6 +167,25 @@ void OrderPicker::update(char map[10][10]) {
 			item = false;
 			delivered = true;
 			state = State::retract;
+			break;
+		case State::extricate:
+			if (current != extricate) {
+				path = findPath(current, extricate, map);
+				if (path.empty()) state = State::yield;
+				else {
+					yieldCount = 0;
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			if (delivered) {
+				state = State::home;
+			} else if (item) {
+				state = State::ship;
+			} else {
+				state = State::retrieve;
+			}
 			break;
     }
 }
