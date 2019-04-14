@@ -3,12 +3,14 @@ var bin_tile_div;
 var selected_bin_id = 1;
 var shipping_tile_div;
 var selected_shipping = false;
+var receiving_tile_div;
+var selected_receiving = false;
 var table_item = [];
 var table_quantity = [];
 
 // Create warehouse map.
 var warehouse = [];
-warehouse[0] = ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'];
+warehouse[0] = ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'R', 'X'];
 warehouse[1] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[2] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[3] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
@@ -24,12 +26,20 @@ function onTileClick(tile_div) {
 		if (bin_tile_div[b].id == tile_div.id) {
 			selected_bin_id = b+1;
 			selected_shipping = false;
+			selected_receiving = false;
 			return;
 		}
 	}
 	if (shipping_tile_div.id == tile_div.id) {
-		selected_shipping = true;
 		selected_bin_id = -1;
+		selected_shipping = true;
+		selected_receiving = false;
+		return;
+	}
+	if (receiving_tile_div.id == tile_div.id) {
+		selected_bin_id = -1;
+		selected_shipping = false;
+		selected_receiving = true;
 	}
 }
 
@@ -70,6 +80,8 @@ for (row=0; row<10; row++) {
 			tile_div.classList.add("wall");
 		} else if (warehouse[row][column] == 'S') {
 			tile_div.classList.add("shipping");
+		} else if (warehouse[row][column] == 'R') {
+			tile_div.classList.add("receiving");
 		} else {
 			tile_div.classList.add("unknown");
 		}
@@ -96,6 +108,10 @@ function updateState() {
 			if (typeof shipping_tile_div === 'undefined') {
 				let id = "9,1";
 				shipping_tile_div = document.getElementById(id);
+			}
+			if (typeof receiving_tile_div === 'undefined') {
+				let id = "0,8";
+				receiving_tile_div = document.getElementById(id);
 			}
 			if (typeof bin_tile_div === 'undefined') {
 				bin_tile_div = [];
@@ -182,6 +198,29 @@ function updateBinTable() {
 		}
 		xhttpTable.overrideMimeType("application/json");
 		xhttpTable.open("GET", "shipping.json", true);
+		xhttpTable.send();
+	} else if (selected_receiving) {
+		var xhttpTable = new XMLHttpRequest();
+		xhttpTable.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let data = JSON.parse(this.responseText);
+				document.getElementById("table-bin").innerText = "Bin: Receiving";
+				for (let i=0; i<12; i++) {
+					if (i<data.name.length) {
+						table_item[i].innerText = data.name[i];
+						table_quantity[i].innerText = 1;
+					} else {
+						table_item[i].innerText = "";
+						table_quantity[i].innerText = "";
+					}
+				}
+				setTimeout(updateBinTable, 500);	
+			} else if (this.readyState == 4 && this.status != 200) {
+				setTimeout(updateBinTable, 500);
+			}
+		}
+		xhttpTable.overrideMimeType("application/json");
+		xhttpTable.open("GET", "receiving.json", true);
 		xhttpTable.send();
 	} else setTimeout(updateBinTable, 500);
 }
