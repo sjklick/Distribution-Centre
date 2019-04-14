@@ -103,7 +103,6 @@ DROP TABLE IF EXISTS `receiving_items`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `receiving_items` (
   `name` varchar(50) NOT NULL,
-  `quantity` int(11) DEFAULT NULL,
   PRIMARY KEY (`name`),
   CONSTRAINT `receiving_items_ibfk_1` FOREIGN KEY (`name`) REFERENCES `products` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -207,4 +206,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-13  7:31:23
+-- Dump completed on 2019-04-13 20:49:13

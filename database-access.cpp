@@ -273,19 +273,16 @@ void Database::removeOrderItems(int orderId) {
 	mysql_query(connection, query.c_str());
 }
 
-std::vector<Item> Database::getLowInventory() {
+std::vector<std::string> Database::getLowInventory() {
 	MYSQL_RES* result;
 	MYSQL_ROW row;
-	std::vector<Item> items;
-	Item temp;
+	std::vector<std::string> items;
 	std::string query("SELECT * FROM products ORDER BY quantity LIMIT 5;");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
 			while (row = mysql_fetch_row(result)) {
-				temp.name = std::string(row[0]);
-				temp.quantity = std::stoi(row[3]);
-				items.push_back(temp);
+				items.push_back(std::string(row[0]));
 			}
 		}
 		mysql_free_result(result);
@@ -293,11 +290,28 @@ std::vector<Item> Database::getLowInventory() {
 	return items;
 }
 
-void Database::placeNewStock(std::vector<Item> items) {
+std::vector<std::string> Database::getReceivingItems() {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::vector<std::string> items;
+	std::string query("SELECT * FROM receiving_items;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			while (row = mysql_fetch_row(result)) {
+				items.push_back(std::string(row[0]));
+			}
+		}
+		mysql_free_result(result);
+	}
+	return items;
+}
+
+void Database::placeNewStock(std::vector<std::string> itemNames) {
 	std::string query;
-	for (std::vector<Item>::iterator it = items.begin(); it != items.end(); it++) {
-		query = "INSERT INTO receiving_items (name, quantity) VALUES (\"";
-		query += (*it).name + "\", " + std::to_string((*it).quantity) + ");";
+	for (std::vector<std::string>::iterator it = itemNames.begin(); it != itemNames.end(); it++) {
+		query = "INSERT INTO receiving_items (name) VALUES (\"";
+		query += (*it) + "\");";
 		mysql_query(connection, query.c_str());
 	}
 }

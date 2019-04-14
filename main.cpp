@@ -120,6 +120,20 @@ void writeShippingJSON(std::vector<ShippingItem> shippingContents) {
 	shippingFile.close();
 }
 
+void writeReceivingJSON(std::vector<std::string> receivingContents) {
+	std::ofstream receivingFile;
+	receivingFile.open("receiving.json", std::ios::out | std::ios::trunc);
+	receivingFile << "{\"name\":[";
+
+	for (std::vector<std::string>::iterator it = receivingContents.begin(); it != receivingContents.end(); it++) {
+		receivingFile << "\"" << (*it) << "\"";
+		if (receivingContents.end() - it != 1) receivingFile << ",";
+	}
+
+	receivingFile << "]}";
+	receivingFile.close();
+}
+
 int main() {
 	Database db;
 	db.connect();
@@ -176,6 +190,11 @@ int main() {
 		std::vector<Item> currentBin = db.getBinContents(i+1);
 		writeBinJSON(i+1, currentBin);
 	}
+
+	// Get initial stock bin contents.
+	std::vector<std::string> receivingItems = db.getReceivingItems();
+	writeReceivingJSON(receivingItems);
+	int timeUntilRestock = 30;
 
 	// Setup initial (empty) shipping contents.
 	std::vector<ShippingItem> shippingItems;
