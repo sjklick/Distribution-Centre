@@ -4,16 +4,7 @@
 #include <vector>
 #include <string>
 #include "position.hpp"
-
-struct Item {
-	std::string name;
-	int quantity;
-};
-
-struct ShippingItem {
-	std::string name;
-	int quantity, needed;
-};
+#include "items.hpp"
 
 class Database {
 	public:

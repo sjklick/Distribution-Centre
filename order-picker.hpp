@@ -21,6 +21,8 @@ place -----> place the item in the bin
 */
 enum class State { idle, yield, home, retrieve, stock, receive, ship, extend, retract, pick, place };
 
+std::string StateToString(State state);
+
 class OrderPicker {
 private:
 	Position home, current, target;

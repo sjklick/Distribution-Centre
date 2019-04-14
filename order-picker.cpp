@@ -2,6 +2,23 @@
 #include <list>
 #include <algorithm>
 
+std::string StateToString(State state) {
+	switch (state) {
+		case State::idle:		return "idle";
+		case State::yield:		return "yield";
+		case State::home:		return "home";
+		case State::retrieve:	return "retrieve";
+		case State::stock:		return "stock";
+		case State::receive:	return "receive";
+		case State::ship:		return "ship";
+		case State::extend:		return "extend";
+		case State::retract:	return "retract";
+		case State::pick:		return "pick";
+		case State::place:		return "place";
+		default:				return "?";
+	}
+}
+
 // Forward declarations.
 static std::vector<Position> findPath(Position start, Position end, char map[10][10]);
 
