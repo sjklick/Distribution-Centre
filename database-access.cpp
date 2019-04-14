@@ -272,3 +272,32 @@ void Database::removeOrderItems(int orderId) {
 	std::string query("DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";");
 	mysql_query(connection, query.c_str());
 }
+
+std::vector<Item> Database::getLowInventory() {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::vector<Item> items;
+	Item temp;
+	std::string query("SELECT * FROM products ORDER BY quantity LIMIT 5;");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[0]);
+				temp.quantity = std::stoi(row[3]);
+				items.push_back(temp);
+			}
+		}
+		mysql_free_result(result);
+	}
+	return items;
+}
+
+void Database::placeNewStock(std::vector<Item> items) {
+	std::string query;
+	for (std::vector<Item>::iterator it = items.begin(); it != items.end(); it++) {
+		query = "INSERT INTO receiving_items (name, quantity) VALUES (\"";
+		query += (*it).name + "\", " + std::to_string((*it).quantity) + ");";
+		mysql_query(connection, query.c_str());
+	}
+}

@@ -59,6 +59,10 @@ class Database {
 	void removeItemFromOrderItems(int orderId, std::string itemName);
 
 	void removeOrderItems(int orderId);
+
+	std::vector<Item> getLowInventory();
+
+	void placeNewStock(std::vector<Item> items);
 };
 
 #endif
