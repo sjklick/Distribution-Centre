@@ -58,12 +58,18 @@ int Database::getBinItemCount(int binId) {
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
-			if(row = mysql_fetch_row(result)) {
-				nItems = std::stoi(row[0]);
-				mysql_free_result(result);
-				return nItems;
+			if (row = mysql_fetch_row(result)) {
+				if (row[0] == NULL) {
+					mysql_free_result(result);
+					return 0;
+				} else {
+					nItems = std::stoi(row[0]);
+					mysql_free_result(result);
+					return nItems;
+				}
 			}
 		}
+		mysql_free_result(result);
 	}
 	return -1;
 }
