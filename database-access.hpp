@@ -46,6 +46,8 @@ class Database {
 
 	void removeItemFromStockBin(int binId, std::string itemName);
 
+	void placeItemIntoStockBin(int binId, std::string itemName);
+
 	// MAY NO LONGER BE NEEDED.
 	void removeItemFromOrderItems(int orderId, std::string itemName);
 
@@ -56,6 +58,10 @@ class Database {
 	std::vector<std::string> getReceivingItems();
 
 	void placeNewStock(std::vector<std::string> itemNames);
+
+	std::vector<int> whichBinsHaveRoom();
+
+	void removeItemFromReceiving (std::string itemName);
 };
 
 #endif

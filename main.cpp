@@ -68,9 +68,8 @@ int main() {
 		writeBinJSON(i+1, currentBin);
 	}
 
-	// Get initial stock bin contents.
-	std::vector<std::string> receivingItems = db.getReceivingItems();
-	writeReceivingJSON(receivingItems);
+	// Get initial receiving contents.
+	writeReceivingJSON(db.getReceivingItems());
 	int timeUntilRestock = 30;
 
 	// Setup initial (empty) shipping contents.
@@ -86,12 +85,11 @@ int main() {
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 
 		// Update time until new stock arrives.
-		if (receivingItems.empty() && (timeUntilRestock == 0)) {
+		if (db.getReceivingItems().empty() && (timeUntilRestock == 0)) {
 			db.placeNewStock(db.getLowInventory());
-			receivingItems = db.getReceivingItems();
-			writeReceivingJSON(receivingItems);
+			writeReceivingJSON(db.getReceivingItems());
 			timeUntilRestock = 30;
-		} else if (receivingItems.empty()){
+		} else if (db.getReceivingItems().empty()){
 			timeUntilRestock--;
 		}
 
@@ -117,10 +115,12 @@ int main() {
 			int binId;
 			std::string itemName;
 			std::vector<Item> currentBin;
+			bool moreItems;
 			switch (picker[i]->getState()) {
 				case State::idle:
-					// If there are any outstanding order items, process them.
+					moreItems = false;
 					if (currentOrderId != -1) {
+						// If there are any outstanding order items, process them.
 						for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
 							if ((*it).quantity != 0) {
 								int binId = db.whichBinHasItem((*it).name);
@@ -134,29 +134,83 @@ int main() {
 								if ((binId != -1) && (!assigned)) {
 									picker[i]->processItem(binId, *bin[binId-1], (*it).name);
 									(*it).quantity--;
+									moreItems = true;
 									break;
+								}
+							}
+						}
+					}
+					// If there are no more order items, check if there is anything in receiving.
+					if (!moreItems) {
+						if (!db.getReceivingItems().empty()) {
+							std::vector<int> binsWithRoom = db.whichBinsHaveRoom();
+							for (std::vector<int>::iterator it = binsWithRoom.begin(); it != binsWithRoom.end(); it++) {
+								bool assigned = false;
+								for (int j=0; j<numPickers; j++) {
+									if (picker[j]->getStockBin() == (*it)) {
+										assigned = true;
+										break;
+									}
+								}
+								if (!assigned) {
+									std::vector<std::string> stockItems = db.getReceivingItems();
+									for (std::vector<std::string>::iterator itemIt = stockItems.begin(); itemIt != stockItems.end(); itemIt++) {
+										assigned = false;
+										for (int j=0; j<numPickers; j++) {
+											if (picker[j]->getStockItemName() == (*itemIt)) {
+												assigned = true;
+												break;
+											}
+										}
+										if (!assigned) {
+											picker[i]->stockItem((*it), *bin[(*it)-1], (*itemIt));
+											break;
+										}
+									}
 								}
 							}
 						}
 					}
 					break;
 				case State::pick:
-					// Remove item from stock bin.
 					binId = picker[i]->getTargetBinId();
-					itemName = picker[i]->getItemName();
-					db.removeItemFromStockBin(binId, itemName);
-					// Update bin JSON.
-					currentBin = db.getBinContents(binId);
-					writeBinJSON(binId, currentBin);
-					nItems[binId-1] = db.getBinItemCount(binId);
+					if (binId != -1) {
+						// Remove item from stock bin.
+						itemName = picker[i]->getItemName();
+						db.removeItemFromStockBin(binId, itemName);
+						// Update bin JSON.
+						currentBin = db.getBinContents(binId);
+						writeBinJSON(binId, currentBin);
+						nItems[binId-1] = db.getBinItemCount(binId);
+						break;
+					}
+					binId = picker[i]->getStockBin();
+					if (binId != -1) {
+						// Remove item from receiving bin.
+						itemName = picker[i]->getStockItemName();
+						db.removeItemFromReceiving(itemName);
+						// Update receiving JSON.
+						writeReceivingJSON(db.getReceivingItems());
+					}
 					break;
 				case State::place:
-					db.putItemInShipping(picker[i]->getItemName());
-					shippingItems = db.getShippingContents();
-					writeShippingJSON(shippingItems);
-					if (db.orderFulfilled(currentOrderId)) {
-						db.removeOrder(currentOrderId);
-						currentOrderId = -1;
+					binId = picker[i]->getTargetBinId();
+					if (binId != -1) {
+						db.putItemInShipping(picker[i]->getItemName());
+						shippingItems = db.getShippingContents();
+						writeShippingJSON(shippingItems);
+						if (db.orderFulfilled(currentOrderId)) {
+							db.removeOrder(currentOrderId);
+							currentOrderId = -1;
+						}
+						break;
+					}
+					binId = picker[i]->getStockBin();
+					if (binId != -1) {
+						db.placeItemIntoStockBin(binId, picker[i]->getStockItemName());
+						currentBin = db.getBinContents(binId);
+						writeBinJSON(binId, currentBin);
+						nItems[binId-1] = db.getBinItemCount(binId);
 					}
 					break;
 			}

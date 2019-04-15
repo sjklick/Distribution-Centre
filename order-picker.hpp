@@ -28,9 +28,9 @@ private:
 	Position home, current, target, extricate;
 	std::vector<Position> path;
 	State state;
-	bool item, delivered;
-	std::string itemName;
-	int binId;
+	bool item, delivered, holdingStockItem, stockDelivered, stock;
+	std::string itemName, stockItemName;
+	int binId, stockBinId;
 	int yieldCount;
 public:
 	OrderPicker(Position home);
@@ -41,6 +41,9 @@ public:
 	int getTargetBinId();
 	std::string getItemName();
 	bool processItem(int binId, Position bin, std::string itemName);
+	void stockItem(int stockBinId, Position bin, std::string stockItemName);
+	int getStockBin();
+	std::string getStockItemName();
 	void update(char map[10][10]);
 	~OrderPicker();
 };

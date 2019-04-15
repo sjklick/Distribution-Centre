@@ -224,21 +224,54 @@ void Database::removeOrder(int orderId) {
 void Database::removeItemFromStockBin(int binId, std::string itemName) {
 	MYSQL_RES* result;
 	MYSQL_ROW row;
-	int quantity;
 	std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
 			if (row = mysql_fetch_row(result)) {
 				// Get current quantity, decrement.
-				quantity = std::stoi(row[2]);
+				int quantity = std::stoi(row[2]);
 				mysql_free_result(result);
 				quantity--;
-				query = "UPDATE stock_items SET quantity="+std::to_string(quantity);
+				if (quantity > 0) {
+					query = "UPDATE stock_items SET quantity="+std::to_string(quantity);
+					query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+				} else {
+					query = "DELETE FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+				}
+				mysql_query(connection, query.c_str());
+			}
+		} else mysql_free_result(result);
+	}
+}
+
+void Database::placeItemIntoStockBin(int binId, std::string itemName) {
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query;
+	// Check if item is already in bin.
+	query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if (row = mysql_fetch_row(result)) {
+				// If it is in bin, update quantity.
+				int quantity = std::stoi(row[2]);
+				mysql_free_result(result);
+				quantity++;	
+				query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
 				query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
 				mysql_query(connection, query.c_str());
-			} else mysql_free_result(result);
-		}
+				return;
+			} else {
+				// Otherwise, add a new entry for item.
+				mysql_free_result(result);
+				query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
+				query += std::to_string(binId)+", \""+itemName+"\", 1);";
+				mysql_query(connection, query.c_str());
+				return;
+			}
+		} else mysql_free_result(result);
 	}
 }
 
@@ -314,4 +347,19 @@ void Database::placeNewStock(std::vector<std::string> itemNames) {
 		query += (*it) + "\");";
 		mysql_query(connection, query.c_str());
 	}
+}
+
+std::vector<int> Database::whichBinsHaveRoom() {
+	std::vector<int> bins;
+	for (int i=0; i<22; i++) {
+		int itemCount = Database::getBinItemCount(i+1);
+		if (itemCount < 12) bins.push_back(i+1);
+	}
+	return bins;
+}
+
+void Database::removeItemFromReceiving (std::string itemName) {
+	std::string query;
+	query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
+	mysql_query(connection, query.c_str());
 }

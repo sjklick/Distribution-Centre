@@ -34,7 +34,12 @@ OrderPicker::OrderPicker(Position home) {
 	delivered = false;
 	itemName = "";
 	binId = -1;
+	stockBinId = -1;
 	yieldCount = 0;
+	stockItemName = "";
+	holdingStockItem = false;
+	stockDelivered = false;
+	stock = false;
 }
 
 Position OrderPicker::getPosition() {
@@ -71,7 +76,24 @@ bool OrderPicker::processItem(int binId, Position bin, std::string itemName) {
     return false;
 }
 
+void OrderPicker::stockItem(int stockBinId, Position bin, std::string stockItemName) {
+	target = getFacingPosition(bin);
+	this->stockBinId = stockBinId;
+	this->stockItemName = stockItemName;
+	stock = true;
+	state = State::receive;
+}
+
+int OrderPicker::getStockBin() {
+	return stockBinId;
+}
+
+std::string OrderPicker::getStockItemName() {
+	return stockItemName;
+}
+
 void OrderPicker::update(char map[10][10]) {
+	Position bin;
 	switch (state) {
 		case State::yield:
 			yieldCount++;
@@ -86,10 +108,14 @@ void OrderPicker::update(char map[10][10]) {
 					case 2: extricate.facing = left;
 					case 3: extricate.facing = right;
 				}
-			} else if (delivered) {
+			} else if (delivered || stockDelivered) {
 				state = State::home;
 			} else if (item) {
 				state = State::ship;
+			} else if (holdingStockItem) {
+				state = State::stock;
+			} else if (stock) {
+				state = State::receive;
 			} else {
 				state = State::retrieve;
 			}
@@ -105,16 +131,13 @@ void OrderPicker::update(char map[10][10]) {
 				}
 				break;
 			}
-			if (delivered) {
-				delivered = false;
-				itemName = "";
-				binId = -1;
-				state = State::idle;
-			} else if (item) {
-				state = State::ship;
-			} else {
-				state = State::retrieve;
-			}
+			delivered = false;
+			stockDelivered = false;
+			itemName = "";
+			stockItemName = "";
+			binId = -1;
+			stockBinId = -1;
+			state = State::idle;
 			break;
 		case State::retrieve:
 			if (current != target) {
@@ -129,8 +152,37 @@ void OrderPicker::update(char map[10][10]) {
 			}
 			state = State::extend;
 			break;
+		case State::stock:
+			if (current != target) {
+				path = findPath(current, target, map);
+				if (path.empty()) state = State::yield;
+				else {
+					yieldCount = 0;
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			state = State::extend;
+			break;
+		case State::receive:
+			bin.row = 0;
+			bin.column = 8;
+			bin.facing = down;
+			bin = getFacingPosition(bin);
+			if (current != bin) {
+				path = findPath(current, bin, map);
+				if (path.empty()) state = State::yield;
+				else {
+					yieldCount = 0;
+					current = path.back();
+					map[current.row][current.column] = 'X';
+				}
+				break;
+			}
+			state = State::extend;
+			break;
 		case State::ship:
-			Position bin;
 			bin.row = 9;
 			bin.column = 1;
 			bin.facing = up;
@@ -148,24 +200,27 @@ void OrderPicker::update(char map[10][10]) {
 			state = State::extend;
 			break;
 		case State::extend:
-			if (item) state = State::place;
+			if (item || holdingStockItem) state = State::place;
 			else state = State::pick;
 			break;
 		case State::retract:
-			if (item) {
-				state = State::ship;
-			} else {
-				delivered = true;
-				state = State::home;
-			}
+			if (item) state = State::ship;
+			else if (holdingStockItem) state = State::stock;
+			else state = State::home;
 			break;
 		case State::pick:
-			item = true;
+			if (stock) holdingStockItem = true;
+			else item = true;
 			state = State::retract;
 			break;
 		case State::place:
-			item = false;
-			delivered = true;
+			if (stock) {
+				holdingStockItem = false;
+				stockDelivered = true;
+			} else {
+				item = false;
+				delivered = true;
+			}
 			state = State::retract;
 			break;
 		case State::extricate:
@@ -179,10 +234,14 @@ void OrderPicker::update(char map[10][10]) {
 				}
 				break;
 			}
-			if (delivered) {
+			if (delivered || stockDelivered) {
 				state = State::home;
 			} else if (item) {
 				state = State::ship;
+			} else if (holdingStockItem) {
+				state = State::stock;
+			} else if (stock) {
+				state = State::receive;
 			} else {
 				state = State::retrieve;
 			}
