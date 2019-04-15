@@ -90,7 +90,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food',12),('banana',NULL,'food',10),('beef',NULL,'food',7),('bread',NULL,'food',9),('carrot',NULL,'food',10),('chair',NULL,'furniture',11),('chicken',NULL,'food',5),('cup',NULL,'symbel',14),('fork',NULL,'symbel',8),('grapes',NULL,'food',10),('knife',NULL,'symbel',8),('milk',NULL,'food',11),('plate',NULL,'symbel',7),('table',NULL,'furniture',5),('table cloth',NULL,'symbel',7);
+INSERT INTO `products` VALUES ('apple',NULL,'food',13),('banana',NULL,'food',10),('beef',NULL,'food',7),('bread',NULL,'food',9),('carrot',NULL,'food',10),('chair',NULL,'furniture',11),('chicken',NULL,'food',5),('cup',NULL,'symbel',14),('fork',NULL,'symbel',8),('grapes',NULL,'food',10),('knife',NULL,'symbel',8),('milk',NULL,'food',11),('plate',NULL,'symbel',7),('table',NULL,'furniture',5),('table cloth',NULL,'symbel',7);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -193,9 +193,62 @@ CREATE TABLE `stock_items` (
 
 LOCK TABLES `stock_items` WRITE;
 /*!40000 ALTER TABLE `stock_items` DISABLE KEYS */;
-INSERT INTO `stock_items` VALUES (1,'apple',2),(1,'milk',2),(2,'apple',1),(2,'plate',2),(3,'apple',4),(3,'milk',2),(4,'banana',5),(4,'cup',4),(5,'banana',2),(5,'plate',2),(6,'banana',1),(6,'fork',3),(7,'chair',4),(7,'fork',5),(8,'chair',6),(8,'milk',3),(9,'plate',3),(9,'table cloth',3),(10,'apple',4),(10,'banana',2),(10,'bread',3),(11,'beef',2),(11,'carrot',4),(12,'carrot',2),(12,'chicken',5),(13,'beef',5),(13,'milk',2),(14,'cup',5),(14,'table cloth',3),(15,'bread',2),(15,'grapes',5),(16,'carrot',3),(16,'table',3),(17,'carrot',1),(17,'table cloth',1),(18,'grapes',5),(19,'cup',2),(19,'table',2),(20,'bread',4),(20,'cup',3),(20,'knife',2),(21,'chair',1),(21,'knife',3),(22,'apple',1),(22,'knife',3),(22,'milk',2);
+INSERT INTO `stock_items` VALUES (1,'apple',3),(1,'milk',2),(2,'apple',1),(2,'plate',2),(3,'apple',4),(3,'milk',2),(4,'banana',5),(4,'cup',4),(5,'banana',2),(5,'plate',2),(6,'banana',1),(6,'fork',3),(7,'chair',4),(7,'fork',5),(8,'chair',6),(8,'milk',3),(9,'plate',3),(9,'table cloth',3),(10,'apple',4),(10,'banana',2),(10,'bread',3),(11,'beef',2),(11,'carrot',4),(12,'carrot',2),(12,'chicken',5),(13,'beef',5),(13,'milk',2),(14,'cup',5),(14,'table cloth',3),(15,'bread',2),(15,'grapes',5),(16,'carrot',3),(16,'table',3),(17,'carrot',1),(17,'table cloth',1),(18,'grapes',5),(19,'cup',2),(19,'table',2),(20,'bread',4),(20,'cup',3),(20,'knife',2),(21,'chair',1),(21,'knife',3),(22,'apple',1),(22,'knife',3),(22,'milk',2);
 /*!40000 ALTER TABLE `stock_items` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_insert
+AFTER INSERT
+ON stock_items
+FOR EACH ROW
+UPDATE products SET quantity=quantity+NEW.quantity WHERE name=NEW.name */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_update AFTER UPDATE ON stock_items FOR EACH ROW UPDATE products SET quantity=quantity+(NEW.quantity-OLD.quantity) WHERE name=OLD.name */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_delete
+BEFORE DELETE
+ON stock_items
+FOR EACH ROW
+UPDATE products SET quantity=quantity-OLD.quantity WHERE name=OLD.name */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -206,4 +259,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-13 20:49:13
+-- Dump completed on 2019-04-15 11:31:54
