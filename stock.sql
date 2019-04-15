@@ -39,9 +39,24 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
-INSERT INTO `order_items` VALUES (1,'apple',3),(1,'carrot',2),(1,'cup',1),(2,'cup',1),(2,'fork',1),(2,'knife',1),(2,'plate',1),(2,'table',1),(2,'table cloth',1);
+INSERT INTO `order_items` VALUES (3,'banana',2),(3,'beef',1),(4,'chair',1),(4,'cup',1),(4,'fork',1),(4,'knife',1),(4,'plate',1),(4,'table',1),(4,'table cloth',1),(5,'carrot',2),(5,'grapes',2),(5,'milk',1);
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER order_item_insert AFTER INSERT ON order_items FOR EACH ROW UPDATE products SET quantity=quantity-NEW.quantity WHERE name=NEW.name */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `orders`
@@ -55,7 +70,7 @@ CREATE TABLE `orders` (
   `customer` varchar(50) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +79,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (1,'Test',NULL),(2,'Test2',NULL);
+INSERT INTO `orders` VALUES (3,'Test_1',NULL),(4,'Test_2',NULL),(5,'Test_3',NULL);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,7 +105,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food',13),('banana',NULL,'food',10),('beef',NULL,'food',7),('bread',NULL,'food',9),('carrot',NULL,'food',10),('chair',NULL,'furniture',11),('chicken',NULL,'food',5),('cup',NULL,'symbel',14),('fork',NULL,'symbel',8),('grapes',NULL,'food',10),('knife',NULL,'symbel',8),('milk',NULL,'food',11),('plate',NULL,'symbel',7),('table',NULL,'furniture',5),('table cloth',NULL,'symbel',7);
+INSERT INTO `products` VALUES ('apple',NULL,'food',2),('banana',NULL,'food',1),('beef',NULL,'food',2),('bread',NULL,'food',4),('carrot',NULL,'food',0),('chair',NULL,'furniture',1),('chicken',NULL,'food',5),('cup',NULL,'symbel',1),('fork',NULL,'symbel',5),('grapes',NULL,'food',2),('knife',NULL,'symbel',1),('milk',NULL,'food',2),('plate',NULL,'symbel',3),('table',NULL,'furniture',0),('table cloth',NULL,'symbel',3);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -154,7 +169,6 @@ CREATE TABLE `stock_bins` (
   `row` int(11) DEFAULT NULL,
   `col` int(11) DEFAULT NULL,
   `dir` char(1) DEFAULT NULL,
-  `nItems` int(11) DEFAULT NULL,
   PRIMARY KEY (`bin_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -165,7 +179,7 @@ CREATE TABLE `stock_bins` (
 
 LOCK TABLES `stock_bins` WRITE;
 /*!40000 ALTER TABLE `stock_bins` DISABLE KEYS */;
-INSERT INTO `stock_bins` VALUES (1,2,3,'l',4),(2,3,3,'l',3),(3,4,3,'l',6),(4,2,4,'r',9),(5,3,4,'r',4),(6,4,4,'r',4),(7,6,3,'l',9),(8,7,3,'l',9),(9,6,4,'r',6),(10,7,4,'r',9),(11,2,6,'u',6),(12,3,6,'l',7),(13,4,6,'l',7),(14,5,6,'l',8),(15,6,6,'l',7),(16,7,6,'d',6),(17,2,7,'u',2),(18,3,7,'r',5),(19,4,7,'r',4),(20,5,7,'r',9),(21,6,7,'r',4),(22,7,7,'d',6);
+INSERT INTO `stock_bins` VALUES (1,2,3,'l'),(2,3,3,'l'),(3,4,3,'l'),(4,2,4,'r'),(5,3,4,'r'),(6,4,4,'r'),(7,6,3,'l'),(8,7,3,'l'),(9,6,4,'r'),(10,7,4,'r'),(11,2,6,'u'),(12,3,6,'l'),(13,4,6,'l'),(14,5,6,'l'),(15,6,6,'l'),(16,7,6,'d'),(17,2,7,'u'),(18,3,7,'r'),(19,4,7,'r'),(20,5,7,'r'),(21,6,7,'r'),(22,7,7,'d');
 /*!40000 ALTER TABLE `stock_bins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -193,7 +207,7 @@ CREATE TABLE `stock_items` (
 
 LOCK TABLES `stock_items` WRITE;
 /*!40000 ALTER TABLE `stock_items` DISABLE KEYS */;
-INSERT INTO `stock_items` VALUES (1,'apple',3),(1,'milk',2),(2,'apple',1),(2,'plate',2),(3,'apple',4),(3,'milk',2),(4,'banana',5),(4,'cup',4),(5,'banana',2),(5,'plate',2),(6,'banana',1),(6,'fork',3),(7,'chair',4),(7,'fork',5),(8,'chair',6),(8,'milk',3),(9,'plate',3),(9,'table cloth',3),(10,'apple',4),(10,'banana',2),(10,'bread',3),(11,'beef',2),(11,'carrot',4),(12,'carrot',2),(12,'chicken',5),(13,'beef',5),(13,'milk',2),(14,'cup',5),(14,'table cloth',3),(15,'bread',2),(15,'grapes',5),(16,'carrot',3),(16,'table',3),(17,'carrot',1),(17,'table cloth',1),(18,'grapes',5),(19,'cup',2),(19,'table',2),(20,'bread',4),(20,'cup',3),(20,'knife',2),(21,'chair',1),(21,'knife',3),(22,'apple',1),(22,'knife',3),(22,'milk',2);
+INSERT INTO `stock_items` VALUES (1,'apple',2),(2,'banana',3),(3,'beef',3),(4,'bread',4),(5,'carrot',2),(6,'chair',2),(7,'chicken',5),(8,'cup',2),(9,'fork',6),(10,'grapes',4),(11,'knife',2),(12,'milk',3),(13,'plate',4),(14,'table',1),(15,'table cloth',4);
 /*!40000 ALTER TABLE `stock_items` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -224,26 +238,11 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_update AFTER UPDATE ON stock_items FOR EACH ROW UPDATE products SET quantity=quantity+(NEW.quantity-OLD.quantity) WHERE name=OLD.name */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_delete
-BEFORE DELETE
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER stock_item_update
+AFTER UPDATE
 ON stock_items
 FOR EACH ROW
-UPDATE products SET quantity=quantity-OLD.quantity WHERE name=OLD.name */;;
+UPDATE products SET quantity=IF(NEW.quantity>OLD.quantity, quantity+(NEW.quantity-OLD.quantity), quantity) WHERE name=OLD.name */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -259,4 +258,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-15 11:31:54
+-- Dump completed on 2019-04-15 13:14:45
