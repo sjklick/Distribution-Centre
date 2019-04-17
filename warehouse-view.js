@@ -119,7 +119,22 @@ function updateState() {
 					let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
 					bin_tile_div[b] = document.getElementById(id);
 					bin_tile_div[b].classList.remove("floor");
-					bin_tile_div[b].classList.add("bin");
+					switch (data.bin[b].position.facing) {
+						case 'u':
+							bin_tile_div[b].classList.add("stock-bin-up");
+							break;
+						case 'd':
+							bin_tile_div[b].classList.add("stock-bin-down");
+							break;
+						case 'l':
+							bin_tile_div[b].classList.add("stock-bin-left");
+							break;
+						case 'r':
+							bin_tile_div[b].classList.add("stock-bin-right");
+							break;
+						default:
+							bin_tile_div[b].classList.add("stock-bin-error");
+					}
 				}
 			}
 			// Update old positions for next call.
@@ -139,7 +154,7 @@ function updateState() {
 			// Update bin text.
 			for (let b=0; b<22; b++) {
 				let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-				bin_tile_div[b].innerText = data.bin[b].position.facing + "\n" + data.bin[b].nItems.toString();
+				bin_tile_div[b].innerText = data.bin[b].nItems.toString();
 			}
 			// Set an update request for half a second from now.
 			setTimeout(updateState, 500);
