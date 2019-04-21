@@ -15,7 +15,7 @@ json-writer.o: json-writer.hpp json-writer.cpp
 	g++ $(CFLAGS) -c json-writer.cpp
 
 database-access.o: database-access.hpp database-access.cpp
-	g++ $(CFLAGS) `mysql_config --cxxflags` -c database-access.cpp
+	g++ $(CFLAGS) `mysql_config --include` -c database-access.cpp
 
 order-picker.o: order-picker.hpp order-picker.cpp
 	g++ $(CFLAGS) -c order-picker.cpp

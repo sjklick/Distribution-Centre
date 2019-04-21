@@ -13,20 +13,20 @@
 
 int main() {
 	Database db;
-	db.connect();
+	if (!db.connect()) return 1;
 
-    // initial warehouse map
-    // 'X' => wall, 'B' => bin, 'S' => shipping, '.' => empty
-    char init_map[10][10] = {{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
-                             {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
-                             {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', '.', '.', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
-                             {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
-                             {'X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}};
+	// initial warehouse map
+	// 'X' => wall, 'B' => bin, 'S' => shipping, '.' => empty
+	char init_map[10][10] = {{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
+		       {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
+		       {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', '.', '.', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', 'B', 'B', '.', 'B', 'B', '.', 'X'},
+		       {'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'},
+		       {'X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'}};
 	char path_map[10][10];
 
 	// Get bin positions from server.
@@ -42,24 +42,24 @@ int main() {
 	const int numPickers = 4;
 	OrderPicker* picker[numPickers];
 
-    home[0].row = 1;
-    home[0].column = 1;
-    home[0].facing = right;
+	home[0].row = 1;
+	home[0].column = 1;
+	home[0].facing = right;
 	picker[0] = new OrderPicker(home[0]);
 
 	home[1].row = 2;
-    home[1].column = 1;
-    home[1].facing = right;
+	home[1].column = 1;
+	home[1].facing = right;
 	picker[1] = new OrderPicker(home[1]);
 
 	home[2].row = 3;
-    home[2].column = 1;
-    home[2].facing = right;
+	home[2].column = 1;
+	home[2].facing = right;
 	picker[2] = new OrderPicker(home[2]);
 
 	home[3].row = 4;
-    home[3].column = 1;
-    home[3].facing = right;
+	home[3].column = 1;
+	home[3].facing = right;
 	picker[3] = new OrderPicker(home[3]);
 
 	// Get initial bin contents.
@@ -76,11 +76,11 @@ int main() {
 	std::vector<ShippingItem> shippingItems;
 	writeShippingJSON(shippingItems);
 
-    Position current;
+	Position current;
 	std::stringstream ss;
 	int currentOrderId = -1;
 	std::vector<Item> orderItems;
-    while (true) {
+	while (true) {
 
 		writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 
@@ -216,19 +216,19 @@ int main() {
 			}
 		}
 
-        // Sleep for 1 second.
-        std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
+		// Sleep for 1 second.
+		std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
 		// map copy for path calculations
-        memcpy(path_map, init_map, 100);
+		memcpy(path_map, init_map, 100);
 		// add picker positions to path map
 		for (int i=0; i<numPickers; i++) {
 			current = picker[i]->getPosition();
 			path_map[current.row][current.column] = 'X';
 		}
 		for (int i=0; i<numPickers; i++) {
-        	picker[i]->update(path_map);
+			picker[i]->update(path_map);
 		}
-    }
+	}
 
 	db.disconnect();
 

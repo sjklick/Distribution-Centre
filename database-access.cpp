@@ -8,17 +8,23 @@ static MYSQL* connection;
 bool Database::connect() {
 	// Load credentials.
 	// Save username and password on separate lines of "credentials.txt".
-	std::ifstream credFile;
-	std::string username, password;
-	credFile.open("credentials.txt", std::ios::in);
-	credFile >> username;
-	credFile >> password;
-	credFile.close();
+	std::ifstream configFile;
+	std::string socket, username, password;
+	configFile.open("config.txt", std::ios::in);
+	configFile >> socket;
+	configFile >> username;
+	configFile >> password;
+	configFile.close();
 	// Make SQL server connection.
 	connection = mysql_init(NULL);
 	if (connection != NULL) {
-		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, NULL, 0)) {
-			return false;
+		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, socket.c_str(), 0)) {
+			std::string error;
+			error = mysql_error(connection);
+			std::ofstream logFile;
+			logFile.open("log.txt", std::ios::out | std::ios::app);
+			logFile << error << std::endl;
+			logFile.close();
 		} else return true;
 	}
 	return false;
