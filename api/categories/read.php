@@ -2,7 +2,7 @@
 
 include "../connection/connect.php";
 $connection = connect();
-if ($connection != null) {
+if (isset($connection)) {
 	$categories = array();
 	$query = "SELECT * FROM categories";
 	foreach ($connection->query($query) as $row) {
