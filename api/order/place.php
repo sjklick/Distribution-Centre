@@ -14,7 +14,34 @@ for ($i=0; $i<count($order->items); $i++) {
 	if (!array_key_exists("quantity", $order->items[$i])) die($error);
 }
 
-// For testing, just echo that this seems like a valid order format.
-echo "Valid order request.\n";
+// Place order in SQL database.
+$error = "Unable to connect to warehouse.\n";
+include "../connection/connect.php";
+$connection = connect();
+if (isset($connection)) {
+	// Create customer entry.
+	$query = "INSERT INTO orders (customer, email) VALUES (\"";
+	$query .= $order->customer;
+	$query .= "\", \"";
+	$query .= $order->email;
+	$query .= "\")";
+	$connection->query($query);
+	// Get order number.
+	$id = $connection->lastInsertId();
+	// Insert order items.
+	for ($i=0; $i<count($order->items); $i++) {
+		$query = "INSERT INTO order_items (order_id, name, quantity) VALUES (";
+		$query .= $id;
+		$query .= ", \"";
+		$query .= $order->items[$i]->name;
+		$query .= "\", ";
+		$query .= $order->items[$i]->quantity;
+		$query .= ")";
+		$connection->query($query);
+	}
+} else die($error);
+$connection = null;
+
+echo "Order received.\n";
 
 ?>
