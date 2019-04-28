@@ -1,6 +1,12 @@
 Automated-Order-Picker
 ======================
 
+<p>
+<img src="https://www.w3.org/html/logo/downloads/HTML5_Logo.svg" width="100" height="100" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg" width="100" height="100" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Unofficial_JavaScript_logo_2.svg" width="100" height="100" />
+</p>
+
 Summary
 -------
 
