@@ -64,6 +64,8 @@ for (row=0; row<12; row++) {
 	table_quantity[row] = document.createElement("td");
 	table_item[row].id = "table-item-"+row.toString();
 	table_quantity[row].id = "table-quantity-"+row.toString();
+	table_item[row].innerText = " ";
+	table_quantity[row].innerText = " ";
 	table_row.appendChild(table_item[row]);
 	table_row.appendChild(table_quantity[row]);
 	table_element.appendChild(table_row);
@@ -179,8 +181,8 @@ function updateBinTable() {
 						table_item[i].innerText = data.item[i].name;
 						table_quantity[i].innerText = data.item[i].quantity.toString();
 					} else {
-						table_item[i].innerText = "";
-						table_quantity[i].innerText = "";
+						table_item[i].innerText = " ";
+						table_quantity[i].innerText = " ";
 					}
 				}
 				setTimeout(updateBinTable, 500);	
@@ -202,8 +204,8 @@ function updateBinTable() {
 						table_item[i].innerText = data.shippingItem[i].name;
 						table_quantity[i].innerText = data.shippingItem[i].quantity.toString()+"/"+data.shippingItem[i].needed.toString();
 					} else {
-						table_item[i].innerText = "";
-						table_quantity[i].innerText = "";
+						table_item[i].innerText = " ";
+						table_quantity[i].innerText = " ";
 					}
 				}
 				setTimeout(updateBinTable, 500);	
@@ -225,8 +227,8 @@ function updateBinTable() {
 						table_item[i].innerText = data.name[i];
 						table_quantity[i].innerText = 1;
 					} else {
-						table_item[i].innerText = "";
-						table_quantity[i].innerText = "";
+						table_item[i].innerText = " ";
+						table_quantity[i].innerText = " ";
 					}
 				}
 				setTimeout(updateBinTable, 500);	

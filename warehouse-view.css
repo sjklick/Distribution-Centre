@@ -1,13 +1,17 @@
 :root {
 	--tile: 8vmin;
+	--half-tile: 4vmin;
 	--stock-bin-edge: 0.75vmin;
 }
 
-.tile {
-	margin: 0;
-	border: 0;
-	padding: 0;
+* {
 	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+.tile {
+	border: 0;
 	width: var(--tile);
 	height: var(--tile);
 	font-size: 3vmin;
@@ -81,17 +85,122 @@
 	grid-template-columns: repeat(10, var(--tile));
 }
 
-table {
-	border-collapse: collapse;
+#order-layout {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	min-height: var(--tile);
+	background-color: green;
 }
 
-th, td {
-	border: 1px solid black;
-	height: calc(var(--tile)/1.7);
-	width: calc(3*var(--tile));
+#order {
+	text-align: center;
+}
+
+#table-container {
+	overflow-y: auto;
+}
+
+#bin-table {
+	border-collapse: collapse;	
+}
+
+tr:nth-child(odd) {
+	background-color: #81c784;
+}
+
+tr:nth-child(even) {
+	background-color: #DAF7A6;
+}
+
+th {
+	width: calc(5*var(--tile));
+	height: var(--tile);
+	background-color: #2e7d32;
+	color: white;
+	border: 1px solid #ddd;
+	font-size: 3vmin;
+}
+
+td {
+	width: calc(5*var(--tile));
+	height: var(--tile);
+	border: 1px solid #ddd;
 	font-size: 3vmin;
 }
 
 #layout-div {
 	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	width: 100vw;
+	height: 100vh;
+	background-color: orange;
+}
+
+#info-div {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column;
+}
+
+#about {
+	min-height: var(--tile);
+	border: none;
+}
+
+#layout-div {
+	display: flex;
+	min-width: 100vw;
+	max-width: 100vw;
+	min-height: 100vh;
+	max-height: 100vh;
+	background-color: orange;
+}
+
+@media only screen and (orientation: portrait) {
+	#layout-div {
+		flex-direction: column;
+		justify-content: center;
+		padding: var(--half-tile);
+		align-items: center;
+	}
+
+	#order-layout {
+		margin-bottom: var(--half-tile);
+	}
+
+	#about {
+		margin-top: var(--half-tile);
+	}
+
+	#info-div {
+		margin-top: var(--half-tile);
+		margin-left: 0;
+		max-width: calc(10*var(--tile));
+		max-height: calc(7*var(--tile));
+	}
+}
+
+@media only screen and (orientation: landscape) {
+	#layout-div {
+		flex-direction: row;
+		justify-content: space-around;
+		padding: var(--tile);
+	}
+
+	#order-layout {
+		margin-bottom: var(--tile);
+	}
+
+	#about {
+		margin-top: var(--tile);
+	}
+
+	#info-div {
+		margin-top: 0;
+		margin-left: var(--tile);
+		max-width: calc(10*var(--tile));
+		max-height: calc(10*var(--tile));
+	}
 }

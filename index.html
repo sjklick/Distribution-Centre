@@ -5,18 +5,25 @@
 		<link rel="stylesheet" href="warehouse-view.css"/>
 	</head>
 	<body>
-		<p id='order'>Processing no order.</p>
 		<div id="layout-div">
 			<div id='warehouse-div'></div>
-			<table id="bin-table">
-				<tr>
-					<th colspan="2" id="table-bin">Bin: 1</th>
-				<tr>
-				<tr>
-					<th>Item</th>
-					<th>Quantity</th>
-				</tr>
-			</table>
+			<div id="info-div">
+				<div id="order-layout">
+					<p id="order">Processing no order.</p>
+				</div>
+				<div id="table-container">
+					<table id="bin-table">
+						<tr>
+							<th colspan="2" id="table-bin">Bin: 1</th>
+						<tr>
+						<tr>
+							<th>Item</th>
+							<th>Quantity</th>
+						</tr>
+					</table>
+				</div>
+				<button id="about">About</button>
+			</div>
 		</div>
 		<script src="warehouse-view.js"></script>
 	</body>
