@@ -5,6 +5,8 @@ Automated-Order-Picker
 <img src="https://www.w3.org/html/logo/downloads/HTML5_Logo.svg" width="100" height="100" />
 <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg" width="100" height="100" />
 <img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Unofficial_JavaScript_logo_2.svg" width="100" height="100" />
+<img src="https://www.php.net/images/logos/new-php-logo.svg" width="100" height=100" /> <!-- Courtesy of Colin Viebrock, Creative Commons Attribution-Share Alike 4.0 International: https://creativecommons.org/licenses/by-sa/4.0/ -->
+<img src="https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg" width="100" height="100" /> <!-- Courtesy of Jeremy Kratz, The Standard C++ Foundation, https://isocpp.org/home/terms-of-use -->
 </p>
 
 Summary
