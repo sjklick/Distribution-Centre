@@ -96,7 +96,7 @@ function updateState() {
 		if (this.readyState == 4 && this.status == 200) {
 			let data = JSON.parse(this.responseText);
 			// Update current order.
-			if (data.order == -1) document.getElementById("order").innerText = "Processing no order.";
+			if (data.order == -1) document.getElementById("order").innerText = "No orders";
 			else document.getElementById("order").innerText = "Processing order #"+data.order.toString()+".";
 			// Remove old picker positions from display.
 			if (typeof previous_tile_id !== "undefined") {

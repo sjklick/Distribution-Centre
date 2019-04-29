@@ -2,12 +2,29 @@
 	--tile: 8vmin;
 	--half-tile: 4vmin;
 	--stock-bin-edge: 0.75vmin;
+	--color1: #11270b; /* Smoky Black */
+	--color2: #71b340; /* Palm Leaf */
+	--color3: #669d31; /* Green (RYB) */
+	--color4: #598b2c; /* Maximum Green */
+	--color5: #3c5a14; /* Dark Moss Green */
+	--color-back: var(--color3);
+	--color-table-head: var(--color5);
+	--color-table-odd: var(--color4);
+	--color-table-even: var(--color2);
+	--color-button: var(--color5);
+	--color-button-hover: var(--color4);
+	--color-orders: var(--color5);
+	--font-sizing: calc(var(--tile)/2);
+	--color-borders: white; 
 }
 
 * {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
+	font-size: var(--font-sizing);
+	font-weight: normal;
+	font-family: Verdana;
 }
 
 .tile {
@@ -89,8 +106,11 @@
 	display: flex;
 	align-items: center;
 	flex-direction: row;
+	justify-content: center;
 	min-height: var(--tile);
-	background-color: green;
+	color: white;
+	background-color: var(--color-orders);
+	border: 1px solid var(--color-borders);
 }
 
 #order {
@@ -106,36 +126,28 @@
 }
 
 tr:nth-child(odd) {
-	background-color: #81c784;
+	background-color: var(--color-table-odd);
 }
 
 tr:nth-child(even) {
-	background-color: #DAF7A6;
+	background-color: var(--color-table-even);
 }
 
 th {
 	width: calc(5*var(--tile));
 	height: var(--tile);
-	background-color: #2e7d32;
+	background-color: var(--color-table-head);
 	color: white;
-	border: 1px solid #ddd;
-	font-size: 3vmin;
+	border: 1px solid var(--color-borders);
+	font-size: var(--font-sizing);
 }
 
 td {
 	width: calc(5*var(--tile));
 	height: var(--tile);
-	border: 1px solid #ddd;
-	font-size: 3vmin;
-}
-
-#layout-div {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-around;
-	width: 100vw;
-	height: 100vh;
-	background-color: orange;
+	border: 1px solid var(--color-borders);
+	color: white;
+	font-size: var(--font-sizing);
 }
 
 #info-div {
@@ -147,15 +159,23 @@ td {
 #about {
 	min-height: var(--tile);
 	border: none;
+	color: white;
+	background-color: var(--color-button);
+	border: 1px solid var(--color-borders);
+}
+
+#about:hover {
+	background-color: var(--color-button-hover);
 }
 
 #layout-div {
 	display: flex;
+	align-items: center;
 	min-width: 100vw;
 	max-width: 100vw;
 	min-height: 100vh;
 	max-height: 100vh;
-	background-color: orange;
+	background-color: var(--color-back);
 }
 
 @media only screen and (orientation: portrait) {
@@ -163,7 +183,6 @@ td {
 		flex-direction: column;
 		justify-content: center;
 		padding: var(--half-tile);
-		align-items: center;
 	}
 
 	#order-layout {
