@@ -40,6 +40,7 @@
 
 .floor {
 	background-color: gray;
+	background-image: url(./graphics/floor.svg);
 }
 
 .wall {
