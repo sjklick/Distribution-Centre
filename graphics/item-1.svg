@@ -9,4 +9,5 @@
 		</g>
 	</defs>
 	<circle cx="50" cy="50" r="50" fill="black" fill-opacity="0.75" />
+	<use xlink:href="#arc" x="50" y="0" />
 </svg>
