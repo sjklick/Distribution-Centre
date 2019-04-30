@@ -156,7 +156,11 @@ function updateState() {
 			// Update bin text.
 			for (let b=0; b<22; b++) {
 				let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-				bin_tile_div[b].innerText = data.bin[b].nItems.toString();
+				//bin_tile_div[b].innerText = data.bin[b].nItems.toString();
+				bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data.bin[b].nItems.toString()+".svg)";
+				bin_tile_div[b].style.backgroundSize = "80% 80%";
+				bin_tile_div[b].style.backgroundRepeat = "no-repeat";
+				bin_tile_div[b].style.backgroundPosition = "center";
 			}
 			// Set an update request for half a second from now.
 			setTimeout(updateState, 500);
