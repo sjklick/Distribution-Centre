@@ -20,10 +20,14 @@ warehouse and place fictitious orders.
 
 Todo
 ----
-- Implement web API
+- Expand API to allow pages of products to be selected
+- Make API use pretty URLs
+- Add API function to for warehouse view to get data instead of reading JSON files created by warehouse program
 - Finalize available products and descriptions
 - Warehouse needs to send email on order submission/completion
-- Tidy up warehouse web view, make responsive for mobile
+- Create Controller class to clean up code and simplify dev/maintainence
+- Create graphics for robot pickers and states
+- Host live demo
 
 Contact
 -------
