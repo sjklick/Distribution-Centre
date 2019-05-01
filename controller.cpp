@@ -28,18 +28,6 @@ bool Controller::init() {
 		if (nItems[i] == -1) return false;
 	}
 
-	// Write initial bin contents.
-	for (int i=0; i<numBins; i++) {
-		std::vector<Item> currentBin = db.getBinContents(i+1);
-		writeBinJSON(i+1, currentBin);
-	}
-
-	// Write initial receiving contents.
-	writeReceivingJSON(db.getReceivingItems());
-
-	// Write initial (empty) shipping contents.
-	writeShippingJSON(shippingItems);
-
 	// Everything went okay.
 	return true;
 }
@@ -49,12 +37,9 @@ bool Controller::readState() {
 }
 
 void Controller::updateState() {
-	writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
-
 	// Update time until new stock arrives.
 	if (db.getReceivingItems().empty() && (timeUntilRestock == 0)) {
 		db.placeNewStock(db.getLowInventory());
-		writeReceivingJSON(db.getReceivingItems());
 		timeUntilRestock = 30;
 	} else if (db.getReceivingItems().empty()){
 		timeUntilRestock--;
@@ -74,7 +59,6 @@ void Controller::updateState() {
 		db.removeOrderItems(currentOrderId);
 		// Update shipping JSON with empty shipping bin;
 		shippingItems = db.getShippingContents();
-		writeShippingJSON(shippingItems);
 	}
 
 	// Check for any idle pickers, or if a bin can be unassigned.
@@ -145,9 +129,7 @@ void Controller::updateState() {
 					// Remove item from stock bin.
 					itemName = picker[i]->getItemName();
 					db.removeItemFromStockBin(binId, itemName);
-					// Update bin JSON.
 					currentBin = db.getBinContents(binId);
-					writeBinJSON(binId, currentBin);
 					nItems[binId-1] = db.getBinItemCount(binId);
 					break;
 				}
@@ -156,8 +138,6 @@ void Controller::updateState() {
 					// Remove item from receiving bin.
 					itemName = picker[i]->getStockItemName();
 					db.removeItemFromReceiving(itemName);
-					// Update receiving JSON.
-					writeReceivingJSON(db.getReceivingItems());
 				}
 				break;
 			case State::place:
@@ -165,7 +145,6 @@ void Controller::updateState() {
 				if (binId != -1) {
 					db.putItemInShipping(picker[i]->getItemName());
 					shippingItems = db.getShippingContents();
-					writeShippingJSON(shippingItems);
 					if (db.orderFulfilled(currentOrderId)) {
 						db.removeOrder(currentOrderId);
 						currentOrderId = -1;
@@ -176,7 +155,6 @@ void Controller::updateState() {
 				if (binId != -1) {
 					db.placeItemIntoStockBin(binId, picker[i]->getStockItemName());
 					currentBin = db.getBinContents(binId);
-					writeBinJSON(binId, currentBin);
 					nItems[binId-1] = db.getBinItemCount(binId);
 				}
 				break;
@@ -210,6 +188,12 @@ void Controller::updateState() {
 }
 
 bool Controller::writeState() {
+	writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
+	writeReceivingJSON(db.getReceivingItems());
+	writeShippingJSON(shippingItems);
+	for (int i=0; i<numBins; i++) {
+		writeBinJSON(i+1, db.getBinContents(i+1));
+	}
 	return true;
 }
 
