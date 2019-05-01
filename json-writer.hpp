@@ -7,7 +7,7 @@
 #include "order-picker.hpp"
 #include "items.hpp"
 
-void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]);
+void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position bin[], int nItems[]);
 void writeBinJSON(int binId, std::vector<Item> binContents);
 void writeShippingJSON(std::vector<ShippingItem> shippingContents);
 void writeReceivingJSON(std::vector<std::string> receivingContents);

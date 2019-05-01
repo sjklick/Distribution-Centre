@@ -35,25 +35,50 @@ void Database::disconnect() {
 	if (connection != NULL) mysql_close(connection);
 }
 
-Position* Database::getBinPosition(int binId) {
-	Position* bin;
+Position Database::getPickerHome(int pickerId) {
+	Position home;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				home.row = std::stoi(row[1]);
+				home.column = std::stoi(row[2]);
+				home.facing = CharToDirection(row[3][0]);
+				mysql_free_result(result);
+				return home;
+			}
+		}
+	}
+	home.row = -1;
+	home.column = -1;
+	home.facing = invalid;
+	return home;
+}
+
+Position Database::getBinPosition(int binId) {
+	Position bin;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string query("SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";");
 	if (mysql_query(connection, query.c_str()) == 0) {
 		result = mysql_use_result(connection);
 		if (result) {
-			bin = new Position;
 			if(row = mysql_fetch_row(result)) {
-				bin->row = std::stoi(row[1]);
-				bin->column = std::stoi(row[2]);
-				bin->facing = CharToDirection(row[3][0]);
+				bin.row = std::stoi(row[1]);
+				bin.column = std::stoi(row[2]);
+				bin.facing = CharToDirection(row[3][0]);
 				mysql_free_result(result);
 				return bin;
 			}
 		}
 	}
-	return NULL;
+	bin.row = -1;
+	bin.column = -1;
+	bin.facing = invalid;
+	return bin;
 }
 
 int Database::getBinItemCount(int binId) {

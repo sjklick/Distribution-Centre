@@ -1,7 +1,7 @@
 #include <fstream>
 #include "json-writer.hpp"
 
-void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position* bin[], int nItems[]) {
+void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], int numBins, Position bin[], int nItems[]) {
 	Position current;
 	std::ofstream stateFile;
 	stateFile.open("state.json", std::ios::out | std::ios::trunc);
@@ -35,7 +35,7 @@ void writeStateJSON(int currentOrderId, int numPickers, OrderPicker* picker[], i
 	// bins
 	stateFile << ",\"bin\":[";
 	for (int i=0; i<numBins; i++) {
-		current = *bin[i];
+		current = bin[i];
 		stateFile << "{\"position\":{";
 		stateFile << "\"row\":";
 		stateFile << current.row;

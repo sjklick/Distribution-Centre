@@ -14,8 +14,9 @@ class Database {
 	// Cleanly closes database connection.
 	void disconnect();
 
-	// Returns NULL if bin ID is not found or there was an error.
-	Position* getBinPosition(int binId);
+	Position getPickerHome(int pickerId);
+
+	Position getBinPosition(int binId);
 
 	// Returns -1 if bin ID is not found or there was an error.
 	int getBinItemCount(int binId);

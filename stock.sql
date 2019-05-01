@@ -107,6 +107,35 @@ INSERT INTO `orders` VALUES (3,'Test_1',NULL),(4,'Test_2',NULL),(5,'Test_3',NULL
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pickers`
+--
+
+DROP TABLE IF EXISTS `pickers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pickers` (
+  `picker_id` int(11) NOT NULL AUTO_INCREMENT,
+  `home_row` int(11) NOT NULL,
+  `home_col` int(11) NOT NULL,
+  `home_dir` char(1) NOT NULL,
+  `curr_row` int(11) NOT NULL,
+  `curr_col` int(11) NOT NULL,
+  `curr_dir` char(1) NOT NULL,
+  PRIMARY KEY (`picker_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pickers`
+--
+
+LOCK TABLES `pickers` WRITE;
+/*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r'),(2,2,1,'r',2,1,'r'),(3,3,1,'r',3,1,'r'),(4,4,1,'r',4,1,'r');
+/*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `products`
 --
 
@@ -283,4 +312,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-20 23:39:05
+-- Dump completed on 2019-05-01 11:28:21

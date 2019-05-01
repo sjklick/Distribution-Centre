@@ -5,11 +5,14 @@ all: warehouse
 debug: CFLAGS += -ggdb
 debug: warehouse
 
-warehouse: main.o json-writer.o database-access.o order-picker.o position.o
-	g++ $(CFLAGS) -o warehouse.out main.o json-writer.o database-access.o order-picker.o position.o `mysql_config --libs`
+warehouse: main.o controller.o json-writer.o database-access.o order-picker.o position.o
+	g++ $(CFLAGS) -o warehouse.out main.o controller.o json-writer.o database-access.o order-picker.o position.o `mysql_config --libs`
 
 main.o: main.cpp
 	g++ $(CFLAGS) -c main.cpp
+
+controller.o: controller.hpp controller.cpp
+	g++ $(CFLAGS) -c controller.cpp
 
 json-writer.o: json-writer.hpp json-writer.cpp
 	g++ $(CFLAGS) -c json-writer.cpp
