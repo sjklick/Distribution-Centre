@@ -1,6 +1,5 @@
 #include "controller.hpp"
 #include "json-writer.hpp"
-#include <iostream>
 
 Controller::Controller() {
 	currentOrderId = -1;
@@ -8,15 +7,12 @@ Controller::Controller() {
 }
 
 bool Controller::init() {
-	// Test database connection.
-	if (!db.connect()) return false;
-
 	// Get picker start positions.
 	Position home;
 	for (int i=0; i<numPickers; i++) {
 		home = db.getPickerHome(i+1);
 		if ((home.row != -1) && (home.column != -1) && (home.facing != '?')) {
-			picker[i] = new OrderPicker(home);
+			picker[i] = new OrderPicker(i+1, home);
 		} else return false;
 	}
 
@@ -198,5 +194,4 @@ bool Controller::writeState() {
 }
 
 Controller::~Controller() {
-	db.disconnect();
 }

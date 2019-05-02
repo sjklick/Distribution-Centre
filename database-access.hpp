@@ -3,18 +3,26 @@
 
 #include <vector>
 #include <string>
+#include <mysql/mysql.h>
 #include "position.hpp"
 #include "items.hpp"
+#include "state.hpp"
 
 class Database {
-	public:
+private:
+	MYSQL* connection;
+
 	// Returns True if connection established.
 	bool connect();
 
 	// Cleanly closes database connection.
 	void disconnect();
-
+public:
 	Position getPickerHome(int pickerId);
+
+	State getPickerState(int pickerId);
+
+	void setPickerState(int pickerId, State state);
 
 	Position getBinPosition(int binId);
 

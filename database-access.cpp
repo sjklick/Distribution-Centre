@@ -1,9 +1,6 @@
 #include <string>
 #include <fstream>
-#include <mysql.h>
 #include "database-access.hpp"
-
-static MYSQL* connection;
 
 bool Database::connect() {
 	// Load credentials.
@@ -36,6 +33,7 @@ void Database::disconnect() {
 }
 
 Position Database::getPickerHome(int pickerId) {
+	connect();
 	Position home;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -48,6 +46,7 @@ Position Database::getPickerHome(int pickerId) {
 				home.column = std::stoi(row[2]);
 				home.facing = CharToDirection(row[3][0]);
 				mysql_free_result(result);
+				disconnect();
 				return home;
 			}
 		}
@@ -55,10 +54,38 @@ Position Database::getPickerHome(int pickerId) {
 	home.row = -1;
 	home.column = -1;
 	home.facing = invalid;
+	disconnect();
 	return home;
 }
 
+State Database::getPickerState(int pickerId) {
+	connect();
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				std::string state = row[7];
+				disconnect();
+				return StringToState(state);
+			}
+		}
+	}
+	disconnect();
+	return State::invalid;
+}
+
+void Database::setPickerState(int pickerId, State state) {
+	connect();
+	std::string query("UPDATE pickers Set state=\""+StateToString(state)+"\" WHERE picker_id="+std::to_string(pickerId)+";");
+	mysql_query(connection, query.c_str());
+	disconnect();
+}
+
 Position Database::getBinPosition(int binId) {
+	connect();
 	Position bin;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -71,6 +98,7 @@ Position Database::getBinPosition(int binId) {
 				bin.column = std::stoi(row[2]);
 				bin.facing = CharToDirection(row[3][0]);
 				mysql_free_result(result);
+				disconnect();
 				return bin;
 			}
 		}
@@ -78,10 +106,12 @@ Position Database::getBinPosition(int binId) {
 	bin.row = -1;
 	bin.column = -1;
 	bin.facing = invalid;
+	disconnect();
 	return bin;
 }
 
 int Database::getBinItemCount(int binId) {
+	connect();
 	int nItems;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -92,20 +122,24 @@ int Database::getBinItemCount(int binId) {
 			if (row = mysql_fetch_row(result)) {
 				if (row[0] == NULL) {
 					mysql_free_result(result);
+					disconnect();
 					return 0;
 				} else {
 					nItems = std::stoi(row[0]);
 					mysql_free_result(result);
+					disconnect();
 					return nItems;
 				}
 			}
 		}
 		mysql_free_result(result);
 	}
+	disconnect();
 	return -1;
 }
 
 int Database::getNextOrderId() {
+	connect();
 	int nextId;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -116,14 +150,17 @@ int Database::getNextOrderId() {
 			if(row = mysql_fetch_row(result)) {
 				nextId = std::stoi(row[0]);
 				mysql_free_result(result);
+				disconnect();
 				return nextId;
 			}
 		}
 	}
+	disconnect();
 	return -1;
 }
 
 std::vector<Item> Database::getBinContents(int binId) {
+	connect();
 	std::vector<Item> items;
 	Item temp;
 	MYSQL_RES* result;
@@ -140,10 +177,12 @@ std::vector<Item> Database::getBinContents(int binId) {
 			mysql_free_result(result);
 		}
 	}
+	disconnect();
 	return items;
 }
 
 std::vector<Item> Database::getOrderItems(int orderId) {
+	connect();
 	std::vector<Item> items;
 	Item temp;
 	MYSQL_RES* result;
@@ -160,10 +199,12 @@ std::vector<Item> Database::getOrderItems(int orderId) {
 			mysql_free_result(result);
 		}
 	}
+	disconnect();
 	return items;
 }
 
 int Database::whichBinHasItem(std::string item) {
+	connect();
 	int binId;
 	MYSQL_RES* result;
 	MYSQL_ROW row;
@@ -174,14 +215,17 @@ int Database::whichBinHasItem(std::string item) {
 			if(row = mysql_fetch_row(result)) {
 				binId = std::stoi(row[0]);
 				mysql_free_result(result);
+				disconnect();
 				return binId;
 			}
 		}
 	}
+	disconnect();
 	return -1;
 }
 
 void Database::prepareShippingBin(int orderId) {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::vector<Item> items;
@@ -203,19 +247,25 @@ void Database::prepareShippingBin(int orderId) {
 		query += "\""+(*it).name + "\", 0, " + std::to_string((*it).quantity) + ");";
 		mysql_query(connection, query.c_str());
 	}
+	disconnect();
 }
 
 void Database::emptyShippingBin() {
+	connect();
 	std::string query("TRUNCATE shipping_items;");
 	mysql_query(connection, query.c_str());
+	disconnect();
 }
 
 void Database::putItemInShipping(std::string itemName) {
+	connect();
 	std::string query("UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";");
 	mysql_query(connection, query.c_str());
+	disconnect();
 }
 
 std::vector<ShippingItem> Database::getShippingContents() {
+	connect();
 	std::vector<ShippingItem> items;
 	ShippingItem temp;
 	MYSQL_RES* result;
@@ -233,10 +283,12 @@ std::vector<ShippingItem> Database::getShippingContents() {
 		}
 		mysql_free_result(result);
 	}
+	disconnect();
 	return items;
 }
 
 bool Database::orderFulfilled(int orderId) {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string query("SELECT * FROM shipping_items WHERE quantity<>needed;");
@@ -245,20 +297,25 @@ bool Database::orderFulfilled(int orderId) {
 		if (result) {
 			if(row = mysql_fetch_row(result)) {
 				mysql_free_result(result);
+				disconnect();
 				return false;
 			}
 		}
 		mysql_free_result(result);
 	}
+	disconnect();
 	return true;
 }
 
 void Database::removeOrder(int orderId) {
+	connect();
 	std::string query("DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";");
 	mysql_query(connection, query.c_str());
+	disconnect();
 }
 
 void Database::removeItemFromStockBin(int binId, std::string itemName) {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";");
@@ -280,9 +337,11 @@ void Database::removeItemFromStockBin(int binId, std::string itemName) {
 			}
 		} else mysql_free_result(result);
 	}
+	disconnect();
 }
 
 void Database::placeItemIntoStockBin(int binId, std::string itemName) {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::string query;
@@ -299,6 +358,7 @@ void Database::placeItemIntoStockBin(int binId, std::string itemName) {
 				query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
 				query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
 				mysql_query(connection, query.c_str());
+				disconnect();
 				return;
 			} else {
 				// Otherwise, add a new entry for item.
@@ -306,13 +366,16 @@ void Database::placeItemIntoStockBin(int binId, std::string itemName) {
 				query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
 				query += std::to_string(binId)+", \""+itemName+"\", 1);";
 				mysql_query(connection, query.c_str());
+				disconnect();
 				return;
 			}
 		} else mysql_free_result(result);
 	}
+	disconnect();
 }
 
 void Database::removeItemFromOrderItems(int orderId, std::string itemName) {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	int quantity;
@@ -336,14 +399,18 @@ void Database::removeItemFromOrderItems(int orderId, std::string itemName) {
 			} else mysql_free_result(result);
 		}
 	}
+	disconnect();
 }
 
 void Database::removeOrderItems(int orderId) {
+	connect();
 	std::string query("DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";");
 	mysql_query(connection, query.c_str());
+	disconnect();
 }
 
 std::vector<std::string> Database::getLowInventory() {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::vector<std::string> items;
@@ -357,10 +424,12 @@ std::vector<std::string> Database::getLowInventory() {
 		}
 		mysql_free_result(result);
 	}
+	disconnect();
 	return items;
 }
 
 std::vector<std::string> Database::getReceivingItems() {
+	connect();
 	MYSQL_RES* result;
 	MYSQL_ROW row;
 	std::vector<std::string> items;
@@ -374,16 +443,19 @@ std::vector<std::string> Database::getReceivingItems() {
 		}
 		mysql_free_result(result);
 	}
+	disconnect();
 	return items;
 }
 
 void Database::placeNewStock(std::vector<std::string> itemNames) {
+	connect();
 	std::string query;
 	for (std::vector<std::string>::iterator it = itemNames.begin(); it != itemNames.end(); it++) {
 		query = "INSERT INTO receiving_items (name) VALUES (\"";
 		query += (*it) + "\");";
 		mysql_query(connection, query.c_str());
 	}
+	disconnect();
 }
 
 std::vector<int> Database::whichBinsHaveRoom() {
@@ -396,7 +468,9 @@ std::vector<int> Database::whichBinsHaveRoom() {
 }
 
 void Database::removeItemFromReceiving (std::string itemName) {
+	connect();
 	std::string query;
 	query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
 	mysql_query(connection, query.c_str());
+	disconnect();
 }

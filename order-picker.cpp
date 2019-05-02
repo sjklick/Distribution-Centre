@@ -6,12 +6,12 @@
 // Forward declarations.
 static std::vector<Position> findPath(Position start, Position end, char map[10][10]);
 
-OrderPicker::OrderPicker(Position home) {
+OrderPicker::OrderPicker(int id, Position home) {
+	this->id = id;
     this->home = home;
     current = home;
     target = home;
     path.clear();
-    state = State::idle;
     item = false;
 	delivered = false;
 	itemName = "";
@@ -29,7 +29,7 @@ Position OrderPicker::getPosition() {
 }
 
 State OrderPicker::getState() {
-    return state;
+    return db.getPickerState(id);
 }
 
 bool OrderPicker::hasItem() {
@@ -45,9 +45,12 @@ std::string OrderPicker::getItemName() {
 }
 
 bool OrderPicker::processItem(int binId, Position bin, std::string itemName) {
+	State state;
+	state = db.getPickerState(id);
     if ((state == State::idle) || (state == State::home) || ((state == State::yield) && (item == false))) {
         target = getFacingPosition(bin);
         state = State::retrieve;
+		db.setPickerState(id, state);
 		this->itemName = itemName;
 		this->binId = binId;
         return true;
@@ -60,7 +63,7 @@ void OrderPicker::stockItem(int stockBinId, Position bin, std::string stockItemN
 	this->stockBinId = stockBinId;
 	this->stockItemName = stockItemName;
 	stock = true;
-	state = State::receive;
+	db.setPickerState(id, State::receive);
 }
 
 int OrderPicker::getStockBin() {
@@ -76,6 +79,7 @@ void OrderPicker::updateStateIdle(char map[10][10]) {
 }
 
 void OrderPicker::updateStateYield(char map[10][10]) {
+	State state = State::yield;
 	yieldCount++;
 	if (yieldCount > 5) {
 		state = State::extricate;
@@ -99,13 +103,17 @@ void OrderPicker::updateStateYield(char map[10][10]) {
 	} else {
 		state = State::retrieve;
 	}
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateHome(char map[10][10]) {
+	State state = State::home;
 	if (current != home) {
 		path = findPath(current, home, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -119,13 +127,17 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 	binId = -1;
 	stockBinId = -1;
 	state = State::idle;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateRetrieve(char map[10][10]) {
+	State state = State::retrieve;
 	if (current != target) {
 		path = findPath(current, target, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -133,13 +145,17 @@ void OrderPicker::updateStateRetrieve(char map[10][10]) {
 		return;
 	}
 	state = State::extend;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateStock(char map[10][10]) {
+	State state = State::stock;
 	if (current != target) {
 		path = findPath(current, target, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -147,9 +163,11 @@ void OrderPicker::updateStateStock(char map[10][10]) {
 		return;
 	}
 	state = State::extend;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateReceive(char map[10][10]) {
+	State state = State::receive;
 	Position bin;
 	bin.row = 0;
 	bin.column = 8;
@@ -157,8 +175,10 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 	bin = getFacingPosition(bin);
 	if (current != bin) {
 		path = findPath(current, bin, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -166,9 +186,11 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 		return;
 	}
 	state = State::extend;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateShip(char map[10][10]) {
+	State state = State::ship;
 	Position bin;
 	bin.row = 9;
 	bin.column = 1;
@@ -176,8 +198,10 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 	bin = getFacingPosition(bin);
 	if (current != bin) {
 		path = findPath(current, bin, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -185,23 +209,28 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 		return;
 	}
 	state = State::extend;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateExtend(char map[10][10]) {
+	State state = State::extend;
 	if (item || holdingStockItem) state = State::place;
 	else state = State::pick;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStateRetract(char map[10][10]) {
+	State state = State::retract;
 	if (item) state = State::ship;
 	else if (holdingStockItem) state = State::stock;
 	else state = State::home;
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::updateStatePick(char map[10][10]) {
 	if (stock) holdingStockItem = true;
 	else item = true;
-	state = State::retract;
+	db.setPickerState(id, State::retract);
 }
 
 void OrderPicker::updateStatePlace(char map[10][10]) {
@@ -212,14 +241,17 @@ void OrderPicker::updateStatePlace(char map[10][10]) {
 		item = false;
 		delivered = true;
 	}
-	state = State::retract;
+	db.setPickerState(id, State::retract);
 }
 
 void OrderPicker::updateStateExtricate(char map[10][10]) {
+	State state = State::extricate;
 	if (current != extricate) {
 		path = findPath(current, extricate, map);
-		if (path.empty()) state = State::yield;
-		else {
+		if (path.empty()) {
+			state = State::yield;
+			db.setPickerState(id, state);
+		} else {
 			yieldCount = 0;
 			current = path.back();
 			map[current.row][current.column] = 'X';
@@ -237,10 +269,11 @@ void OrderPicker::updateStateExtricate(char map[10][10]) {
 	} else {
 		state = State::retrieve;
 	}
+	db.setPickerState(id, state);
 }
 
 void OrderPicker::update(char map[10][10]) {
-	switch (state) {
+	switch (OrderPicker::getState()) {
 		case State::yield:		updateStateYield(map);		break;
 		case State::home:		updateStateHome(map);		break;
 		case State::retrieve:	updateStateRetrieve(map);	break;

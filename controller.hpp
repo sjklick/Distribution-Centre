@@ -1,10 +1,10 @@
 #ifndef _CONTROLLER_
 #define _CONTROLLER_
 
-#include "database-access.hpp"
 #include "order-picker.hpp"
 #include "position.hpp"
 #include "items.hpp"
+#include "database-access.hpp"
 
 class Controller {
 private:
