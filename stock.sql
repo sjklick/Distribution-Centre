@@ -107,6 +107,29 @@ INSERT INTO `orders` VALUES (3,'Test_1',NULL),(4,'Test_2',NULL),(5,'Test_3',NULL
 UNLOCK TABLES;
 
 --
+-- Table structure for table `picker_states`
+--
+
+DROP TABLE IF EXISTS `picker_states`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `picker_states` (
+  `state` varchar(9) NOT NULL,
+  PRIMARY KEY (`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `picker_states`
+--
+
+LOCK TABLES `picker_states` WRITE;
+/*!40000 ALTER TABLE `picker_states` DISABLE KEYS */;
+INSERT INTO `picker_states` VALUES ('extend'),('extricate'),('home'),('idle'),('pick'),('place'),('receive'),('retract'),('retrieve'),('ship'),('stock'),('yield');
+/*!40000 ALTER TABLE `picker_states` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pickers`
 --
 
@@ -121,7 +144,10 @@ CREATE TABLE `pickers` (
   `curr_row` int(11) NOT NULL,
   `curr_col` int(11) NOT NULL,
   `curr_dir` char(1) NOT NULL,
-  PRIMARY KEY (`picker_id`)
+  `state` varchar(9) NOT NULL,
+  PRIMARY KEY (`picker_id`),
+  KEY `state` (`state`),
+  CONSTRAINT `pickers_ibfk_1` FOREIGN KEY (`state`) REFERENCES `picker_states` (`state`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -131,7 +157,7 @@ CREATE TABLE `pickers` (
 
 LOCK TABLES `pickers` WRITE;
 /*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
-INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r'),(2,2,1,'r',2,1,'r'),(3,3,1,'r',3,1,'r'),(4,4,1,'r',4,1,'r');
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle'),(2,2,1,'r',2,1,'r','idle'),(3,3,1,'r',3,1,'r','idle'),(4,4,1,'r',4,1,'r','idle');
 /*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -312,4 +338,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-01 11:28:21
+-- Dump completed on 2019-05-02  9:50:50
