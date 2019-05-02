@@ -46,9 +46,6 @@ Position OrderPicker::getPosition() {
     return current;
 }
 
-std::vector<Position> OrderPicker::getPath() {
-}
-
 State OrderPicker::getState() {
     return state;
 }
@@ -92,160 +89,188 @@ std::string OrderPicker::getStockItemName() {
 	return stockItemName;
 }
 
-void OrderPicker::update(char map[10][10]) {
+void OrderPicker::updateStateIdle(char map[10][10]) {
+	// Nothing to do here.
+}
+
+void OrderPicker::updateStateYield(char map[10][10]) {
+	yieldCount++;
+	if (yieldCount > 5) {
+		state = State::extricate;
+		// Pick a random position to target.
+		extricate.row = rand() % 10;
+		extricate.column = rand() % 10;
+		switch (rand() % 4) {
+			case 0:	extricate.facing = up;
+			case 1: extricate.facing = down;
+			case 2: extricate.facing = left;
+			case 3: extricate.facing = right;
+		}
+	} else if (delivered || stockDelivered) {
+		state = State::home;
+	} else if (item) {
+		state = State::ship;
+	} else if (holdingStockItem) {
+		state = State::stock;
+	} else if (stock) {
+		state = State::receive;
+	} else {
+		state = State::retrieve;
+	}
+}
+
+void OrderPicker::updateStateHome(char map[10][10]) {
+	if (current != home) {
+		path = findPath(current, home, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	delivered = false;
+	stockDelivered = false;
+	itemName = "";
+	stockItemName = "";
+	binId = -1;
+	stockBinId = -1;
+	state = State::idle;
+}
+
+void OrderPicker::updateStateRetrieve(char map[10][10]) {
+	if (current != target) {
+		path = findPath(current, target, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	state = State::extend;
+}
+
+void OrderPicker::updateStateStock(char map[10][10]) {
+	if (current != target) {
+		path = findPath(current, target, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	state = State::extend;
+}
+
+void OrderPicker::updateStateReceive(char map[10][10]) {
 	Position bin;
+	bin.row = 0;
+	bin.column = 8;
+	bin.facing = down;
+	bin = getFacingPosition(bin);
+	if (current != bin) {
+		path = findPath(current, bin, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	state = State::extend;
+}
+
+void OrderPicker::updateStateShip(char map[10][10]) {
+	Position bin;
+	bin.row = 9;
+	bin.column = 1;
+	bin.facing = up;
+	bin = getFacingPosition(bin);
+	if (current != bin) {
+		path = findPath(current, bin, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	state = State::extend;
+}
+
+void OrderPicker::updateStateExtend(char map[10][10]) {
+	if (item || holdingStockItem) state = State::place;
+	else state = State::pick;
+}
+
+void OrderPicker::updateStateRetract(char map[10][10]) {
+	if (item) state = State::ship;
+	else if (holdingStockItem) state = State::stock;
+	else state = State::home;
+}
+
+void OrderPicker::updateStatePick(char map[10][10]) {
+	if (stock) holdingStockItem = true;
+	else item = true;
+	state = State::retract;
+}
+
+void OrderPicker::updateStatePlace(char map[10][10]) {
+	if (stock) {
+		holdingStockItem = false;
+		stockDelivered = true;
+	} else {
+		item = false;
+		delivered = true;
+	}
+	state = State::retract;
+}
+
+void OrderPicker::updateStateExtricate(char map[10][10]) {
+	if (current != extricate) {
+		path = findPath(current, extricate, map);
+		if (path.empty()) state = State::yield;
+		else {
+			yieldCount = 0;
+			current = path.back();
+			map[current.row][current.column] = 'X';
+		}
+		return;
+	}
+	if (delivered || stockDelivered) {
+		state = State::home;
+	} else if (item) {
+		state = State::ship;
+	} else if (holdingStockItem) {
+		state = State::stock;
+	} else if (stock) {
+		state = State::receive;
+	} else {
+		state = State::retrieve;
+	}
+}
+
+void OrderPicker::update(char map[10][10]) {
 	switch (state) {
-		case State::yield:
-			yieldCount++;
-			if (yieldCount > 5) {
-				state = State::extricate;
-				// Pick a random position to target.
-				extricate.row = rand() % 10;
-				extricate.column = rand() % 10;
-				switch (rand() % 4) {
-					case 0:	extricate.facing = up;
-					case 1: extricate.facing = down;
-					case 2: extricate.facing = left;
-					case 3: extricate.facing = right;
-				}
-			} else if (delivered || stockDelivered) {
-				state = State::home;
-			} else if (item) {
-				state = State::ship;
-			} else if (holdingStockItem) {
-				state = State::stock;
-			} else if (stock) {
-				state = State::receive;
-			} else {
-				state = State::retrieve;
-			}
-			break;
-		case State::home:
-			if (current != home) {
-				path = findPath(current, home, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			delivered = false;
-			stockDelivered = false;
-			itemName = "";
-			stockItemName = "";
-			binId = -1;
-			stockBinId = -1;
-			state = State::idle;
-			break;
-		case State::retrieve:
-			if (current != target) {
-				path = findPath(current, target, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			state = State::extend;
-			break;
-		case State::stock:
-			if (current != target) {
-				path = findPath(current, target, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			state = State::extend;
-			break;
-		case State::receive:
-			bin.row = 0;
-			bin.column = 8;
-			bin.facing = down;
-			bin = getFacingPosition(bin);
-			if (current != bin) {
-				path = findPath(current, bin, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			state = State::extend;
-			break;
-		case State::ship:
-			bin.row = 9;
-			bin.column = 1;
-			bin.facing = up;
-			bin = getFacingPosition(bin);
-			if (current != bin) {
-				path = findPath(current, bin, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			state = State::extend;
-			break;
-		case State::extend:
-			if (item || holdingStockItem) state = State::place;
-			else state = State::pick;
-			break;
-		case State::retract:
-			if (item) state = State::ship;
-			else if (holdingStockItem) state = State::stock;
-			else state = State::home;
-			break;
-		case State::pick:
-			if (stock) holdingStockItem = true;
-			else item = true;
-			state = State::retract;
-			break;
-		case State::place:
-			if (stock) {
-				holdingStockItem = false;
-				stockDelivered = true;
-			} else {
-				item = false;
-				delivered = true;
-			}
-			state = State::retract;
-			break;
-		case State::extricate:
-			if (current != extricate) {
-				path = findPath(current, extricate, map);
-				if (path.empty()) state = State::yield;
-				else {
-					yieldCount = 0;
-					current = path.back();
-					map[current.row][current.column] = 'X';
-				}
-				break;
-			}
-			if (delivered || stockDelivered) {
-				state = State::home;
-			} else if (item) {
-				state = State::ship;
-			} else if (holdingStockItem) {
-				state = State::stock;
-			} else if (stock) {
-				state = State::receive;
-			} else {
-				state = State::retrieve;
-			}
-			break;
+		case State::yield:		updateStateYield(map);		break;
+		case State::home:		updateStateHome(map);		break;
+		case State::retrieve:	updateStateRetrieve(map);	break;
+		case State::stock:		updateStateStock(map);		break;
+		case State::receive:	updateStateReceive(map);	break;
+		case State::ship:		updateStateShip(map);		break;
+		case State::extend:		updateStateExtend(map);		break;
+		case State::retract:	updateStateRetract(map);	break;
+		case State::pick:		updateStatePick(map);		break;
+		case State::place:		updateStatePlace(map);		break;
+		case State::extricate:	updateStateExtricate(map);	break;
+		default:				updateStateIdle(map);
     }
 }
 

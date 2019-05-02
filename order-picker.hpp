@@ -18,6 +18,7 @@ extend ----> extend arms to bin
 retract ---> bring arms back to rest position
 pick ------> take the item from the bin
 place -----> place the item in the bin
+extricate -> Find a new temporary place to move to
 */
 enum class State { idle, yield, home, retrieve, stock, receive, ship, extend, retract, pick, place, extricate };
 
@@ -32,10 +33,21 @@ private:
 	std::string itemName, stockItemName;
 	int binId, stockBinId;
 	int yieldCount;
+	void updateStateIdle(char map[10][10]);
+	void updateStateYield(char map[10][10]);
+	void updateStateHome(char map[10][10]);
+	void updateStateRetrieve(char map[10][10]);
+	void updateStateStock(char map[10][10]);
+	void updateStateReceive(char map[10][10]);
+	void updateStateShip(char map[10][10]);
+	void updateStateExtend(char map[10][10]);
+	void updateStateRetract(char map[10][10]);
+	void updateStatePick(char map[10][10]);
+	void updateStatePlace(char map[10][10]);
+	void updateStateExtricate(char map[10][10]);
 public:
 	OrderPicker(Position home);
 	Position getPosition();
-	std::vector<Position> getPath();
 	State getState();
 	bool hasItem();
 	int getTargetBinId();
