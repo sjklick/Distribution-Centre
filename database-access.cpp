@@ -58,6 +58,46 @@ Position Database::getPickerHome(int pickerId) {
 	return home;
 }
 
+Position Database::getPickerCurrent(int pickerId) {
+	connect();
+	Position current;
+	MYSQL_RES* result;
+	MYSQL_ROW row;
+	std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
+	if (mysql_query(connection, query.c_str()) == 0) {
+		result = mysql_use_result(connection);
+		if (result) {
+			if(row = mysql_fetch_row(result)) {
+				current.row = std::stoi(row[4]);
+				current.column = std::stoi(row[5]);
+				current.facing = CharToDirection(row[6][0]);
+				mysql_free_result(result);
+				disconnect();
+				return current;
+			}
+		}
+	}
+	current.row = -1;
+	current.column = -1;
+	current.facing = invalid;
+	disconnect();
+	return current;
+}
+
+void Database::setPickerCurrent(int pickerId, Position current) {
+	connect();
+	std::string query = "";
+	query += "UPDATE pickers SET curr_row=";
+	query += std::to_string(current.row);
+	query += ", curr_col=";
+	query += std::to_string(current.column);
+	query += ", curr_dir=\"";
+	query += DirectionToChar(current.facing);
+	query += "\" WHERE picker_id="+std::to_string(pickerId)+";";
+	mysql_query(connection, query.c_str());
+	disconnect();
+}
+
 State Database::getPickerState(int pickerId) {
 	connect();
 	MYSQL_RES* result;

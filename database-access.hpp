@@ -20,6 +20,10 @@ private:
 public:
 	Position getPickerHome(int pickerId);
 
+	Position getPickerCurrent(int pickerId);
+
+	void setPickerCurrent(int pickerId, Position current);
+
 	State getPickerState(int pickerId);
 
 	void setPickerState(int pickerId, State state);

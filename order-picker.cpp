@@ -9,7 +9,6 @@ static std::vector<Position> findPath(Position start, Position end, char map[10]
 OrderPicker::OrderPicker(int id, Position home) {
 	this->id = id;
     this->home = home;
-    current = home;
     target = home;
     path.clear();
     item = false;
@@ -25,7 +24,7 @@ OrderPicker::OrderPicker(int id, Position home) {
 }
 
 Position OrderPicker::getPosition() {
-    return current;
+    return db.getPickerCurrent(id);
 }
 
 State OrderPicker::getState() {
@@ -108,6 +107,8 @@ void OrderPicker::updateStateYield(char map[10][10]) {
 
 void OrderPicker::updateStateHome(char map[10][10]) {
 	State state = State::home;
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != home) {
 		path = findPath(current, home, map);
 		if (path.empty()) {
@@ -115,7 +116,7 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -132,6 +133,8 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 
 void OrderPicker::updateStateRetrieve(char map[10][10]) {
 	State state = State::retrieve;
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != target) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
@@ -139,7 +142,7 @@ void OrderPicker::updateStateRetrieve(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -150,6 +153,8 @@ void OrderPicker::updateStateRetrieve(char map[10][10]) {
 
 void OrderPicker::updateStateStock(char map[10][10]) {
 	State state = State::stock;
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != target) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
@@ -157,7 +162,7 @@ void OrderPicker::updateStateStock(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -173,6 +178,8 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 	bin.column = 8;
 	bin.facing = down;
 	bin = getFacingPosition(bin);
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != bin) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
@@ -180,7 +187,7 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -196,6 +203,8 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 	bin.column = 1;
 	bin.facing = up;
 	bin = getFacingPosition(bin);
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != bin) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
@@ -203,7 +212,7 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -246,6 +255,8 @@ void OrderPicker::updateStatePlace(char map[10][10]) {
 
 void OrderPicker::updateStateExtricate(char map[10][10]) {
 	State state = State::extricate;
+	Position current;
+	current = db.getPickerCurrent(id);
 	if (current != extricate) {
 		path = findPath(current, extricate, map);
 		if (path.empty()) {
@@ -253,7 +264,7 @@ void OrderPicker::updateStateExtricate(char map[10][10]) {
 			db.setPickerState(id, state);
 		} else {
 			yieldCount = 0;
-			current = path.back();
+			db.setPickerCurrent(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
