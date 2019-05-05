@@ -10,7 +10,7 @@ if (isset($connection)) {
 		public $state;
 	}
 	$pickers = array();
-	$query = "SELECT * FROM stock_bins";
+	$query = "SELECT * FROM pickers";
 	foreach ($connection->query($query) as $row) {
 		$picker = new Picker;
 		$picker->row = intval($row['curr_row']);
