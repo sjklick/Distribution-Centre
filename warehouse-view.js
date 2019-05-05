@@ -181,9 +181,9 @@ function updateBinTable() {
 				let data = JSON.parse(this.responseText);
 				document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
 				for (let i=0; i<12; i++) {
-					if (i<data.item.length) {
-						table_item[i].innerText = data.item[i].name;
-						table_quantity[i].innerText = data.item[i].quantity.toString();
+					if (i<data.length) {
+						table_item[i].innerText = data[i].name;
+						table_quantity[i].innerText = data[i].quantity.toString();
 					} else {
 						table_item[i].innerText = " ";
 						table_quantity[i].innerText = " ";
@@ -194,8 +194,8 @@ function updateBinTable() {
 				setTimeout(updateBinTable, 500);
 			}
 		}
-		xhttpTable.overrideMimeType("application/json");
-		xhttpTable.open("GET", "bin_"+selected_bin_id.toString()+".json", true);
+		xhttpTable.open("GET", "api/bin/read.php?id="+selected_bin_id.toString(), true);
+		xhttpTable.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		xhttpTable.send();
 	} else if (selected_shipping) {
 		var xhttpTable = new XMLHttpRequest();

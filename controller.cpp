@@ -187,9 +187,9 @@ bool Controller::writeState() {
 	writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 	writeReceivingJSON(db.getReceivingItems());
 	writeShippingJSON(shippingItems);
-	for (int i=0; i<numBins; i++) {
+	/*for (int i=0; i<numBins; i++) {
 		writeBinJSON(i+1, db.getBinContents(i+1));
-	}
+	}*/
 	return true;
 }
 
