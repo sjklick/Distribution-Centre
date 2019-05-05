@@ -12,9 +12,9 @@ if (isset($connection)) {
 	$query = "SELECT * FROM stock_bins";
 	foreach ($connection->query($query) as $row) {
 		$position = new Position;
-		$position->row = $row['row'];
+		$position->row = intval($row['row']);
 		$position->column = intval($row['col']);
-		$position->facing = intval($row['dir']);
+		$position->facing = $row['dir'];
 		array_push($positions, $position);
 	}
 	echo json_encode($positions);
