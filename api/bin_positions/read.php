@@ -9,7 +9,7 @@ if (isset($connection)) {
 		public $facing;
 	}
 	$positions = array();
-	$query = "SELECT * FROM stock_bins";
+	$query = "SELECT * FROM stock_bins ORDER BY bin_id ASC";
 	foreach ($connection->query($query) as $row) {
 		$position = new Position;
 		$position->row = intval($row['row']);

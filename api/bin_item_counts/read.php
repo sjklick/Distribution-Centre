@@ -4,7 +4,7 @@ include "../connection/connect.php";
 $connection = connect();
 if (isset($connection)) {
 	$nItems = array();
-	for ($bin=0; $bin<22; $bin++) {
+	for ($bin=1; $bin<23; $bin++) {
 		$query = "SELECT SUM(quantity) FROM stock_items WHERE bin_id=".$bin;
 		foreach ($connection->query($query) as $row) {
 			$currentCount = intval($row[0]);

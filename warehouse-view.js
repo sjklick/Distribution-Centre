@@ -128,6 +128,29 @@ function updateStockBinPositions() {
 	xhttpStockBinPositions.send();
 }
 
+function updateStockBinItemCount() {
+	var xhttpStockBinItemCount = new XMLHttpRequest();
+	xhttpStockBinItemCount.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let data = JSON.parse(this.responseText);
+			if (typeof bin_tile_div != 'undefined') {
+				for (let b=0; b<data.length; b++) {
+					bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data[b].toString()+".svg)";
+					bin_tile_div[b].style.backgroundSize = "80% 80%";
+					bin_tile_div[b].style.backgroundRepeat = "no-repeat";
+					bin_tile_div[b].style.backgroundPosition = "center";
+				}
+			}
+			setTimeout(updateStockBinItemCount, 1000);
+		} else if (this.readyState == 4 && this.status != 200) {
+			setTimeout(updateStockBinItemCount, 1000);
+		}
+	}
+	xhttpStockBinItemCount.open("GET", "api/bin_item_counts/read.php", true);
+	xhttpStockBinItemCount.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpStockBinItemCount.send();
+}
+
 function updateState() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -165,17 +188,6 @@ function updateState() {
 					tile_div.innerText = p.toString() + " " + data.picker[p].position.facing + " *\n" + data.picker[p].state;
 				} else {
 					tile_div.innerText = p.toString() + " " +data.picker[p].position.facing + "\n" + data.picker[p].state;
-				}
-			}
-			// Update bin text.
-			if (typeof bin_tile_div === 'undefined') {
-				for (let b=0; b<22; b++) {
-					let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-					//bin_tile_div[b].innerText = data.bin[b].nItems.toString();
-					bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data.bin[b].nItems.toString()+".svg)";
-					bin_tile_div[b].style.backgroundSize = "80% 80%";
-					bin_tile_div[b].style.backgroundRepeat = "no-repeat";
-					bin_tile_div[b].style.backgroundPosition = "center";
 				}
 			}
 			// Set an update request for half a second from now.
@@ -264,5 +276,6 @@ function updateBinTable() {
 
 // Kick-start updates.
 updateStockBinPositions();
+updateStockBinItemCount();
 updateState();
 updateBinTable();
