@@ -61,11 +61,11 @@
 }
 
 .stock-bin-error {
-	background-color: gold;
+	background-color: yellow;
 }
 
 .stock-bin-up {
-	background-color: gold;
+	background-color: yellow;
 	border-top: var(--stock-bin-edge) dotted black;
 	border-right: var(--stock-bin-edge) solid black;
 	border-bottom: var(--stock-bin-edge) solid black;
@@ -73,7 +73,7 @@
 }
 
 .stock-bin-down {
-	background-color: gold;
+	background-color: yellow;
 	border-top: var(--stock-bin-edge) solid black;
 	border-right: var(--stock-bin-edge) solid black;
 	border-bottom: var(--stock-bin-edge) dotted black;
@@ -81,7 +81,7 @@
 }
 
 .stock-bin-left {
-	background-color: gold;
+	background-color: yellow;
 	border-top: var(--stock-bin-edge) solid black;
 	border-right: var(--stock-bin-edge) solid black;
 	border-bottom: var(--stock-bin-edge) solid black;
@@ -89,9 +89,25 @@
 }
 
 .stock-bin-right {
-	background-color: gold;
+	background-color: yellow;
 	border-top: var(--stock-bin-edge) solid black;
 	border-right: var(--stock-bin-edge) dotted black;
+	border-bottom: var(--stock-bin-edge) solid black;
+	border-left: var(--stock-bin-edge) solid black;
+}
+
+.receiving-bin {
+	background-color: red;
+	border-top: var(--stock-bin-edge) solid black;
+	border-right: var(--stock-bin-edge) solid black;
+	border-bottom: var(--stock-bin-edge) dotted black;
+	border-left: var(--stock-bin-edge) solid black;
+}
+
+.shipping-bin {
+	background-color: green;
+	border-top: var(--stock-bin-edge) dotted black;
+	border-right: var(--stock-bin-edge) solid black;
 	border-bottom: var(--stock-bin-edge) solid black;
 	border-left: var(--stock-bin-edge) solid black;
 }

@@ -58,10 +58,12 @@ for (row=0; row<10; row++) {
 if (typeof shipping_tile_div === 'undefined') {
 	let id = "9,1";
 	shipping_tile_div = document.getElementById(id);
+	shipping_tile_div.classList.add("shipping-bin");
 }
 if (typeof receiving_tile_div === 'undefined') {
 	let id = "0,8";
 	receiving_tile_div = document.getElementById(id);
+	receiving_tile_div.classList.add("receiving-bin");
 }
 
 // Add rows to bin table in the DOM.
@@ -88,10 +90,6 @@ for (row=0; row<10; row++) {
 			tile_div.classList.add("floor");
 		} else if (warehouse[row][column] == 'X') {
 			tile_div.classList.add("wall");
-		} else if (warehouse[row][column] == 'S') {
-			tile_div.classList.add("shipping");
-		} else if (warehouse[row][column] == 'R') {
-			tile_div.classList.add("receiving");
 		} else {
 			tile_div.classList.add("unknown");
 		}
@@ -136,27 +134,39 @@ function updateStockBinPositions() {
 	xhttpStockBinPositions.send();
 }
 
-function updateStockBinItemCount() {
-	var xhttpStockBinItemCount = new XMLHttpRequest();
-	xhttpStockBinItemCount.onreadystatechange = function() {
+function updateBinItemCount() {
+	var xhttpBinItemCount = new XMLHttpRequest();
+	xhttpBinItemCount.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			let data = JSON.parse(this.responseText);
 			if (typeof bin_tile_div != 'undefined') {
-				for (let b=0; b<data.length; b++) {
-					bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data[b].toString()+".svg)";
+				for (let b=0; b<data.stock.length; b++) {
+					bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data.stock[b].toString()+".svg)";
 					bin_tile_div[b].style.backgroundSize = "80% 80%";
 					bin_tile_div[b].style.backgroundRepeat = "no-repeat";
 					bin_tile_div[b].style.backgroundPosition = "center";
 				}
 			}
-			setTimeout(updateStockBinItemCount, 1000);
+			if (typeof receiving_tile_div != 'undefined') {
+				receiving_tile_div.style.backgroundImage = "url(./graphics/item-"+data.receiving.toString()+".svg)";
+				receiving_tile_div.style.backgroundSize = "80% 80%";
+				receiving_tile_div.style.backgroundRepeat = "no-repeat";
+				receiving_tile_div.style.backgroundPosition = "center";
+			}
+			if (typeof shipping_tile_div != 'undefined') {
+				shipping_tile_div.style.backgroundImage = "url(./graphics/item-"+data.shipping.toString()+".svg)";
+				shipping_tile_div.style.backgroundSize = "80% 80%";
+				shipping_tile_div.style.backgroundRepeat = "no-repeat";
+				shipping_tile_div.style.backgroundPosition = "center";
+			}
+			setTimeout(updateBinItemCount, 1000);
 		} else if (this.readyState == 4 && this.status != 200) {
-			setTimeout(updateStockBinItemCount, 1000);
+			setTimeout(updateBinItemCount, 1000);
 		}
 	}
-	xhttpStockBinItemCount.open("GET", "api/bin_item_counts/read.php", true);
-	xhttpStockBinItemCount.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	xhttpStockBinItemCount.send();
+	xhttpBinItemCount.open("GET", "api/bin_item_counts/read.php", true);
+	xhttpBinItemCount.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpBinItemCount.send();
 }
 
 function updateOrders() {
@@ -287,7 +297,7 @@ function updateBinTable() {
 
 // Kick-start updates.
 updateStockBinPositions();
-updateStockBinItemCount();
+updateBinItemCount();
 updateOrders();
 updatePickers();
 updateBinTable();
