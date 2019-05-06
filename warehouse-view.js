@@ -151,14 +151,31 @@ function updateStockBinItemCount() {
 	xhttpStockBinItemCount.send();
 }
 
+function updateOrders() {
+	var xhttpOrders = new XMLHttpRequest();
+	xhttpOrders.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let data = JSON.parse(this.responseText);
+			if (data.length == 0) {
+				document.getElementById("order").innerText = "No orders";
+			} else {
+				document.getElementById("order").innerText = "Processing order #"+data[0].toString()+".";
+			}
+			setTimeout(updateOrders, 1000);
+		} else if (this.readyState == 4 && this.status != 200) {
+			setTimeout(updateOrders, 1000);
+		}
+	}
+	xhttpOrders.open("GET", "api/orders/read.php", true);
+	xhttpOrders.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpOrders.send();
+}
+
 function updateState() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			let data = JSON.parse(this.responseText);
-			// Update current order.
-			if (data.order == -1) document.getElementById("order").innerText = "No orders";
-			else document.getElementById("order").innerText = "Processing order #"+data.order.toString()+".";
 			// Remove old picker positions from display.
 			if (typeof previous_tile_id !== "undefined") {
 				for (let p=0; p<4; p++) {
@@ -277,5 +294,6 @@ function updateBinTable() {
 // Kick-start updates.
 updateStockBinPositions();
 updateStockBinItemCount();
+updateOrders();
 updateState();
 updateBinTable();
