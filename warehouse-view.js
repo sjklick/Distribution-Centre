@@ -55,6 +55,14 @@ for (row=0; row<10; row++) {
 		tile_div.onclick = function(){onTileClick(this)};
 	}
 }
+if (typeof shipping_tile_div === 'undefined') {
+	let id = "9,1";
+	shipping_tile_div = document.getElementById(id);
+}
+if (typeof receiving_tile_div === 'undefined') {
+	let id = "0,8";
+	receiving_tile_div = document.getElementById(id);
+}
 
 // Add rows to bin table in the DOM.
 let table_element = document.getElementById("bin-table");
@@ -171,9 +179,9 @@ function updateOrders() {
 	xhttpOrders.send();
 }
 
-function updateState() {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
+function updatePickers() {
+	var xhttpPickers = new XMLHttpRequest();
+	xhttpPickers.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			let data = JSON.parse(this.responseText);
 			// Remove old picker positions from display.
@@ -184,38 +192,24 @@ function updateState() {
 					tile_div.innerText = "";
 				}
 			}
-			// Initialize bin tiles.
-			if (typeof shipping_tile_div === 'undefined') {
-				let id = "9,1";
-				shipping_tile_div = document.getElementById(id);
-			}
-			if (typeof receiving_tile_div === 'undefined') {
-				let id = "0,8";
-				receiving_tile_div = document.getElementById(id);
-			}
 			// Update old positions for next call.
 			// Update picker positions on display.
 			previous_tile_id = [];
 			for (let p=0; p<4; p++) {
-				let id = data.picker[p].position.row.toString()+","+data.picker[p].position.column.toString();				
+				let id = data[p].row.toString()+","+data[p].column.toString();				
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
 				tile_div.classList.add("picker");
-				if (data.picker[p].hasItem) {
-					tile_div.innerText = p.toString() + " " + data.picker[p].position.facing + " *\n" + data.picker[p].state;
-				} else {
-					tile_div.innerText = p.toString() + " " +data.picker[p].position.facing + "\n" + data.picker[p].state;
-				}
+				tile_div.innerText = p.toString() + " " +data[p].facing + "\n" + data[p].state;
 			}
-			// Set an update request for half a second from now.
-			setTimeout(updateState, 500);
+			setTimeout(updatePickers, 500);
 		} else if (this.readyState == 4 && this.status != 200) {
-			setTimeout(updateState, 500);
+			setTimeout(updatePickers, 500);
 		}
 	}
-	xhttp.overrideMimeType("application/json");
-	xhttp.open("GET", "state.json", true);
-	xhttp.send();
+	xhttpPickers.open("GET", "api/pickers/read.php", true);
+	xhttpPickers.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpPickers.send();
 }
 
 function updateBinTable() {
@@ -295,5 +289,5 @@ function updateBinTable() {
 updateStockBinPositions();
 updateStockBinItemCount();
 updateOrders();
-updateState();
+updatePickers();
 updateBinTable();
