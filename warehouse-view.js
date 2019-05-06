@@ -90,6 +90,44 @@ for (row=0; row<10; row++) {
 	}
 }
 
+function updateStockBinPositions() {
+	var xhttpStockBinPositions = new XMLHttpRequest();
+	xhttpStockBinPositions.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let data = JSON.parse(this.responseText);
+			if (typeof bin_tile_div === 'undefined') {
+				bin_tile_div = [];
+				for (let b=0; b<data.length; b++) {
+					let id = data[b].row.toString()+","+data[b].column.toString();
+					bin_tile_div[b] = document.getElementById(id);
+					bin_tile_div[b].classList.remove("floor");
+					switch (data[b].facing) {
+						case 'u':
+							bin_tile_div[b].classList.add("stock-bin-up");
+							break;
+						case 'd':
+							bin_tile_div[b].classList.add("stock-bin-down");
+							break;
+						case 'l':
+							bin_tile_div[b].classList.add("stock-bin-left");
+							break;
+						case 'r':
+							bin_tile_div[b].classList.add("stock-bin-right");
+							break;
+						default:
+							bin_tile_div[b].classList.add("stock-bin-error");
+					}
+				}
+			}
+		} else if (this.readyState == 4 && this.status != 200) {
+			setTimeout(updateStockBinPositions, 100);
+		}
+	}
+	xhttpStockBinPositions.open("GET", "api/bin_positions/read.php", true);
+	xhttpStockBinPositions.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpStockBinPositions.send();
+}
+
 function updateState() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -115,30 +153,6 @@ function updateState() {
 				let id = "0,8";
 				receiving_tile_div = document.getElementById(id);
 			}
-			if (typeof bin_tile_div === 'undefined') {
-				bin_tile_div = [];
-				for (let b=0; b<22; b++) {
-					let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-					bin_tile_div[b] = document.getElementById(id);
-					bin_tile_div[b].classList.remove("floor");
-					switch (data.bin[b].position.facing) {
-						case 'u':
-							bin_tile_div[b].classList.add("stock-bin-up");
-							break;
-						case 'd':
-							bin_tile_div[b].classList.add("stock-bin-down");
-							break;
-						case 'l':
-							bin_tile_div[b].classList.add("stock-bin-left");
-							break;
-						case 'r':
-							bin_tile_div[b].classList.add("stock-bin-right");
-							break;
-						default:
-							bin_tile_div[b].classList.add("stock-bin-error");
-					}
-				}
-			}
 			// Update old positions for next call.
 			// Update picker positions on display.
 			previous_tile_id = [];
@@ -154,13 +168,15 @@ function updateState() {
 				}
 			}
 			// Update bin text.
-			for (let b=0; b<22; b++) {
-				let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
-				//bin_tile_div[b].innerText = data.bin[b].nItems.toString();
-				bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data.bin[b].nItems.toString()+".svg)";
-				bin_tile_div[b].style.backgroundSize = "80% 80%";
-				bin_tile_div[b].style.backgroundRepeat = "no-repeat";
-				bin_tile_div[b].style.backgroundPosition = "center";
+			if (typeof bin_tile_div === 'undefined') {
+				for (let b=0; b<22; b++) {
+					let id = data.bin[b].position.row.toString()+","+data.bin[b].position.column.toString();
+					//bin_tile_div[b].innerText = data.bin[b].nItems.toString();
+					bin_tile_div[b].style.backgroundImage = "url(./graphics/item-"+data.bin[b].nItems.toString()+".svg)";
+					bin_tile_div[b].style.backgroundSize = "80% 80%";
+					bin_tile_div[b].style.backgroundRepeat = "no-repeat";
+					bin_tile_div[b].style.backgroundPosition = "center";
+				}
 			}
 			// Set an update request for half a second from now.
 			setTimeout(updateState, 500);
@@ -247,5 +263,6 @@ function updateBinTable() {
 }
 
 // Kick-start updates.
+updateStockBinPositions();
 updateState();
 updateBinTable();
