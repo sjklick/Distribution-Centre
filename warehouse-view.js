@@ -198,8 +198,14 @@ function updatePickers() {
 			if (typeof previous_tile_id !== "undefined") {
 				for (let p=0; p<4; p++) {
 					let tile_div = document.getElementById(previous_tile_id[p]);
-					tile_div.classList.remove("picker");
-					tile_div.innerText = "";
+					tile_div.classList.remove("picker-up");
+					tile_div.classList.remove("picker-up-extend");
+					tile_div.classList.remove("picker-right");
+					tile_div.classList.remove("picker-right-extend");
+					tile_div.classList.remove("picker-down");
+					tile_div.classList.remove("picker-down-extend");
+					tile_div.classList.remove("picker-left");
+					tile_div.classList.remove("picker-left-extend");
 				}
 			}
 			// Update old positions for next call.
@@ -209,8 +215,17 @@ function updatePickers() {
 				let id = data[p].row.toString()+","+data[p].column.toString();				
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
-				tile_div.classList.add("picker");
-				tile_div.innerText = p.toString() + " " +data[p].facing + "\n" + data[p].state;
+				if ((data[p].state == "extend") || (data[p].state == "pick") || (data[p].state == "place")) {
+					if (data[p].facing == 'u') tile_div.classList.add("picker-up-extend");
+					else if (data[p].facing == 'r') tile_div.classList.add("picker-right-extend");
+					else if (data[p].facing == 'd') tile_div.classList.add("picker-down-extend");
+					else tile_div.classList.add("picker-left-extend");
+				} else {
+					if (data[p].facing == 'u') tile_div.classList.add("picker-up");
+					else if (data[p].facing == 'r') tile_div.classList.add("picker-right");
+					else if (data[p].facing == 'd') tile_div.classList.add("picker-down");
+					else tile_div.classList.add("picker-left");
+				}
 			}
 			setTimeout(updatePickers, 500);
 		} else if (this.readyState == 4 && this.status != 200) {

@@ -48,8 +48,36 @@
 	background-image: url(./graphics/brick.svg);
 }
 
-.picker {
-	background-color: cyan;
+.picker-up {
+	background-image: url(./graphics/picker-up.svg);
+}
+
+.picker-up-extend {
+	background-image: url(./graphics/picker-up-extend.svg);
+}
+
+.picker-right {
+	background-image: url(./graphics/picker-right.svg);
+}
+
+.picker-right-extend {
+	background-image: url(./graphics/picker-right-extend.svg);
+}
+
+.picker-down {
+	background-image: url(./graphics/picker-down.svg);
+}
+
+.picker-down-extend {
+	background-image: url(./graphics/picker-down-extend.svg);
+}
+
+.picker-left {
+	background-image: url(./graphics/picker-left.svg);
+}
+
+.picker-left-extend {
+	background-image: url(./graphics/picker-left-extend.svg);
 }
 
 .shipping {
