@@ -133,7 +133,7 @@ void Controller::updateState() {
 				if (binId != -1) {
 					// Remove item from receiving bin.
 					itemName = picker[i]->getStockItemName();
-					db.removeItemFromReceiving(itemName);
+					db.picker_take_item_from_receiving(picker[i]->getPickerId(), itemName);
 				}
 				break;
 			case State::place:
@@ -149,7 +149,7 @@ void Controller::updateState() {
 				}
 				binId = picker[i]->getStockBin();
 				if (binId != -1) {
-					db.placeItemIntoStockBin(binId, picker[i]->getStockItemName());
+					db.picker_place_item_into_stock(picker[i]->getPickerId(), picker[i]->getStockItemName(), binId);
 					currentBin = db.getBinContents(binId);
 					nItems[binId-1] = db.getBinItemCount(binId);
 				}

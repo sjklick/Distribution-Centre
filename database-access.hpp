@@ -59,6 +59,7 @@ public:
 
 	void removeItemFromStockBin(int binId, std::string itemName);
 
+	// MAY NO LONGER BE NEEDED.
 	void placeItemIntoStockBin(int binId, std::string itemName);
 
 	// MAY NO LONGER BE NEEDED.
@@ -74,7 +75,11 @@ public:
 
 	std::vector<int> whichBinsHaveRoom();
 
+	// MAY NO LONGER BE NEEDED.
 	void removeItemFromReceiving (std::string itemName);
+
+	void picker_take_item_from_receiving (int pickerId, std::string itemName);
+	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
 };
 
 #endif

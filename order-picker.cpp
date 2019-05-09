@@ -39,6 +39,10 @@ int OrderPicker::getTargetBinId() {
 	return binId;
 }
 
+int OrderPicker::getPickerId() {
+	return id;
+}
+
 std::string OrderPicker::getItemName() {
 	return itemName;
 }

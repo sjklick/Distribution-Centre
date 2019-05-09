@@ -34,6 +34,7 @@ public:
 	State getState();
 	bool hasItem();
 	int getTargetBinId();
+	int getPickerId();
 	std::string getItemName();
 	bool processItem(int binId, Position bin, std::string itemName);
 	void stockItem(int stockBinId, Position bin, std::string stockItemName);
