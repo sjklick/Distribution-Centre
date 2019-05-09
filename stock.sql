@@ -145,8 +145,11 @@ CREATE TABLE `pickers` (
   `curr_col` int(11) NOT NULL,
   `curr_dir` char(1) NOT NULL,
   `state` varchar(9) NOT NULL,
+  `name` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`picker_id`),
   KEY `state` (`state`),
+  KEY `fk_picker_item_name` (`name`),
+  CONSTRAINT `fk_picker_item_name` FOREIGN KEY (`name`) REFERENCES `products` (`name`),
   CONSTRAINT `pickers_ibfk_1` FOREIGN KEY (`state`) REFERENCES `picker_states` (`state`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -157,7 +160,7 @@ CREATE TABLE `pickers` (
 
 LOCK TABLES `pickers` WRITE;
 /*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
-INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle'),(2,2,1,'r',2,1,'r','idle'),(3,3,1,'r',3,1,'r','idle'),(4,4,1,'r',4,1,'r','idle');
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle',NULL),(2,2,1,'r',2,1,'r','idle',NULL),(3,3,1,'r',3,1,'r','idle',NULL),(4,4,1,'r',4,1,'r','idle',NULL);
 /*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -338,4 +341,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-02  9:50:50
+-- Dump completed on 2019-05-09 14:28:45
