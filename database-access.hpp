@@ -10,7 +10,7 @@
 
 namespace Database {
 	Position picker_get_home (int pickerId);
-	Position getPickerCurrent(int pickerId);
+	Position picker_get_current (int pickerId);
 	void setPickerCurrent(int pickerId, Position current);
 	State getPickerState(int pickerId);
 	void setPickerState(int pickerId, State state);

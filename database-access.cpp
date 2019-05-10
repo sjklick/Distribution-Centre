@@ -36,7 +36,6 @@ static MYSQL* connect () {
 }
 
 static void disconnect (MYSQL* connection) {
-	// Cleanly close SQL server connection.
 	if (connection != NULL) mysql_close(connection);
 }
 
@@ -58,6 +57,15 @@ static void make_query (MYSQL* connection, std::string query) {
 	if (mysql_query(connection, query.c_str()) != 0) throw DatabaseException(error);
 }
 
+static MYSQL_RES* get_result (MYSQL* connection) {
+	MYSQL_RES* result;
+	std::string error;
+	error = "Failed to get result from query.";
+	result = mysql_use_result(connection);
+	if (result) return result;
+	else throw DatabaseException(error);
+}
+
 namespace Database {
 	Position picker_get_home (int pickerId) {
 		MYSQL* connection;
@@ -69,20 +77,13 @@ namespace Database {
 			connection = connect();
 			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					home.row = std::stoi(row[1]);
-					home.column = std::stoi(row[2]);
-					home.facing = CharToDirection(row[3][0]);
-					mysql_free_result(result);
-					disconnect(connection);
-					return home;
-				}
+			result = get_result(connection);
+			if(row = mysql_fetch_row(result)) {
+				home.row = std::stoi(row[1]);
+				home.column = std::stoi(row[2]);
+				home.facing = CharToDirection(row[3][0]);			
 			}
-			home.row = -1;
-			home.column = -1;
-			home.facing = invalid;
+			mysql_free_result(result);
 			disconnect(connection);
 			return home;
 		} catch (DatabaseException& e) {
@@ -90,31 +91,28 @@ namespace Database {
 		}
 	}
 
-	Position getPickerCurrent(int pickerId) {
+	Position picker_get_current (int pickerId) {
 		MYSQL* connection;
-		connection = connect();
-		Position current;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
-		std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					current.row = std::stoi(row[4]);
-					current.column = std::stoi(row[5]);
-					current.facing = CharToDirection(row[6][0]);
-					mysql_free_result(result);
-					disconnect(connection);
-					return current;
-				}
+		Position current;
+		std::string query;
+		try {
+			connection = connect();
+			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if(row = mysql_fetch_row(result)) {
+				current.row = std::stoi(row[4]);
+				current.column = std::stoi(row[5]);
+				current.facing = CharToDirection(row[6][0]);
 			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return current;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_current - "+e.message());
 		}
-		current.row = -1;
-		current.column = -1;
-		current.facing = invalid;
-		disconnect(connection);
-		return current;
 	}
 
 	void setPickerCurrent(int pickerId, Position current) {

@@ -25,7 +25,7 @@ OrderPicker::OrderPicker(int id, Position home) {
 }
 
 Position OrderPicker::getPosition() {
-    return Database::getPickerCurrent(id);
+    return Database::picker_get_current(id);
 }
 
 State OrderPicker::getState() {
@@ -113,7 +113,7 @@ void OrderPicker::updateStateYield(char map[10][10]) {
 void OrderPicker::updateStateHome(char map[10][10]) {
 	State state = State::home;
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != home) {
 		path = findPath(current, home, map);
 		if (path.empty()) {
@@ -139,7 +139,7 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 void OrderPicker::updateStateRetrieve(char map[10][10]) {
 	State state = State::retrieve;
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != target) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
@@ -159,7 +159,7 @@ void OrderPicker::updateStateRetrieve(char map[10][10]) {
 void OrderPicker::updateStateStock(char map[10][10]) {
 	State state = State::stock;
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != target) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
@@ -184,7 +184,7 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 	bin.facing = down;
 	bin = getFacingPosition(bin);
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != bin) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
@@ -209,7 +209,7 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 	bin.facing = up;
 	bin = getFacingPosition(bin);
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != bin) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
@@ -261,7 +261,7 @@ void OrderPicker::updateStatePlace(char map[10][10]) {
 void OrderPicker::updateStateExtricate(char map[10][10]) {
 	State state = State::extricate;
 	Position current;
-	current = Database::getPickerCurrent(id);
+	current = Database::picker_get_current(id);
 	if (current != extricate) {
 		path = findPath(current, extricate, map);
 		if (path.empty()) {
