@@ -5,11 +5,9 @@
 #include <string>
 #include "position.hpp"
 #include "state.hpp"
-#include "database-access.hpp"
 
 class OrderPicker {
 private:
-	Database db;
 	Position home, current, target, extricate;
 	std::vector<Position> path;
 	bool item, delivered, holdingStockItem, stockDelivered, stock;

@@ -1,5 +1,6 @@
 #include "controller.hpp"
 #include "json-writer.hpp"
+#include "database-access.hpp"
 
 Controller::Controller() {
 	currentOrderId = -1;
@@ -10,7 +11,7 @@ bool Controller::init() {
 	// Get picker start positions.
 	Position home;
 	for (int i=0; i<numPickers; i++) {
-		home = db.getPickerHome(i+1);
+		home = Database::getPickerHome(i+1);
 		if ((home.row != -1) && (home.column != -1) && (home.facing != '?')) {
 			picker[i] = new OrderPicker(i+1, home);
 		} else return false;
@@ -18,9 +19,9 @@ bool Controller::init() {
 
 	// Get bin positions from server.
 	for (int i=0; i<numBins; i++) {
-		bin[i] = db.getBinPosition(i+1);
+		bin[i] = Database::getBinPosition(i+1);
 		if ((bin[i].row == -1) && (bin[i].column == -1) && (bin[i].facing == '?')) return false;
-		nItems[i] = db.getBinItemCount(i+1);
+		nItems[i] = Database::getBinItemCount(i+1);
 		if (nItems[i] == -1) return false;
 	}
 
@@ -34,27 +35,27 @@ bool Controller::readState() {
 
 void Controller::updateState() {
 	// Update time until new stock arrives.
-	if (db.getReceivingItems().empty() && (timeUntilRestock == 0)) {
-		db.placeNewStock(db.getLowInventory());
+	if (Database::getReceivingItems().empty() && (timeUntilRestock == 0)) {
+		Database::placeNewStock(Database::getLowInventory());
 		timeUntilRestock = 30;
-	} else if (db.getReceivingItems().empty()){
+	} else if (Database::getReceivingItems().empty()){
 		timeUntilRestock--;
 	}
 
 	// Check for a new order.
 	if (currentOrderId == -1) {
 		// Update order number.
-		currentOrderId = db.getNextOrderId();
+		currentOrderId = Database::getNextOrderId();
 		// Get the manifest of order items.
-		orderItems = db.getOrderItems(currentOrderId);
+		orderItems = Database::getOrderItems(currentOrderId);
 		// Clear shipping bin.
-		db.emptyShippingBin();
+		Database::emptyShippingBin();
 		// Setup shipping bin.
-		db.prepareShippingBin(currentOrderId);
+		Database::prepareShippingBin(currentOrderId);
 		// Remove items from order items (now tracked in shipping bin).
-		db.removeOrderItems(currentOrderId);
+		Database::removeOrderItems(currentOrderId);
 		// Update shipping JSON with empty shipping bin;
-		shippingItems = db.getShippingContents();
+		shippingItems = Database::getShippingContents();
 	}
 
 	// Check for any idle pickers, or if a bin can be unassigned.
@@ -70,7 +71,7 @@ void Controller::updateState() {
 					// If there are any outstanding order items, process them.
 					for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
 						if ((*it).quantity != 0) {
-							int binId = db.whichBinHasItem((*it).name);
+							int binId = Database::whichBinHasItem((*it).name);
 							bool assigned = false;
 							for (int j=0; j<numPickers; j++) {
 								if (picker[j]->getTargetBinId() == binId) {
@@ -89,8 +90,8 @@ void Controller::updateState() {
 				}
 				// If there are no more order items, check if there is anything in receiving.
 				if (!moreItems) {
-					if (!db.getReceivingItems().empty()) {
-						std::vector<int> binsWithRoom = db.whichBinsHaveRoom();
+					if (!Database::getReceivingItems().empty()) {
+						std::vector<int> binsWithRoom = Database::whichBinsHaveRoom();
 						for (std::vector<int>::iterator it = binsWithRoom.begin(); it != binsWithRoom.end(); it++) {
 							bool assigned = false;
 							for (int j=0; j<numPickers; j++) {
@@ -100,7 +101,7 @@ void Controller::updateState() {
 								}
 							}
 							if (!assigned) {
-								std::vector<std::string> stockItems = db.getReceivingItems();
+								std::vector<std::string> stockItems = Database::getReceivingItems();
 								for (std::vector<std::string>::iterator itemIt = stockItems.begin(); itemIt != stockItems.end(); itemIt++) {
 									assigned = false;
 									for (int j=0; j<numPickers; j++) {
@@ -124,34 +125,34 @@ void Controller::updateState() {
 				if (binId != -1) {
 					// Remove item from stock bin.
 					itemName = picker[i]->getItemName();
-					db.removeItemFromStockBin(binId, itemName);
-					currentBin = db.getBinContents(binId);
-					nItems[binId-1] = db.getBinItemCount(binId);
+					Database::removeItemFromStockBin(binId, itemName);
+					currentBin = Database::getBinContents(binId);
+					nItems[binId-1] = Database::getBinItemCount(binId);
 					break;
 				}
 				binId = picker[i]->getStockBin();
 				if (binId != -1) {
 					// Remove item from receiving bin.
 					itemName = picker[i]->getStockItemName();
-					db.picker_take_item_from_receiving(picker[i]->getPickerId(), itemName);
+					Database::picker_take_item_from_receiving(picker[i]->getPickerId(), itemName);
 				}
 				break;
 			case State::place:
 				binId = picker[i]->getTargetBinId();
 				if (binId != -1) {
-					db.putItemInShipping(picker[i]->getItemName());
-					shippingItems = db.getShippingContents();
-					if (db.orderFulfilled(currentOrderId)) {
-						db.removeOrder(currentOrderId);
+					Database::putItemInShipping(picker[i]->getItemName());
+					shippingItems = Database::getShippingContents();
+					if (Database::orderFulfilled(currentOrderId)) {
+						Database::removeOrder(currentOrderId);
 						currentOrderId = -1;
 					}
 					break;
 				}
 				binId = picker[i]->getStockBin();
 				if (binId != -1) {
-					db.picker_place_item_into_stock(picker[i]->getPickerId(), picker[i]->getStockItemName(), binId);
-					currentBin = db.getBinContents(binId);
-					nItems[binId-1] = db.getBinItemCount(binId);
+					Database::picker_place_item_into_stock(picker[i]->getPickerId(), picker[i]->getStockItemName(), binId);
+					currentBin = Database::getBinContents(binId);
+					nItems[binId-1] = Database::getBinItemCount(binId);
 				}
 				break;
 		}
@@ -185,10 +186,10 @@ void Controller::updateState() {
 
 bool Controller::writeState() {
 	//writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
-	writeReceivingJSON(db.getReceivingItems());
+	writeReceivingJSON(Database::getReceivingItems());
 	writeShippingJSON(shippingItems);
 	/*for (int i=0; i<numBins; i++) {
-		writeBinJSON(i+1, db.getBinContents(i+1));
+		writeBinJSON(i+1, Database::getBinContents(i+1));
 	}*/
 	return true;
 }

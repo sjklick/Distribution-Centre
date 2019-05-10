@@ -4,11 +4,9 @@
 #include "order-picker.hpp"
 #include "position.hpp"
 #include "items.hpp"
-#include "database-access.hpp"
 
 class Controller {
 private:
-	Database db;
 	static const int numPickers = 4;
 	OrderPicker* picker[numPickers];
 	static const int numBins = 22;
