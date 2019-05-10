@@ -379,41 +379,6 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	void placeItemIntoStockBin(int binId, std::string itemName) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query;
-		// Check if item is already in bin.
-		query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if (row = mysql_fetch_row(result)) {
-					// If it is in bin, update quantity.
-					int quantity = std::stoi(row[2]);
-					mysql_free_result(result);
-					quantity++;	
-					query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
-					query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-					mysql_query(connection, query.c_str());
-					disconnect(connection);
-					return;
-				} else {
-					// Otherwise, add a new entry for item.
-					mysql_free_result(result);
-					query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
-					query += std::to_string(binId)+", \""+itemName+"\", 1);";
-					mysql_query(connection, query.c_str());
-					disconnect(connection);
-					return;
-				}
-			} else mysql_free_result(result);
-		}
-		disconnect(connection);
-	}
-
 	void removeItemFromOrderItems(int orderId, std::string itemName) {
 		MYSQL* connection;
 		connection = connect();

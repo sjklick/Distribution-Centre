@@ -31,8 +31,6 @@ namespace Database {
 	void removeOrder(int orderId);
 	void removeItemFromStockBin(int binId, std::string itemName);
 	// MAY NO LONGER BE NEEDED.
-	void placeItemIntoStockBin(int binId, std::string itemName);
-	// MAY NO LONGER BE NEEDED.
 	void removeItemFromOrderItems(int orderId, std::string itemName);
 	void removeOrderItems(int orderId);
 	std::vector<std::string> getLowInventory();
