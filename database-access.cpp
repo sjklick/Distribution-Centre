@@ -3,7 +3,8 @@
 #include "database-access.hpp"
 #include "database-exception.hpp"
 
-static void connect(MYSQL* connection) {
+static MYSQL* connect () {
+	MYSQL* connection;
 	std::string error;
 	// Load credentials.
 	// Save username and password on separate lines of "credentials.txt".
@@ -31,22 +32,43 @@ static void connect(MYSQL* connection) {
 			throw DatabaseException(error);
 		}
 	} else throw DatabaseException(error);
+	return connection;
 }
 
-static void disconnect(MYSQL* connection) {
+static void disconnect (MYSQL* connection) {
 	// Cleanly close SQL server connection.
 	if (connection != NULL) mysql_close(connection);
 }
 
+static void disable_auto_commit (MYSQL* connection) {
+	std::string error;
+	error = "Failed to disable autocommit.";
+	if (mysql_autocommit(connection, 0) != 0) throw DatabaseException(error);
+}
+
+static void commit (MYSQL* connection) {
+	std::string error;
+	error = "Failed to commit.";
+	if (mysql_commit(connection) != 0) throw DatabaseException(error);
+}
+
+static void make_query (MYSQL* connection, std::string query) {
+	std::string error;
+	error = "Query failed.";
+	if (mysql_query(connection, query.c_str()) != 0) throw DatabaseException(error);
+}
+
 namespace Database {
-	Position getPickerHome(int pickerId) {
+	Position picker_get_home (int pickerId) {
 		MYSQL* connection;
-		connect(connection);
-		Position home;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
-		std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
+		Position home;
+		std::string query;
+		try {
+			connection = connect();
+			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
 			result = mysql_use_result(connection);
 			if (result) {
 				if(row = mysql_fetch_row(result)) {
@@ -58,17 +80,19 @@ namespace Database {
 					return home;
 				}
 			}
+			home.row = -1;
+			home.column = -1;
+			home.facing = invalid;
+			disconnect(connection);
+			return home;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_home - "+e.message());
 		}
-		home.row = -1;
-		home.column = -1;
-		home.facing = invalid;
-		disconnect(connection);
-		return home;
 	}
 
 	Position getPickerCurrent(int pickerId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		Position current;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -95,7 +119,7 @@ namespace Database {
 
 	void setPickerCurrent(int pickerId, Position current) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query = "";
 		query += "UPDATE pickers SET curr_row=";
 		query += std::to_string(current.row);
@@ -110,7 +134,7 @@ namespace Database {
 
 	State getPickerState(int pickerId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
@@ -130,7 +154,7 @@ namespace Database {
 
 	void setPickerState(int pickerId, State state) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query("UPDATE pickers Set state=\""+StateToString(state)+"\" WHERE picker_id="+std::to_string(pickerId)+";");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
@@ -138,7 +162,7 @@ namespace Database {
 
 	Position getBinPosition(int binId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		Position bin;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -165,7 +189,7 @@ namespace Database {
 
 	int getBinItemCount(int binId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		int nItems;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -194,7 +218,7 @@ namespace Database {
 
 	int getNextOrderId() {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		int nextId;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -216,7 +240,7 @@ namespace Database {
 
 	std::vector<Item> getBinContents(int binId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::vector<Item> items;
 		Item temp;
 		MYSQL_RES* result;
@@ -239,7 +263,7 @@ namespace Database {
 
 	std::vector<Item> getOrderItems(int orderId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::vector<Item> items;
 		Item temp;
 		MYSQL_RES* result;
@@ -262,7 +286,7 @@ namespace Database {
 
 	int whichBinHasItem(std::string item) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		int binId;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -284,7 +308,7 @@ namespace Database {
 
 	void prepareShippingBin(int orderId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::vector<Item> items;
@@ -311,7 +335,7 @@ namespace Database {
 
 	void emptyShippingBin() {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query("TRUNCATE shipping_items;");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
@@ -319,7 +343,7 @@ namespace Database {
 
 	void putItemInShipping(std::string itemName) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query("UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
@@ -327,7 +351,7 @@ namespace Database {
 
 	std::vector<ShippingItem> getShippingContents() {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::vector<ShippingItem> items;
 		ShippingItem temp;
 		MYSQL_RES* result;
@@ -351,7 +375,7 @@ namespace Database {
 
 	bool orderFulfilled(int orderId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query("SELECT * FROM shipping_items WHERE quantity<>needed;");
@@ -372,7 +396,7 @@ namespace Database {
 
 	void removeOrder(int orderId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query("DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
@@ -380,7 +404,7 @@ namespace Database {
 
 	void removeItemFromStockBin(int binId, std::string itemName) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";");
@@ -407,7 +431,7 @@ namespace Database {
 
 	void placeItemIntoStockBin(int binId, std::string itemName) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
@@ -442,7 +466,7 @@ namespace Database {
 
 	void removeItemFromOrderItems(int orderId, std::string itemName) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		int quantity;
@@ -471,7 +495,7 @@ namespace Database {
 
 	void removeOrderItems(int orderId) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query("DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
@@ -479,7 +503,7 @@ namespace Database {
 
 	std::vector<std::string> getLowInventory() {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::vector<std::string> items;
@@ -499,7 +523,7 @@ namespace Database {
 
 	std::vector<std::string> getReceivingItems() {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::vector<std::string> items;
@@ -519,7 +543,7 @@ namespace Database {
 
 	void placeNewStock(std::vector<std::string> itemNames) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query;
 		for (std::vector<std::string>::iterator it = itemNames.begin(); it != itemNames.end(); it++) {
 			query = "INSERT INTO receiving_items (name) VALUES (\"";
@@ -540,7 +564,7 @@ namespace Database {
 
 	void removeItemFromReceiving (std::string itemName) {
 		MYSQL* connection;
-		connect(connection);
+		connection = connect();
 		std::string query;
 		query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
 		mysql_query(connection, query.c_str());
@@ -550,60 +574,64 @@ namespace Database {
 	void picker_take_item_from_receiving (int pickerId, std::string itemName) {
 		MYSQL* connection;
 		std::string query;
-		connect(connection);
-		// Assume this works for now, add error checking later.
-		mysql_autocommit(connection, 0);
-		query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
-		mysql_query(connection, query.c_str());
-		query = "UPDATE pickers SET name=\""+itemName+"\" WHERE picker_id="+std::to_string(pickerId)+";";
-		mysql_query(connection, query.c_str());
-		// Assume this works for now, add error checking later.
-		mysql_commit(connection);
-		disconnect(connection);
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
+			mysql_query(connection, query.c_str());
+			query = "UPDATE pickers SET name=\""+itemName+"\" WHERE picker_id="+std::to_string(pickerId)+";";
+			mysql_query(connection, query.c_str());
+			commit(connection);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_take_item_from_receiving - "+e.message());
+		}
 	}
 
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId) {
 		MYSQL* connection;
-		connect(connection);
-		// Assume this works for now, add error checking later.
-		mysql_autocommit(connection, 0);
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
-		// Check if item is already in bin.
-		query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if (row = mysql_fetch_row(result)) {
-					// If it is in bin, update quantity.
-					int quantity = std::stoi(row[2]);
-					mysql_free_result(result);
-					quantity++;	
-					query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
-					query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-					mysql_query(connection, query.c_str());
-					query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
-					mysql_query(connection, query.c_str());
-					// Assume this works for now, add error checking later.
-					mysql_commit(connection);
-					disconnect(connection);
-					return;
-				} else {
-					// Otherwise, add a new entry for item.
-					mysql_free_result(result);
-					query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
-					query += std::to_string(binId)+", \""+itemName+"\", 1);";
-					mysql_query(connection, query.c_str());
-					query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
-					mysql_query(connection, query.c_str());
-					// Assume this works for now, add error checking later.
-					mysql_commit(connection);
-					disconnect(connection);
-					return;
-				}
-			} else mysql_free_result(result);
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			// Check if item is already in bin.
+			query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+			if (mysql_query(connection, query.c_str()) == 0) {
+				result = mysql_use_result(connection);
+				if (result) {
+					if (row = mysql_fetch_row(result)) {
+						// If it is in bin, update quantity.
+						int quantity = std::stoi(row[2]);
+						mysql_free_result(result);
+						quantity++;	
+						query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
+						query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+						mysql_query(connection, query.c_str());
+						query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+						mysql_query(connection, query.c_str());
+						commit(connection);
+						disconnect(connection);
+						return;
+					} else {
+						// Otherwise, add a new entry for item.
+						mysql_free_result(result);
+						query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
+						query += std::to_string(binId)+", \""+itemName+"\", 1);";
+						mysql_query(connection, query.c_str());
+						query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+						mysql_query(connection, query.c_str());
+						// Assume this works for now, add error checking later.
+						commit(connection);
+						disconnect(connection);
+						return;
+					}
+				} else mysql_free_result(result);
+			}
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_place_item_into_stock - "+e.message());
 		}
-		disconnect(connection);
 	}
 }

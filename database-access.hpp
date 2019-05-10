@@ -9,7 +9,7 @@
 #include "state.hpp"
 
 namespace Database {
-	Position getPickerHome(int pickerId);
+	Position picker_get_home (int pickerId);
 	Position getPickerCurrent(int pickerId);
 	void setPickerCurrent(int pickerId, Position current);
 	State getPickerState(int pickerId);
@@ -42,7 +42,7 @@ namespace Database {
 	void placeNewStock(std::vector<std::string> itemNames);
 	std::vector<int> whichBinsHaveRoom();
 	// MAY NO LONGER BE NEEDED.
-	void removeItemFromReceiving (std::string itemName);
+	void removeItemFromReceiving(std::string itemName);
 	void picker_take_item_from_receiving (int pickerId, std::string itemName);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
 }

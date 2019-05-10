@@ -11,7 +11,7 @@ bool Controller::init() {
 	// Get picker start positions.
 	Position home;
 	for (int i=0; i<numPickers; i++) {
-		home = Database::getPickerHome(i+1);
+		home = Database::picker_get_home(i+1);
 		if ((home.row != -1) && (home.column != -1) && (home.facing != '?')) {
 			picker[i] = new OrderPicker(i+1, home);
 		} else return false;
