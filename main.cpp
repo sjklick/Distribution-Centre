@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <chrono>
+#include <ctime>
 #include <thread>
 #include <iostream>
 #include <fstream>
@@ -20,8 +21,14 @@ int main() {
 		controller.~Controller();
 	} catch (DatabaseException& e) {
 		std::ofstream logFile;
+		std::time_t errorTime;
+		std::string timeString;
+		errorTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		timeString = std::string(std::ctime(&errorTime));
+		timeString.pop_back();
 		logFile.open("log.txt", std::ios::out | std::ios::app);
-		logFile << e.message() << std::endl;
+		logFile << timeString << ": " << e.message() << std::endl;
 		logFile.close();
+		return 0;
 	}
 }

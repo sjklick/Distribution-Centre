@@ -11,26 +11,26 @@ static void connect(MYSQL* connection) {
 	std::string socket, username, password;
 	error = "Failed to load database credentials.";
 	configFile.open("config.txt", std::ios::in);
-	if (!configFile.good()) throw new DatabaseException(error);
+	if (!configFile.good()) throw DatabaseException(error);
 	configFile >> socket;
-	if (!configFile.good()) throw new DatabaseException(error);
+	if (!configFile.good()) throw DatabaseException(error);
 	configFile >> username;
-	if (!configFile.good()) throw new DatabaseException(error);
+	if (!configFile.good()) throw DatabaseException(error);
 	configFile >> password;
-	if (!configFile.good()) throw new DatabaseException(error);
+	if (!configFile.good()) throw DatabaseException(error);
 	configFile.close();
-	if (!configFile.good()) throw new DatabaseException(error);
+	if (!configFile.good()) throw DatabaseException(error);
 	// Make SQL server connection.
 	error = "Failed to connect to database.";
 	connection = mysql_init(NULL);
 	if (connection != NULL) {
 		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, socket.c_str(), 0)) {
-			error = "Failed to connect to database: ";
+			error = "Failed to connect to database - ";
 			error += mysql_error(connection);
 			error += ".";
-			throw new DatabaseException(error);
+			throw DatabaseException(error);
 		}
-	} else throw new DatabaseException(error);
+	} else throw DatabaseException(error);
 }
 
 static void disconnect(MYSQL* connection) {
