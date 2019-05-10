@@ -1,30 +1,36 @@
 #include <string>
 #include <fstream>
 #include "database-access.hpp"
+#include "database-exception.hpp"
 
-static bool connect(MYSQL* connection) {
+static void connect(MYSQL* connection) {
+	std::string error;
 	// Load credentials.
 	// Save username and password on separate lines of "credentials.txt".
 	std::ifstream configFile;
 	std::string socket, username, password;
+	error = "Failed to load database credentials.";
 	configFile.open("config.txt", std::ios::in);
+	if (!configFile.good()) throw new DatabaseException(error);
 	configFile >> socket;
+	if (!configFile.good()) throw new DatabaseException(error);
 	configFile >> username;
+	if (!configFile.good()) throw new DatabaseException(error);
 	configFile >> password;
+	if (!configFile.good()) throw new DatabaseException(error);
 	configFile.close();
+	if (!configFile.good()) throw new DatabaseException(error);
 	// Make SQL server connection.
+	error = "Failed to connect to database.";
 	connection = mysql_init(NULL);
 	if (connection != NULL) {
 		if (!mysql_real_connect(connection, "localhost", username.c_str(), password.c_str(), "stock", 0, socket.c_str(), 0)) {
-			std::string error;
-			error = mysql_error(connection);
-			std::ofstream logFile;
-			logFile.open("log.txt", std::ios::out | std::ios::app);
-			logFile << error << std::endl;
-			logFile.close();
-		} else return true;
-	}
-	return false;
+			error = "Failed to connect to database: ";
+			error += mysql_error(connection);
+			error += ".";
+			throw new DatabaseException(error);
+		}
+	} else throw new DatabaseException(error);
 }
 
 static void disconnect(MYSQL* connection) {
