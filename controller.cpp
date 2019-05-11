@@ -17,9 +17,9 @@ bool Controller::init() {
 
 	// Get bin positions from server.
 	for (int i=0; i<numBins; i++) {
-		bin[i] = Database::getBinPosition(i+1);
+		bin[i] = Database::stock_get_position(i+1);
 		if ((bin[i].row == -1) && (bin[i].column == -1) && (bin[i].facing == '?')) return false;
-		nItems[i] = Database::getBinItemCount(i+1);
+		nItems[i] = Database::stock_get_item_count(i+1);
 		if (nItems[i] == -1) return false;
 	}
 
@@ -43,9 +43,9 @@ void Controller::updateState() {
 	// Check for a new order.
 	if (currentOrderId == -1) {
 		// Update order number.
-		currentOrderId = Database::getNextOrderId();
+		currentOrderId = Database::order_get_current();
 		// Get the manifest of order items.
-		orderItems = Database::getOrderItems(currentOrderId);
+		orderItems = Database::order_get_items(currentOrderId);
 		// Clear shipping bin.
 		Database::emptyShippingBin();
 		// Remove items from order items (now tracked in shipping bin).
@@ -65,7 +65,7 @@ void Controller::updateState() {
 					// If there are any outstanding order items, process them.
 					for (std::vector<Item>::iterator it=orderItems.begin(); it != orderItems.end(); it++) {
 						if ((*it).quantity != 0) {
-							int binId = Database::whichBinHasItem((*it).name);
+							int binId = Database::stock_find_first_item_location((*it).name);
 							bool assigned = false;
 							for (int j=0; j<numPickers; j++) {
 								if (picker[j]->getTargetBinId() == binId) {
@@ -85,7 +85,7 @@ void Controller::updateState() {
 				// If there are no more order items, check if there is anything in receiving.
 				if (!moreItems) {
 					if (!Database::getReceivingItems().empty()) {
-						std::vector<int> binsWithRoom = Database::whichBinsHaveRoom();
+						std::vector<int> binsWithRoom = Database::stock_find_bins_with_room();
 						for (std::vector<int>::iterator it = binsWithRoom.begin(); it != binsWithRoom.end(); it++) {
 							bool assigned = false;
 							for (int j=0; j<numPickers; j++) {
@@ -120,8 +120,8 @@ void Controller::updateState() {
 					// Remove item from stock bin.
 					itemName = picker[i]->getItemName();
 					Database::picker_take_item_from_stock(picker[i]->getPickerId(), itemName, binId);
-					currentBin = Database::getBinContents(binId);
-					nItems[binId-1] = Database::getBinItemCount(binId);
+					currentBin = Database::stock_get_contents(binId);
+					nItems[binId-1] = Database::stock_get_item_count(binId);
 					break;
 				}
 				binId = picker[i]->getStockBin();
@@ -144,8 +144,8 @@ void Controller::updateState() {
 				binId = picker[i]->getStockBin();
 				if (binId != -1) {
 					Database::picker_place_item_into_stock(picker[i]->getPickerId(), picker[i]->getStockItemName(), binId);
-					currentBin = Database::getBinContents(binId);
-					nItems[binId-1] = Database::getBinItemCount(binId);
+					currentBin = Database::stock_get_contents(binId);
+					nItems[binId-1] = Database::stock_get_item_count(binId);
 				}
 				break;
 		}

@@ -9,23 +9,22 @@
 #include "state.hpp"
 
 namespace Database {
-	Position getBinPosition(int binId);
-	// Returns -1 if bin ID is not found or there was an error.
-	int getBinItemCount(int binId);
-	// Returns -1 if no orders or there was an error.
-	int getNextOrderId();
-	std::vector<Item> getBinContents(int binId);
-	std::vector<Item> getOrderItems(int orderId);
-	// Returns 1st bin found containing the item, or -1 otherwise.
-	int whichBinHasItem(std::string item);
 	void emptyShippingBin();
 	std::vector<std::string> getLowInventory();
 	std::vector<std::string> getReceivingItems();
 	void placeNewStock(std::vector<std::string> itemNames);
-	std::vector<int> whichBinsHaveRoom();
+
+	// Stock bin related functions.
+	Position stock_get_position (int binId);
+	int stock_get_item_count (int binId);
+	std::vector<Item> stock_get_contents (int binId);
+	std::vector<int> stock_find_bins_with_room ();
+	int stock_find_first_item_location (std::string item);
 
 	// Customer order related functions.
+	int order_get_current ();
 	bool order_check_if_ready (int orderId);
+	std::vector<Item> order_get_items (int orderId);
 	void order_remove_items (int orderId);
 	void order_remove (int orderId);
 

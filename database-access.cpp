@@ -67,152 +67,6 @@ static MYSQL_RES* get_result (MYSQL* connection) {
 }
 
 namespace Database {
-	Position getBinPosition(int binId) {
-		MYSQL* connection;
-		connection = connect();
-		Position bin;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					bin.row = std::stoi(row[1]);
-					bin.column = std::stoi(row[2]);
-					bin.facing = CharToDirection(row[3][0]);
-					mysql_free_result(result);
-					disconnect(connection);
-					return bin;
-				}
-			}
-		}
-		bin.row = -1;
-		bin.column = -1;
-		bin.facing = invalid;
-		disconnect(connection);
-		return bin;
-	}
-
-	int getBinItemCount(int binId) {
-		MYSQL* connection;
-		connection = connect();
-		int nItems;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT SUM(quantity) FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if (row = mysql_fetch_row(result)) {
-					if (row[0] == NULL) {
-						mysql_free_result(result);
-						disconnect(connection);
-						return 0;
-					} else {
-						nItems = std::stoi(row[0]);
-						mysql_free_result(result);
-						disconnect(connection);
-						return nItems;
-					}
-				}
-			}
-			mysql_free_result(result);
-		}
-		disconnect(connection);
-		return -1;
-	}
-
-	int getNextOrderId() {
-		MYSQL* connection;
-		connection = connect();
-		int nextId;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM orders LIMIT 1;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					nextId = std::stoi(row[0]);
-					mysql_free_result(result);
-					disconnect(connection);
-					return nextId;
-				}
-			}
-		}
-		disconnect(connection);
-		return -1;
-	}
-
-	std::vector<Item> getBinContents(int binId) {
-		MYSQL* connection;
-		connection = connect();
-		std::vector<Item> items;
-		Item temp;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					temp.name = std::string(row[1]);
-					temp.quantity = std::stoi(row[2]);
-					items.push_back(temp);
-				}
-				mysql_free_result(result);
-			}
-		}
-		disconnect(connection);
-		return items;
-	}
-
-	std::vector<Item> getOrderItems(int orderId) {
-		MYSQL* connection;
-		connection = connect();
-		std::vector<Item> items;
-		Item temp;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM order_items WHERE order_id="+std::to_string(orderId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					temp.name = std::string(row[1]);
-					temp.quantity = std::stoi(row[2]);
-					items.push_back(temp);
-				}
-				mysql_free_result(result);
-			}
-		}
-		disconnect(connection);
-		return items;
-	}
-
-	int whichBinHasItem(std::string item) {
-		MYSQL* connection;
-		connection = connect();
-		int binId;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM stock_items WHERE name=\""+item+"\" AND QUANTITY>0 LIMIT 1;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					binId = std::stoi(row[0]);
-					mysql_free_result(result);
-					disconnect(connection);
-					return binId;
-				}
-			}
-		}
-		disconnect(connection);
-		return -1;
-	}
-
 	void emptyShippingBin() {
 		MYSQL* connection;
 		connection = connect();
@@ -273,16 +127,140 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	std::vector<int> whichBinsHaveRoom() {
-		std::vector<int> bins;
-		for (int i=0; i<22; i++) {
-			int itemCount = Database::getBinItemCount(i+1);
-			if (itemCount < 12) bins.push_back(i+1);
+	// Stock bin related functions.
+
+	Position stock_get_position (int binId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		Position bin;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if(row = mysql_fetch_row(result)) {
+				bin.row = std::stoi(row[1]);
+				bin.column = std::stoi(row[2]);
+				bin.facing = CharToDirection(row[3][0]);
+			} else {
+				bin.row = -1;
+				bin.column = -1;
+				bin.facing = invalid;
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return bin;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_get_position - "+e.message());
 		}
-		return bins;
+	}
+
+	int stock_get_item_count (int binId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		int nItems;
+		try {
+			connection = connect();
+			query = "SELECT SUM(quantity) FROM stock_items WHERE bin_id="+std::to_string(binId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				if (row[0] == NULL) nItems = 0;
+				else nItems = std::stoi(row[0]);
+			} else nItems = -1;
+			mysql_free_result(result);
+			disconnect(connection);
+			return nItems;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_get_item_count - "+e.message());
+		}
+	}
+
+	std::vector<Item> stock_get_contents (int binId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<Item> items;
+		Item temp;
+		try {
+			connection = connect();
+			query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[1]);
+				temp.quantity = std::stoi(row[2]);
+				items.push_back(temp);
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return items;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_get_contents - "+e.message());
+		}
+	}
+
+	std::vector<int> stock_find_bins_with_room () {
+		std::vector<int> bins;
+		try {
+			for (int i=0; i<22; i++) {
+				int itemCount = Database::stock_get_item_count(i+1);
+				if (itemCount < 12) bins.push_back(i+1);
+			}
+			return bins;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_find_bins_with_room - "+e.message());
+		}
+	}
+
+	int stock_find_first_item_location (std::string item) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		int binId;
+		try {
+			connection = connect();
+			query = "SELECT * FROM stock_items WHERE name=\""+item+"\" AND QUANTITY>0 LIMIT 1;";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) binId = std::stoi(row[0]);
+			else binId = -1;
+			mysql_free_result(result);
+			disconnect(connection);
+			return binId;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_find_first_item_location - "+e.message());
+		}
 	}
 
 	// Customer order related functions.
+
+	int order_get_current () {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		int orderId;
+		try {
+			connection = connect();
+			query = "SELECT * FROM orders LIMIT 1;";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) orderId = std::stoi(row[0]);
+			else orderId = -1;
+			mysql_free_result(result);
+			disconnect(connection);
+			return orderId;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_get_current - "+e.message());
+		}
+	}
 
 	bool order_check_if_ready (int orderId) {
 		MYSQL* connection;
@@ -301,6 +279,7 @@ namespace Database {
 			query += "GROUP BY name, quantity";
 			query += "HAVING COUNT(*) = 1";
 			query += "ORDER BY name;";
+			make_query(connection, query);
 			commit(connection);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) ready = false;
@@ -311,6 +290,31 @@ namespace Database {
 		} catch (DatabaseException& e) {
 			throw DatabaseException("order_check_if_ready - "+e.message());
 		}
+	}
+
+	std::vector<Item> order_get_items (int orderId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<Item> items;
+		Item temp;
+		try {
+			connection = connect();
+			query = "SELECT * FROM order_items WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				temp.name = std::string(row[1]);
+				temp.quantity = std::stoi(row[2]);
+				items.push_back(temp);
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_get_items - "+e.message());
+		}
+		return items;
 	}
 
 	void order_remove_items (int orderId) {
