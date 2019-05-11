@@ -135,7 +135,7 @@ void Controller::updateState() {
 				binId = picker[i]->getTargetBinId();
 				if (binId != -1) {
 					Database::picker_place_item_into_shipping(picker[i]->getPickerId(), picker[i]->getItemName());
-					if (Database::orderFulfilled(currentOrderId)) {
+					if (Database::is_order_ready(currentOrderId)) {
 						Database::removeOrder(currentOrderId);
 						currentOrderId = -1;
 					}

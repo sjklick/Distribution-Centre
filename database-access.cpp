@@ -221,27 +221,6 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	bool orderFulfilled(int orderId) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM shipping_items WHERE quantity<>needed;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					mysql_free_result(result);
-					disconnect(connection);
-					return false;
-				}
-			}
-			mysql_free_result(result);
-		}
-		disconnect(connection);
-		return true;
-	}
-
 	void removeOrder(int orderId) {
 		MYSQL* connection;
 		connection = connect();
@@ -319,6 +298,37 @@ namespace Database {
 		return bins;
 	}
 
+	// Customer order related functions.
+
+	bool is_order_ready (int orderId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		bool ready;
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			query = "SELECT name, quantity FROM ( ";
+			query += "SELECT name, quantity FROM order_items WHERE order_id="+std::to_string(orderId);
+			query += " UNION ALL ";
+			query += "SELECT name, quantity FROM shipping_items";
+			query += " ) ";
+			query += "GROUP BY name, quantity";
+			query += "HAVING COUNT(*) = 1";
+			query += "ORDER BY name;";
+			commit(connection);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) ready = false;
+			else ready = true;
+			mysql_free_result(result);
+			disconnect(connection);
+			return ready;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("is_order_ready - "+e.message());
+		}
+	}
+
 	// Picker related functions.
 
 	State picker_get_state (int pickerId) {
@@ -331,7 +341,7 @@ namespace Database {
 			connection = connect();
 			make_query(connection, query);
 			result = get_result(connection);
-			if(row = mysql_fetch_row(result)) {
+			if (row = mysql_fetch_row(result)) {
 				std::string state = row[7];
 				disconnect(connection);
 				return StringToState(state);
@@ -368,7 +378,7 @@ namespace Database {
 			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
 			result = get_result(connection);
-			if(row = mysql_fetch_row(result)) {
+			if (row = mysql_fetch_row(result)) {
 				home.row = std::stoi(row[1]);
 				home.column = std::stoi(row[2]);
 				home.facing = CharToDirection(row[3][0]);			
@@ -392,7 +402,7 @@ namespace Database {
 			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
 			result = get_result(connection);
-			if(row = mysql_fetch_row(result)) {
+			if (row = mysql_fetch_row(result)) {
 				current.row = std::stoi(row[4]);
 				current.column = std::stoi(row[5]);
 				current.facing = CharToDirection(row[6][0]);
