@@ -248,14 +248,6 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	void putItemInShipping(std::string itemName) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query("UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";");
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
 	std::vector<ShippingItem> getShippingContents() {
 		MYSQL* connection;
 		connection = connect();
@@ -306,33 +298,6 @@ namespace Database {
 		connection = connect();
 		std::string query("DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";");
 		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
-	void removeItemFromStockBin(int binId, std::string itemName) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if (row = mysql_fetch_row(result)) {
-					// Get current quantity, decrement.
-					int quantity = std::stoi(row[2]);
-					mysql_free_result(result);
-					quantity--;
-					if (quantity > 0) {
-						query = "UPDATE stock_items SET quantity="+std::to_string(quantity);
-						query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-					} else {
-						query = "DELETE FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-					}
-					mysql_query(connection, query.c_str());
-				}
-			} else mysql_free_result(result);
-		}
 		disconnect(connection);
 	}
 
@@ -517,13 +482,46 @@ namespace Database {
 			connection = connect();
 			disable_auto_commit(connection);
 			query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
-			mysql_query(connection, query.c_str());
+			make_query(connection, query);
 			query = "UPDATE pickers SET name=\""+itemName+"\" WHERE picker_id="+std::to_string(pickerId)+";";
-			mysql_query(connection, query.c_str());
+			make_query(connection, query);
 			commit(connection);
 			disconnect(connection);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_take_item_from_receiving - "+e.message());
+		}
+	}
+
+	void picker_take_item_from_stock (int pickerId, std::string itemName, int binId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				int quantity = std::stoi(row[2]);
+				mysql_free_result(result);
+				quantity--;
+				if (quantity > 0) {
+					query = "UPDATE stock_items SET quantity=quantity-1 WHERE bin_id=";
+					query += std::to_string(binId)+" AND name=\""+itemName+"\";";
+				} else {
+					query = "DELETE FROM stock_items WHERE bin_id="+std::to_string(binId);
+					query += " AND name=\""+itemName+"\";";
+				}
+			}
+			make_query(connection, query);
+			query = "UPDATE pickers SET name=\""+itemName+"\" WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			commit(connection);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_take_item_from_stock - "+e.message());
 		}
 	}
 
@@ -537,40 +535,64 @@ namespace Database {
 			disable_auto_commit(connection);
 			// Check if item is already in bin.
 			query = "SELECT * FROM stock_items WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-			if (mysql_query(connection, query.c_str()) == 0) {
-				result = mysql_use_result(connection);
-				if (result) {
-					if (row = mysql_fetch_row(result)) {
-						// If it is in bin, update quantity.
-						int quantity = std::stoi(row[2]);
-						mysql_free_result(result);
-						quantity++;	
-						query = "UPDATE stock_items SET quantity="+std::to_string(quantity);;
-						query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
-						mysql_query(connection, query.c_str());
-						query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
-						mysql_query(connection, query.c_str());
-						commit(connection);
-						disconnect(connection);
-						return;
-					} else {
-						// Otherwise, add a new entry for item.
-						mysql_free_result(result);
-						query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
-						query += std::to_string(binId)+", \""+itemName+"\", 1);";
-						mysql_query(connection, query.c_str());
-						query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
-						mysql_query(connection, query.c_str());
-						// Assume this works for now, add error checking later.
-						commit(connection);
-						disconnect(connection);
-						return;
-					}
-				} else mysql_free_result(result);
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				// If it is in bin, update quantity.
+				query = "UPDATE stock_items SET quantity=quantity+1";
+				query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
+				make_query(connection, query);
+				query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+				make_query(connection, query);
+				commit(connection);
+			} else {
+				// Otherwise, add a new entry for item.
+				query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
+				query += std::to_string(binId)+", \""+itemName+"\", 1);";
+				make_query(connection, query);
+				query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+				make_query(connection, query);
+				commit(connection);
 			}
+			mysql_free_result(result);
 			disconnect(connection);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_place_item_into_stock - "+e.message());
+		}
+	}
+
+	void picker_place_item_into_shipping (int pickerId, std::string itemName) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			// Check if item is already in bin.
+			query = "SELECT * FROM shipping_items WHERE name=\""+itemName+"\";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				// If it is in bin, update quantity.
+				query = "UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";";
+				make_query(connection, query);
+				query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+				make_query(connection, query);
+				commit(connection);
+			} else {
+				// Otherwise, add a new entry for item.
+				query = "INSERT INTO shipping_items (name, quantity) VALUES (";
+				query += "\""+itemName+"\", 1);";
+				make_query(connection, query);
+				query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
+				make_query(connection, query);
+				commit(connection);
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_place_item_into_shipping - "+e.message());
 		}
 	}
 }

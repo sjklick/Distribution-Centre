@@ -22,13 +22,9 @@ namespace Database {
 	// is needed for the current order.
 	void prepareShippingBin(int orderId);
 	void emptyShippingBin();
-	void putItemInShipping(std::string itemName);
 	std::vector<ShippingItem> getShippingContents();
 	bool orderFulfilled(int orderId);
 	void removeOrder(int orderId);
-	void removeItemFromStockBin(int binId, std::string itemName);
-	// MAY NO LONGER BE NEEDED.
-	void removeItemFromOrderItems(int orderId, std::string itemName);
 	void removeOrderItems(int orderId);
 	std::vector<std::string> getLowInventory();
 	std::vector<std::string> getReceivingItems();
@@ -42,7 +38,9 @@ namespace Database {
 	Position picker_get_current (int pickerId);
 	void picker_set_current (int pickerId, Position current);
 	void picker_take_item_from_receiving (int pickerId, std::string itemName);
+	void picker_take_item_from_stock (int pickerId, std::string itemName, int binId);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
+	void picker_place_item_into_shipping (int pickerId, std::string itemName);
 }
 
 #endif

@@ -123,7 +123,7 @@ void Controller::updateState() {
 				if (binId != -1) {
 					// Remove item from stock bin.
 					itemName = picker[i]->getItemName();
-					Database::removeItemFromStockBin(binId, itemName);
+					Database::picker_take_item_from_stock(picker[i]->getPickerId(), itemName, binId);
 					currentBin = Database::getBinContents(binId);
 					nItems[binId-1] = Database::getBinItemCount(binId);
 					break;
@@ -138,7 +138,7 @@ void Controller::updateState() {
 			case State::place:
 				binId = picker[i]->getTargetBinId();
 				if (binId != -1) {
-					Database::putItemInShipping(picker[i]->getItemName());
+					Database::picker_place_item_into_shipping(picker[i]->getPickerId(), picker[i]->getItemName());
 					shippingItems = Database::getShippingContents();
 					if (Database::orderFulfilled(currentOrderId)) {
 						Database::removeOrder(currentOrderId);
