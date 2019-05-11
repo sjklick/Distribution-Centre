@@ -48,12 +48,8 @@ void Controller::updateState() {
 		orderItems = Database::getOrderItems(currentOrderId);
 		// Clear shipping bin.
 		Database::emptyShippingBin();
-		// Setup shipping bin.
-		Database::prepareShippingBin(currentOrderId);
 		// Remove items from order items (now tracked in shipping bin).
 		Database::removeOrderItems(currentOrderId);
-		// Update shipping JSON with empty shipping bin;
-		shippingItems = Database::getShippingContents();
 	}
 
 	// Check for any idle pickers, or if a bin can be unassigned.
@@ -139,7 +135,6 @@ void Controller::updateState() {
 				binId = picker[i]->getTargetBinId();
 				if (binId != -1) {
 					Database::picker_place_item_into_shipping(picker[i]->getPickerId(), picker[i]->getItemName());
-					shippingItems = Database::getShippingContents();
 					if (Database::orderFulfilled(currentOrderId)) {
 						Database::removeOrder(currentOrderId);
 						currentOrderId = -1;
@@ -185,7 +180,7 @@ void Controller::updateState() {
 bool Controller::writeState() {
 	//writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
 	writeReceivingJSON(Database::getReceivingItems());
-	writeShippingJSON(shippingItems);
+	//writeShippingJSON(shippingItems);
 	/*for (int i=0; i<numBins; i++) {
 		writeBinJSON(i+1, Database::getBinContents(i+1));
 	}*/

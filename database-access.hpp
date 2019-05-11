@@ -18,11 +18,7 @@ namespace Database {
 	std::vector<Item> getOrderItems(int orderId);
 	// Returns 1st bin found containing the item, or -1 otherwise.
 	int whichBinHasItem(std::string item);
-	// Updates the contents of the shipping bin to reflect what
-	// is needed for the current order.
-	void prepareShippingBin(int orderId);
 	void emptyShippingBin();
-	std::vector<ShippingItem> getShippingContents();
 	bool orderFulfilled(int orderId);
 	void removeOrder(int orderId);
 	void removeOrderItems(int orderId);

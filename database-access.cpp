@@ -213,63 +213,12 @@ namespace Database {
 		return -1;
 	}
 
-	void prepareShippingBin(int orderId) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::vector<Item> items;
-		Item temp;
-		std::string query("SELECT * FROM order_items WHERE order_id="+std::to_string(orderId));
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					temp.name = std::string(row[1]);
-					temp.quantity = std::stoi(row[2]);
-					items.push_back(temp);
-				}
-			}
-			mysql_free_result(result);
-		}
-		for (std::vector<Item>::iterator it = items.begin(); it != items.end(); it++) {
-			query = "INSERT INTO shipping_items (name, quantity, needed) VALUES (";
-			query += "\""+(*it).name + "\", 0, " + std::to_string((*it).quantity) + ");";
-			mysql_query(connection, query.c_str());
-		}
-		disconnect(connection);
-	}
-
 	void emptyShippingBin() {
 		MYSQL* connection;
 		connection = connect();
 		std::string query("TRUNCATE shipping_items;");
 		mysql_query(connection, query.c_str());
 		disconnect(connection);
-	}
-
-	std::vector<ShippingItem> getShippingContents() {
-		MYSQL* connection;
-		connection = connect();
-		std::vector<ShippingItem> items;
-		ShippingItem temp;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM shipping_items;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					temp.name = std::string(row[0]);
-					temp.quantity = std::stoi(row[1]);
-					temp.needed = std::stoi(row[2]);
-					items.push_back(temp);
-				}
-			}
-			mysql_free_result(result);
-		}
-		disconnect(connection);
-		return items;
 	}
 
 	bool orderFulfilled(int orderId) {
