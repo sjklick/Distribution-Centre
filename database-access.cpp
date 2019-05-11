@@ -281,7 +281,7 @@ namespace Database {
 			query += "SELECT name, quantity FROM order_items WHERE order_id="+std::to_string(orderId);
 			query += " UNION ALL ";
 			query += "SELECT name, quantity FROM shipping_items";
-			query += " ) ";
+			query += " ) temp ";
 			query += "GROUP BY name, quantity";
 			query += "HAVING COUNT(*) = 1";
 			query += "ORDER BY name;";
@@ -518,6 +518,7 @@ namespace Database {
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				// If it is in bin, update quantity.
+				mysql_free_result(result);
 				query = "UPDATE stock_items SET quantity=quantity+1";
 				query += " WHERE bin_id="+std::to_string(binId)+" AND name=\""+itemName+"\";";
 				make_query(connection, query);
@@ -526,6 +527,7 @@ namespace Database {
 				commit(connection);
 			} else {
 				// Otherwise, add a new entry for item.
+				mysql_free_result(result);
 				query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
 				query += std::to_string(binId)+", \""+itemName+"\", 1);";
 				make_query(connection, query);
@@ -533,7 +535,6 @@ namespace Database {
 				make_query(connection, query);
 				commit(connection);
 			}
-			mysql_free_result(result);
 			disconnect(connection);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_place_item_into_stock - "+e.message());
