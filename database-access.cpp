@@ -67,49 +67,6 @@ static MYSQL_RES* get_result (MYSQL* connection) {
 }
 
 namespace Database {
-	void setPickerCurrent(int pickerId, Position current) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query = "";
-		query += "UPDATE pickers SET curr_row=";
-		query += std::to_string(current.row);
-		query += ", curr_col=";
-		query += std::to_string(current.column);
-		query += ", curr_dir=\"";
-		query += DirectionToChar(current.facing);
-		query += "\" WHERE picker_id="+std::to_string(pickerId)+";";
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
-	State getPickerState(int pickerId) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query("SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if(row = mysql_fetch_row(result)) {
-					std::string state = row[7];
-					disconnect(connection);
-					return StringToState(state);
-				}
-			}
-		}
-		disconnect(connection);
-		return State::invalid;
-	}
-
-	void setPickerState(int pickerId, State state) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query("UPDATE pickers Set state=\""+StateToString(state)+"\" WHERE picker_id="+std::to_string(pickerId)+";");
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
 	Position getBinPosition(int binId) {
 		MYSQL* connection;
 		connection = connect();
@@ -379,35 +336,6 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	void removeItemFromOrderItems(int orderId, std::string itemName) {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		int quantity;
-		std::string query("SELECT * FROM order_items WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				if (row = mysql_fetch_row(result)) {
-					// Get current quantity, decrement.
-					quantity = std::stoi(row[2]);
-					mysql_free_result(result);
-					quantity--;
-					if (quantity > 0) {
-						query = "UPDATE order_items SET quantity="+std::to_string(quantity);
-						query += " WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";";
-					} else {
-						query = "DELETE FROM order_items";
-						query += " WHERE order_id="+std::to_string(orderId)+" AND name=\""+itemName+"\";";
-					}
-					mysql_query(connection, query.c_str());
-				} else mysql_free_result(result);
-			}
-		}
-		disconnect(connection);
-	}
-
 	void removeOrderItems(int orderId) {
 		MYSQL* connection;
 		connection = connect();
@@ -477,13 +405,42 @@ namespace Database {
 		return bins;
 	}
 
-	void removeItemFromReceiving (std::string itemName) {
+	// Picker related functions.
+
+	State picker_get_state (int pickerId) {
 		MYSQL* connection;
-		connection = connect();
+		MYSQL_RES* result;
+		MYSQL_ROW row;
 		std::string query;
-		query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
+		try {
+			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			connection = connect();
+			make_query(connection, query);
+			result = get_result(connection);
+			if(row = mysql_fetch_row(result)) {
+				std::string state = row[7];
+				disconnect(connection);
+				return StringToState(state);
+			}
+			disconnect(connection);
+			return State::invalid;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_state - "+e.message());
+		}
+	}
+
+	void picker_set_state (int pickerId, State state) {
+		MYSQL* connection;
+		std::string query;
+		query = "UPDATE pickers Set state=\""+StateToString(state);
+		query += "\" WHERE picker_id="+std::to_string(pickerId)+";";
+		try {
+			connection = connect();
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_set_state - "+e.message());
+		}
 	}
 
 	Position picker_get_home (int pickerId) {
@@ -531,6 +488,25 @@ namespace Database {
 			return current;
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_get_current - "+e.message());
+		}
+	}
+
+	void picker_set_current (int pickerId, Position current) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			query = "UPDATE pickers SET curr_row=";
+			query += std::to_string(current.row);
+			query += ", curr_col=";
+			query += std::to_string(current.column);
+			query += ", curr_dir=\"";
+			query += DirectionToChar(current.facing);
+			query += "\" WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_set_current - "+e.message());
 		}
 	}
 

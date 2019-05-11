@@ -29,7 +29,7 @@ Position OrderPicker::getPosition() {
 }
 
 State OrderPicker::getState() {
-    return Database::getPickerState(id);
+    return Database::picker_get_state(id);
 }
 
 bool OrderPicker::hasItem() {
@@ -50,11 +50,11 @@ std::string OrderPicker::getItemName() {
 
 bool OrderPicker::processItem(int binId, Position bin, std::string itemName) {
 	State state;
-	state = Database::getPickerState(id);
+	state = Database::picker_get_state(id);
     if ((state == State::idle) || (state == State::home) || ((state == State::yield) && (item == false))) {
         target = getFacingPosition(bin);
         state = State::retrieve;
-		Database::setPickerState(id, state);
+		Database::picker_set_state(id, state);
 		this->itemName = itemName;
 		this->binId = binId;
         return true;
@@ -67,7 +67,7 @@ void OrderPicker::stockItem(int stockBinId, Position bin, std::string stockItemN
 	this->stockBinId = stockBinId;
 	this->stockItemName = stockItemName;
 	stock = true;
-	Database::setPickerState(id, State::receive);
+	Database::picker_set_state(id, State::receive);
 }
 
 int OrderPicker::getStockBin() {
@@ -107,7 +107,7 @@ void OrderPicker::updateStateYield(char map[10][10]) {
 	} else {
 		state = State::retrieve;
 	}
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateHome(char map[10][10]) {
@@ -118,10 +118,10 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 		path = findPath(current, home, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -133,7 +133,7 @@ void OrderPicker::updateStateHome(char map[10][10]) {
 	binId = -1;
 	stockBinId = -1;
 	state = State::idle;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateRetrieve(char map[10][10]) {
@@ -144,16 +144,16 @@ void OrderPicker::updateStateRetrieve(char map[10][10]) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
 	}
 	state = State::extend;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateStock(char map[10][10]) {
@@ -164,16 +164,16 @@ void OrderPicker::updateStateStock(char map[10][10]) {
 		path = findPath(current, target, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
 	}
 	state = State::extend;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateReceive(char map[10][10]) {
@@ -189,16 +189,16 @@ void OrderPicker::updateStateReceive(char map[10][10]) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
 	}
 	state = State::extend;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateShip(char map[10][10]) {
@@ -214,23 +214,23 @@ void OrderPicker::updateStateShip(char map[10][10]) {
 		path = findPath(current, bin, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
 	}
 	state = State::extend;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateExtend(char map[10][10]) {
 	State state = State::extend;
 	if (item || holdingStockItem) state = State::place;
 	else state = State::pick;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStateRetract(char map[10][10]) {
@@ -238,13 +238,13 @@ void OrderPicker::updateStateRetract(char map[10][10]) {
 	if (item) state = State::ship;
 	else if (holdingStockItem) state = State::stock;
 	else state = State::home;
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::updateStatePick(char map[10][10]) {
 	if (stock) holdingStockItem = true;
 	else item = true;
-	Database::setPickerState(id, State::retract);
+	Database::picker_set_state(id, State::retract);
 }
 
 void OrderPicker::updateStatePlace(char map[10][10]) {
@@ -255,7 +255,7 @@ void OrderPicker::updateStatePlace(char map[10][10]) {
 		item = false;
 		delivered = true;
 	}
-	Database::setPickerState(id, State::retract);
+	Database::picker_set_state(id, State::retract);
 }
 
 void OrderPicker::updateStateExtricate(char map[10][10]) {
@@ -266,10 +266,10 @@ void OrderPicker::updateStateExtricate(char map[10][10]) {
 		path = findPath(current, extricate, map);
 		if (path.empty()) {
 			state = State::yield;
-			Database::setPickerState(id, state);
+			Database::picker_set_state(id, state);
 		} else {
 			yieldCount = 0;
-			Database::setPickerCurrent(id, path.back());
+			Database::picker_set_current(id, path.back());
 			map[current.row][current.column] = 'X';
 		}
 		return;
@@ -285,7 +285,7 @@ void OrderPicker::updateStateExtricate(char map[10][10]) {
 	} else {
 		state = State::retrieve;
 	}
-	Database::setPickerState(id, state);
+	Database::picker_set_state(id, state);
 }
 
 void OrderPicker::update(char map[10][10]) {

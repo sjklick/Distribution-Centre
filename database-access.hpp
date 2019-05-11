@@ -9,9 +9,6 @@
 #include "state.hpp"
 
 namespace Database {
-	void setPickerCurrent(int pickerId, Position current);
-	State getPickerState(int pickerId);
-	void setPickerState(int pickerId, State state);
 	Position getBinPosition(int binId);
 	// Returns -1 if bin ID is not found or there was an error.
 	int getBinItemCount(int binId);
@@ -37,12 +34,13 @@ namespace Database {
 	std::vector<std::string> getReceivingItems();
 	void placeNewStock(std::vector<std::string> itemNames);
 	std::vector<int> whichBinsHaveRoom();
-	// MAY NO LONGER BE NEEDED.
-	void removeItemFromReceiving(std::string itemName);
 
 	// Picker related functions.
+	State picker_get_state (int pickerId);
+	void picker_set_state (int pickerId, State state);
 	Position picker_get_home (int pickerId);
 	Position picker_get_current (int pickerId);
+	void picker_set_current (int pickerId, Position current);
 	void picker_take_item_from_receiving (int pickerId, std::string itemName);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
 }
