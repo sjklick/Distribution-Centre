@@ -3,23 +3,24 @@
 
 #include <vector>
 #include <string>
-#include <mysql/mysql.h>
 #include "position.hpp"
 #include "items.hpp"
 #include "state.hpp"
 
 namespace Database {
-	void emptyShippingBin();
-	std::vector<std::string> getLowInventory();
-	std::vector<std::string> getReceivingItems();
-	void placeNewStock(std::vector<std::string> itemNames);
-
 	// Stock bin related functions.
 	Position stock_get_position (int binId);
 	int stock_get_item_count (int binId);
 	std::vector<Item> stock_get_contents (int binId);
 	std::vector<int> stock_find_bins_with_room ();
 	int stock_find_first_item_location (std::string item);
+
+	// Receiving bin related functions.
+	std::vector<std::string> receiving_get_items ();
+	void receiving_replenish ();
+
+	// Shipping bin related functions.
+	void shipping_clear ();
 
 	// Customer order related functions.
 	int order_get_current ();

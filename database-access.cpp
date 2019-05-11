@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <mysql/mysql.h>
 #include "database-access.hpp"
 #include "database-exception.hpp"
 
@@ -67,66 +68,6 @@ static MYSQL_RES* get_result (MYSQL* connection) {
 }
 
 namespace Database {
-	void emptyShippingBin() {
-		MYSQL* connection;
-		connection = connect();
-		std::string query("TRUNCATE shipping_items;");
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
-	std::vector<std::string> getLowInventory() {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::vector<std::string> items;
-		std::string query("SELECT * FROM products ORDER BY quantity LIMIT 5;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					items.push_back(std::string(row[0]));
-				}
-			}
-			mysql_free_result(result);
-		}
-		disconnect(connection);
-		return items;
-	}
-
-	std::vector<std::string> getReceivingItems() {
-		MYSQL* connection;
-		connection = connect();
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::vector<std::string> items;
-		std::string query("SELECT * FROM receiving_items;");
-		if (mysql_query(connection, query.c_str()) == 0) {
-			result = mysql_use_result(connection);
-			if (result) {
-				while (row = mysql_fetch_row(result)) {
-					items.push_back(std::string(row[0]));
-				}
-			}
-			mysql_free_result(result);
-		}
-		disconnect(connection);
-		return items;
-	}
-
-	void placeNewStock(std::vector<std::string> itemNames) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query;
-		for (std::vector<std::string>::iterator it = itemNames.begin(); it != itemNames.end(); it++) {
-			query = "INSERT INTO receiving_items (name) VALUES (\"";
-			query += (*it) + "\");";
-			mysql_query(connection, query.c_str());
-		}
-		disconnect(connection);
-	}
-
 	// Stock bin related functions.
 
 	Position stock_get_position (int binId) {
@@ -236,6 +177,71 @@ namespace Database {
 			return binId;
 		} catch (DatabaseException& e) {
 			throw DatabaseException("stock_find_first_item_location - "+e.message());
+		}
+	}
+
+	// Receiving bin related functions.
+
+	std::vector<std::string> receiving_get_items () {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<std::string> items;
+		try {
+			connection = connect();
+			query = "SELECT * FROM receiving_items;";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				items.push_back(std::string(row[0]));
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return items;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("receiving_get_items - "+e.message());
+		}
+	}
+
+	void receiving_replenish () {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<std::string> items;
+		try {		
+			connection = connect();
+			query = "SELECT * FROM products ORDER BY quantity LIMIT 5;";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				items.push_back(std::string(row[0]));
+			}
+			mysql_free_result(result);
+			disable_auto_commit(connection);
+			for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); it++) {
+				query = "INSERT INTO receiving_items (name) VALUES (\""+(*it)+"\");";
+				make_query(connection, query);
+			}
+			commit(connection);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("receiving_replenish - "+e.message());
+		}
+	}
+
+	// Shipping bin related functions.
+	void shipping_clear () {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			query = "TRUNCATE shipping_items;";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("shipping_clear - "+e.message());
 		}
 	}
 

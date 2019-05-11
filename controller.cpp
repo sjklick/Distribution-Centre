@@ -33,10 +33,10 @@ bool Controller::readState() {
 
 void Controller::updateState() {
 	// Update time until new stock arrives.
-	if (Database::getReceivingItems().empty() && (timeUntilRestock == 0)) {
-		Database::placeNewStock(Database::getLowInventory());
+	if (Database::receiving_get_items().empty() && (timeUntilRestock == 0)) {
+		Database::receiving_replenish();
 		timeUntilRestock = 30;
-	} else if (Database::getReceivingItems().empty()){
+	} else if (Database::receiving_get_items().empty()){
 		timeUntilRestock--;
 	}
 
@@ -47,7 +47,7 @@ void Controller::updateState() {
 		// Get the manifest of order items.
 		orderItems = Database::order_get_items(currentOrderId);
 		// Clear shipping bin.
-		Database::emptyShippingBin();
+		Database::shipping_clear();
 		// Remove items from order items (now tracked in shipping bin).
 		Database::order_remove_items(currentOrderId);
 	}
@@ -84,7 +84,7 @@ void Controller::updateState() {
 				}
 				// If there are no more order items, check if there is anything in receiving.
 				if (!moreItems) {
-					if (!Database::getReceivingItems().empty()) {
+					if (!Database::receiving_get_items().empty()) {
 						std::vector<int> binsWithRoom = Database::stock_find_bins_with_room();
 						for (std::vector<int>::iterator it = binsWithRoom.begin(); it != binsWithRoom.end(); it++) {
 							bool assigned = false;
@@ -95,7 +95,7 @@ void Controller::updateState() {
 								}
 							}
 							if (!assigned) {
-								std::vector<std::string> stockItems = Database::getReceivingItems();
+								std::vector<std::string> stockItems = Database::receiving_get_items();
 								for (std::vector<std::string>::iterator itemIt = stockItems.begin(); itemIt != stockItems.end(); itemIt++) {
 									assigned = false;
 									for (int j=0; j<numPickers; j++) {
@@ -179,7 +179,7 @@ void Controller::updateState() {
 
 bool Controller::writeState() {
 	//writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
-	writeReceivingJSON(Database::getReceivingItems());
+	//writeReceivingJSON(Database::getReceivingItems());
 	//writeShippingJSON(shippingItems);
 	/*for (int i=0; i<numBins; i++) {
 		writeBinJSON(i+1, Database::getBinContents(i+1));
