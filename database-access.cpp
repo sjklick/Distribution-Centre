@@ -221,22 +221,6 @@ namespace Database {
 		disconnect(connection);
 	}
 
-	void removeOrder(int orderId) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query("DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";");
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
-	void removeOrderItems(int orderId) {
-		MYSQL* connection;
-		connection = connect();
-		std::string query("DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";");
-		mysql_query(connection, query.c_str());
-		disconnect(connection);
-	}
-
 	std::vector<std::string> getLowInventory() {
 		MYSQL* connection;
 		connection = connect();
@@ -300,7 +284,7 @@ namespace Database {
 
 	// Customer order related functions.
 
-	bool is_order_ready (int orderId) {
+	bool order_check_if_ready (int orderId) {
 		MYSQL* connection;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
@@ -325,7 +309,33 @@ namespace Database {
 			disconnect(connection);
 			return ready;
 		} catch (DatabaseException& e) {
-			throw DatabaseException("is_order_ready - "+e.message());
+			throw DatabaseException("order_check_if_ready - "+e.message());
+		}
+	}
+
+	void order_remove_items (int orderId) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			query = "DELETE FROM order_items WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_remove_items - "+e.message());
+		}
+	}
+
+	void order_remove (int orderId) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			query = "DELETE FROM orders WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_remove - "+e.message());
 		}
 	}
 

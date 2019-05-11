@@ -19,15 +19,15 @@ namespace Database {
 	// Returns 1st bin found containing the item, or -1 otherwise.
 	int whichBinHasItem(std::string item);
 	void emptyShippingBin();
-	void removeOrder(int orderId);
-	void removeOrderItems(int orderId);
 	std::vector<std::string> getLowInventory();
 	std::vector<std::string> getReceivingItems();
 	void placeNewStock(std::vector<std::string> itemNames);
 	std::vector<int> whichBinsHaveRoom();
 
 	// Customer order related functions.
-	bool is_order_ready (int orderId);
+	bool order_check_if_ready (int orderId);
+	void order_remove_items (int orderId);
+	void order_remove (int orderId);
 
 	// Picker related functions.
 	State picker_get_state (int pickerId);
