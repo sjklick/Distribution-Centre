@@ -1,5 +1,4 @@
 #include "controller.hpp"
-#include "json-writer.hpp"
 #include "database-access.hpp"
 
 Controller::Controller() {
@@ -175,16 +174,6 @@ void Controller::updateState() {
 	for (int i=0; i<numPickers; i++) {
 		picker[i]->update(path_map);
 	}
-}
-
-bool Controller::writeState() {
-	//writeStateJSON(currentOrderId, numPickers, picker, numBins, bin, nItems);
-	//writeReceivingJSON(Database::getReceivingItems());
-	//writeShippingJSON(shippingItems);
-	/*for (int i=0; i<numBins; i++) {
-		writeBinJSON(i+1, Database::getBinContents(i+1));
-	}*/
-	return true;
 }
 
 Controller::~Controller() {

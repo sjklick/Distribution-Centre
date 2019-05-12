@@ -238,76 +238,32 @@ function updatePickers() {
 }
 
 function updateBinTable() {
-	if (selected_bin_id != -1) {
-		var xhttpTable = new XMLHttpRequest();
-		xhttpTable.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				let data = JSON.parse(this.responseText);
-				document.getElementById("table-bin").innerText = "Bin: " + selected_bin_id.toString();
-				for (let i=0; i<12; i++) {
-					if (i<data.length) {
-						table_item[i].innerText = data[i].name;
-						table_quantity[i].innerText = data[i].quantity.toString();
-					} else {
-						table_item[i].innerText = " ";
-						table_quantity[i].innerText = " ";
-					}
+	var xhttpTable = new XMLHttpRequest();
+	xhttpTable.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			let data = JSON.parse(this.responseText);
+			document.getElementById("table-bin").innerText = "Bin: " + data.id;
+			for (let i=0; i<12; i++) {
+				if (i<data.item.length) {
+					table_item[i].innerText = data.item[i].name;
+					table_quantity[i].innerText = data.item[i].quantity.toString();
+				} else {
+					table_item[i].innerText = " ";
+					table_quantity[i].innerText = " ";
 				}
-				setTimeout(updateBinTable, 500);	
-			} else if (this.readyState == 4 && this.status != 200) {
-				setTimeout(updateBinTable, 500);
 			}
+			setTimeout(updateBinTable, 500);	
+		} else if (this.readyState == 4 && this.status != 200) {
+			setTimeout(updateBinTable, 500);
 		}
-		xhttpTable.open("GET", "api/bin/read.php?id="+selected_bin_id.toString(), true);
-		xhttpTable.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		xhttpTable.send();
-	} else if (selected_shipping) {
-		var xhttpTable = new XMLHttpRequest();
-		xhttpTable.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				let data = JSON.parse(this.responseText);
-				document.getElementById("table-bin").innerText = "Bin: Shipping";
-				for (let i=0; i<12; i++) {
-					if (i<data.shippingItem.length) {
-						table_item[i].innerText = data.shippingItem[i].name;
-						table_quantity[i].innerText = data.shippingItem[i].quantity.toString()+"/"+data.shippingItem[i].needed.toString();
-					} else {
-						table_item[i].innerText = " ";
-						table_quantity[i].innerText = " ";
-					}
-				}
-				setTimeout(updateBinTable, 500);	
-			} else if (this.readyState == 4 && this.status != 200) {
-				setTimeout(updateBinTable, 500);
-			}
-		}
-		xhttpTable.overrideMimeType("application/json");
-		xhttpTable.open("GET", "shipping.json", true);
-		xhttpTable.send();
-	} else if (selected_receiving) {
-		var xhttpTable = new XMLHttpRequest();
-		xhttpTable.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				let data = JSON.parse(this.responseText);
-				document.getElementById("table-bin").innerText = "Bin: Receiving";
-				for (let i=0; i<12; i++) {
-					if (i<data.name.length) {
-						table_item[i].innerText = data.name[i];
-						table_quantity[i].innerText = 1;
-					} else {
-						table_item[i].innerText = " ";
-						table_quantity[i].innerText = " ";
-					}
-				}
-				setTimeout(updateBinTable, 500);	
-			} else if (this.readyState == 4 && this.status != 200) {
-				setTimeout(updateBinTable, 500);
-			}
-		}
-		xhttpTable.overrideMimeType("application/json");
-		xhttpTable.open("GET", "receiving.json", true);
-		xhttpTable.send();
-	} else setTimeout(updateBinTable, 500);
+	}
+	let request = "api/bin/read.php?id=";
+	if (selected_shipping) request += "shipping";
+	else if (selected_receiving) request += "receiving";
+	else request += selected_bin_id.toString();
+	xhttpTable.open("GET", request, true);
+	xhttpTable.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhttpTable.send();
 }
 
 // Kick-start updates.

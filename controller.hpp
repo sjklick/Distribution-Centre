@@ -21,7 +21,6 @@ public:
 	bool init();
 	bool readState();
 	void updateState();
-	bool writeState();
 	~Controller();
 };
 
