@@ -42,29 +42,45 @@ static void disconnect (MYSQL* connection) {
 
 static void disable_auto_commit (MYSQL* connection) {
 	std::string error;
-	error = "Failed to disable autocommit.";
-	if (mysql_autocommit(connection, 0) != 0) throw DatabaseException(error);
+	if (mysql_autocommit(connection, 0) != 0) {
+		error = "Failed to disable autocommit - ";
+		error += mysql_error(connection);
+		error += ".";
+		throw DatabaseException(error);
+	}
 }
 
 static void commit (MYSQL* connection) {
 	std::string error;
-	error = "Failed to commit.";
-	if (mysql_commit(connection) != 0) throw DatabaseException(error);
+	if (mysql_commit(connection) != 0) {
+		error = "Failed to commit - ";
+		error += mysql_error(connection);
+		error += ".";
+		throw DatabaseException(error);
+	}
 }
 
 static void make_query (MYSQL* connection, std::string query) {
 	std::string error;
-	error = "Query failed.";
-	if (mysql_query(connection, query.c_str()) != 0) throw DatabaseException(error);
+	if (mysql_query(connection, query.c_str()) != 0) {
+		error = "Query failed - ";
+		error += mysql_error(connection);
+		error += ".";
+		throw DatabaseException(error);
+	}
 }
 
 static MYSQL_RES* get_result (MYSQL* connection) {
 	MYSQL_RES* result;
 	std::string error;
-	error = "Failed to get result from query.";
 	result = mysql_use_result(connection);
 	if (result) return result;
-	else throw DatabaseException(error);
+	else {
+		error = "Failed to get result from query - ";
+		error += mysql_error(connection);
+		error += ".";
+		throw DatabaseException(error);
+	}
 }
 
 namespace Database {
@@ -282,9 +298,9 @@ namespace Database {
 			query += " UNION ALL ";
 			query += "SELECT name, quantity FROM shipping_items";
 			query += " ) temp ";
-			query += "GROUP BY name, quantity";
-			query += "HAVING COUNT(*) = 1";
-			query += "ORDER BY name;";
+			query += " GROUP BY name, quantity";
+			query += " HAVING COUNT(*) = 1";
+			query += " ORDER BY name;";
 			make_query(connection, query);
 			commit(connection);
 			result = get_result(connection);
