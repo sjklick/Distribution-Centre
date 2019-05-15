@@ -45,10 +45,6 @@ void Controller::updateState() {
 		currentOrderId = Database::order_get_current();
 		// Get the manifest of order items.
 		orderItems = Database::order_get_items(currentOrderId);
-		// Clear shipping bin.
-		Database::shipping_clear();
-		// Remove items from order items (now tracked in shipping bin).
-		Database::order_remove_items(currentOrderId);
 	}
 
 	// Check for any idle pickers, or if a bin can be unassigned.
@@ -132,9 +128,11 @@ void Controller::updateState() {
 				break;
 			case State::place:
 				binId = picker[i]->getTargetBinId();
-				if (binId != -1) {
+				if (binId == -1) {
 					Database::picker_place_item_into_shipping(picker[i]->getPickerId(), picker[i]->getItemName());
 					if (Database::order_check_if_ready(currentOrderId)) {
+						Database::order_remove_items(currentOrderId);
+						Database::shipping_clear();
 						Database::order_remove(currentOrderId);
 						currentOrderId = -1;
 					}

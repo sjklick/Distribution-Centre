@@ -43,9 +43,7 @@ static void disconnect (MYSQL* connection) {
 static void disable_auto_commit (MYSQL* connection) {
 	std::string error;
 	if (mysql_autocommit(connection, 0) != 0) {
-		error = "Failed to disable autocommit - ";
-		error += mysql_error(connection);
-		error += ".";
+		error = "Failed to disable autocommit.";
 		throw DatabaseException(error);
 	}
 }
@@ -53,9 +51,7 @@ static void disable_auto_commit (MYSQL* connection) {
 static void commit (MYSQL* connection) {
 	std::string error;
 	if (mysql_commit(connection) != 0) {
-		error = "Failed to commit - ";
-		error += mysql_error(connection);
-		error += ".";
+		error = "Failed to commit.";
 		throw DatabaseException(error);
 	}
 }
@@ -292,17 +288,15 @@ namespace Database {
 		bool ready;
 		try {
 			connection = connect();
-			disable_auto_commit(connection);
-			query = "SELECT name, quantity FROM ( ";
-			query += "SELECT name, quantity FROM order_items WHERE order_id="+std::to_string(orderId);
-			query += " UNION ALL ";
-			query += "SELECT name, quantity FROM shipping_items";
-			query += " ) temp ";
+			query = "SELECT name, quantity FROM (";
+			query += " SELECT name, quantity FROM order_items WHERE order_id="+std::to_string(orderId);
+			query += " UNION ALL";
+			query += " SELECT name, quantity FROM shipping_items";
+			query += " ) temp";
 			query += " GROUP BY name, quantity";
 			query += " HAVING COUNT(*) = 1";
 			query += " ORDER BY name;";
 			make_query(connection, query);
-			commit(connection);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) ready = false;
 			else ready = true;
@@ -571,6 +565,7 @@ namespace Database {
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				// If it is in bin, update quantity.
+				mysql_free_result(result);
 				query = "UPDATE shipping_items SET quantity=quantity+1 WHERE name=\""+itemName+"\";";
 				make_query(connection, query);
 				query = "UPDATE pickers SET name=NULL WHERE picker_id="+std::to_string(pickerId)+";";
@@ -578,6 +573,7 @@ namespace Database {
 				commit(connection);
 			} else {
 				// Otherwise, add a new entry for item.
+				mysql_free_result(result);
 				query = "INSERT INTO shipping_items (name, quantity) VALUES (";
 				query += "\""+itemName+"\", 1);";
 				make_query(connection, query);
@@ -585,7 +581,6 @@ namespace Database {
 				make_query(connection, query);
 				commit(connection);
 			}
-			mysql_free_result(result);
 			disconnect(connection);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_place_item_into_shipping - "+e.message());
