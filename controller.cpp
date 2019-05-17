@@ -35,6 +35,23 @@ void Controller::updateState() {
 		timeUntilRestock--;
 	}
 
+	/* New logic.
+	for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
+		if (!Database::picker_check_if_assigned(*it)) {
+			if (Database::order_get_next_item_to_ship(Database::order_get_current()) != "") {
+				int orderId = Database::order_get_current();
+				std::string nextItem = Database::order_get_next_item_to_ship(orderId);
+				int bin = Database::stock_where_to_find_item(nextItem);
+				Database::picker_assign_shipping_task(*it, nextItem, bin);
+			} else if (Database::receiving_get_next_item_to_stock() != "") {
+				std::string nextItem = Database::receiving_get_next_item_to_stock();
+				int bin = Database::stock_where_to_place_item();
+				Database::picker_assign_receiving_task(*it, nextItem, bin);
+			}
+		}
+	}
+	*/
+
 	// Check for a new order.
 	if (currentOrderId == -1) {
 		// Update order number.

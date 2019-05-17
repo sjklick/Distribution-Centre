@@ -192,7 +192,20 @@ namespace Database {
 		}
 	}
 
+	int stock_where_to_take_item (std::string item) {
+		return 0;
+	}
+
+	int stock_where_to_place_item () {
+		return 0;
+	}
+
 	// Receiving bin related functions.
+
+	std::string receiving_get_next_item_to_stock () {
+		std::string nextItem = "";
+		return nextItem;
+	}
 
 	std::vector<std::string> receiving_get_items () {
 		MYSQL* connection;
