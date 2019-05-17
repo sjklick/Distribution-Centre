@@ -19,7 +19,6 @@ private:
 public:
 	Controller();
 	bool init();
-	bool readState();
 	void updateState();
 	~Controller();
 };

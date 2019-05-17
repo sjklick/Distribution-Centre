@@ -12,7 +12,6 @@ int main() {
 		Controller controller;
 		controller.init();
 		while (true) {
-			controller.readState();
 			controller.updateState();
 			// Sleep for 1 second.
 			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));

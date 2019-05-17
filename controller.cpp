@@ -26,10 +26,6 @@ bool Controller::init() {
 	return true;
 }
 
-bool Controller::readState() {
-	return true;
-}
-
 void Controller::updateState() {
 	// Update time until new stock arrives.
 	if (Database::receiving_get_items().empty() && (timeUntilRestock == 0)) {

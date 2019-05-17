@@ -130,6 +130,38 @@ INSERT INTO `picker_states` VALUES ('extend'),('extricate'),('home'),('idle'),('
 UNLOCK TABLES;
 
 --
+-- Table structure for table `picker_tasks`
+--
+
+DROP TABLE IF EXISTS `picker_tasks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `picker_tasks` (
+  `task_id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_type` varchar(9) DEFAULT NULL,
+  `item_name` varchar(20) DEFAULT NULL,
+  `bin_id` int(11) DEFAULT NULL,
+  `task_complete` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`task_id`),
+  KEY `fk_item_name` (`item_name`),
+  KEY `fk_task_type` (`task_type`),
+  KEY `fk_bin_id` (`bin_id`),
+  CONSTRAINT `fk_bin_id` FOREIGN KEY (`bin_id`) REFERENCES `stock_bins` (`bin_id`),
+  CONSTRAINT `fk_item_name` FOREIGN KEY (`item_name`) REFERENCES `products` (`name`),
+  CONSTRAINT `fk_task_type` FOREIGN KEY (`task_type`) REFERENCES `task_types` (`task_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `picker_tasks`
+--
+
+LOCK TABLES `picker_tasks` WRITE;
+/*!40000 ALTER TABLE `picker_tasks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `picker_tasks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pickers`
 --
 
@@ -145,12 +177,13 @@ CREATE TABLE `pickers` (
   `curr_col` int(11) NOT NULL,
   `curr_dir` char(1) NOT NULL,
   `state` varchar(9) NOT NULL,
-  `name` varchar(50) DEFAULT NULL,
+  `has_item` tinyint(1) DEFAULT '0',
+  `task_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`picker_id`),
-  KEY `state` (`state`),
-  KEY `fk_picker_item_name` (`name`),
-  CONSTRAINT `fk_picker_item_name` FOREIGN KEY (`name`) REFERENCES `products` (`name`),
-  CONSTRAINT `pickers_ibfk_1` FOREIGN KEY (`state`) REFERENCES `picker_states` (`state`)
+  KEY `fk_state` (`state`),
+  KEY `fk_task_id` (`task_id`),
+  CONSTRAINT `fk_state` FOREIGN KEY (`state`) REFERENCES `picker_states` (`state`),
+  CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `picker_tasks` (`task_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -160,7 +193,7 @@ CREATE TABLE `pickers` (
 
 LOCK TABLES `pickers` WRITE;
 /*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
-INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle',NULL),(2,2,1,'r',2,1,'r','idle',NULL),(3,3,1,'r',3,1,'r','idle',NULL),(4,4,1,'r',4,1,'r','idle',NULL);
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle',0,NULL),(2,1,2,'r',1,2,'r','idle',0,NULL),(3,1,3,'r',1,3,'r','idle',0,NULL),(4,1,4,'r',1,4,'r','idle',0,NULL);
 /*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -330,6 +363,29 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `task_types`
+--
+
+DROP TABLE IF EXISTS `task_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_types` (
+  `task_type` varchar(7) NOT NULL,
+  PRIMARY KEY (`task_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `task_types`
+--
+
+LOCK TABLES `task_types` WRITE;
+/*!40000 ALTER TABLE `task_types` DISABLE KEYS */;
+INSERT INTO `task_types` VALUES ('receive'),('ship');
+/*!40000 ALTER TABLE `task_types` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -340,4 +396,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-11 11:05:02
+-- Dump completed on 2019-05-16 22:56:07
