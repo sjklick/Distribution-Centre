@@ -280,6 +280,11 @@ namespace Database {
 		}
 	}
 
+	std::string order_get_next_item_to_ship (int orderId) {
+		std::string nextItem = "";
+		return nextItem;
+	}
+
 	bool order_check_if_ready (int orderId) {
 		MYSQL* connection;
 		MYSQL_RES* result;
@@ -360,6 +365,11 @@ namespace Database {
 	}
 
 	// Picker related functions.
+
+	std::vector<int> picker_get_id_list () {
+		std::vector<int> id;
+		return id;
+	}
 
 	State picker_get_state (int pickerId) {
 		MYSQL* connection;
@@ -585,5 +595,15 @@ namespace Database {
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_place_item_into_shipping - "+e.message());
 		}
+	}
+
+	bool picker_check_if_assigned (int pickerId) {
+		return false;
+	}
+
+	void picker_assign_shipping_task (int pickerId, std::string item, int binId) {
+	}
+
+	void picker_assign_receiving_task (int pickerId, std::string item, int binId) {
 	}
 }

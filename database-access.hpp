@@ -24,12 +24,14 @@ namespace Database {
 
 	// Customer order related functions.
 	int order_get_current ();
+	std::string order_get_next_item_to_ship (int orderId);	// IMPLEMENT
 	bool order_check_if_ready (int orderId);
 	std::vector<Item> order_get_items (int orderId);
 	void order_remove_items (int orderId);
 	void order_remove (int orderId);
 
 	// Picker related functions.
+	std::vector<int> picker_get_id_list ();	// IMPLEMENT
 	State picker_get_state (int pickerId);
 	void picker_set_state (int pickerId, State state);
 	Position picker_get_home (int pickerId);
@@ -39,6 +41,9 @@ namespace Database {
 	void picker_take_item_from_stock (int pickerId, std::string itemName, int binId);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
 	void picker_place_item_into_shipping (int pickerId, std::string itemName);
+	bool picker_check_if_assigned (int pickerId);	// IMPLEMENT
+	void picker_assign_shipping_task (int pickerId, std::string item, int binId);	// IMPLEMENT
+	void picker_assign_receiving_task (int pickerId, std::string item, int binId);	// IMPLEMENT
 }
 
 #endif
