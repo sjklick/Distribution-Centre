@@ -567,23 +567,6 @@ namespace Database {
 		}
 	}
 
-	void picker_take_item_from_receiving (int pickerId, std::string itemName) {
-		MYSQL* connection;
-		std::string query;
-		try {
-			connection = connect();
-			disable_auto_commit(connection);
-			query = "DELETE FROM receiving_items WHERE name=\""+itemName+"\";";
-			make_query(connection, query);
-			query = "UPDATE pickers SET name=\""+itemName+"\" WHERE picker_id="+std::to_string(pickerId)+";";
-			make_query(connection, query);
-			commit(connection);
-			disconnect(connection);
-		} catch (DatabaseException& e) {
-			throw DatabaseException("picker_take_item_from_receiving - "+e.message());
-		}
-	}
-
 	void picker_take_item_from_stock (int pickerId, std::string itemName, int binId) {
 		MYSQL* connection;
 		MYSQL_RES* result;
@@ -618,6 +601,23 @@ namespace Database {
 	}
 
 	void picker_take_item_from_receiving (int pickerId) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			query = "DELETE FROM receiving_items WHERE name=";
+			query += "(SELECT item_name FROM picker_tasks WHERE task_id=";
+			query += "(SELECT task_id FROM pickers WHERE picker_id=";
+			query += std::to_string(pickerId)+"));";
+			make_query(connection, query);
+			query = "UPDATE pickers SET has_item=TRUE WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			commit(connection);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_take_item_from_receiving - "+e.message());
+		}
 	}
 
 	void picker_take_item_from_stock (int pickerId) {
