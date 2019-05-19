@@ -729,7 +729,7 @@ namespace Database {
 	}
 
 	bool picker_is_task_receive (int pickerId) {
-			MYSQL* connection;
+		MYSQL* connection;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
@@ -758,7 +758,30 @@ namespace Database {
 	}
 
 	bool picker_has_item (int pickerId) {
-		return false;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "SELECT has_item FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				bool hasItem = bool(row[11]);
+				mysql_free_result(result);
+				disconnect(connection);
+				return hasItem;
+			} else {
+				mysql_free_result(result);
+				disconnect(connection);
+				std::string error;
+				error = "Failed to determine if picker has item.";
+				throw DatabaseException(error);
+			}
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_has_item - "+e.message());
+		}
 	}
 
 	void picker_assign_shipping_task (int pickerId, std::string item, int binId) {
