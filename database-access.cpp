@@ -668,7 +668,32 @@ namespace Database {
 	}
 
 	bool picker_check_if_assigned (int pickerId) {
-		return false;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "SELECT task_id FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				bool assigned;
+				if (row[0] == NULL) assigned = false;
+				else assigned = true;
+				mysql_free_result(result);
+				disconnect(connection);
+				return assigned;
+			} else {
+				mysql_free_result(result);
+				disconnect(connection);
+				std::string error;
+				error = "Failed to determine if picker has an assignment.";
+				throw DatabaseException(error);
+			}
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_check_if_assigned - "+e.message());
+		}
 	}
 
 	bool picker_is_task_complete (int pickerId) {
@@ -768,7 +793,7 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				bool hasItem = bool(row[11]);
+				bool hasItem = bool(row[0]);
 				mysql_free_result(result);
 				disconnect(connection);
 				return hasItem;
