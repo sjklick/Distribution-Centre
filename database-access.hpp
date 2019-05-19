@@ -43,10 +43,8 @@ namespace Database {
 	Position picker_get_target (int pickerId);
 	void picker_set_current (int pickerId, Position current);
 	void picker_set_target (int pickerId, Position target);
-	void picker_take_item_from_receiving (int pickerId, std::string itemName);
-	void picker_take_item_from_stock (int pickerId, std::string itemName, int binId);
-	void picker_take_item_from_receiving (int pickerId);	// IMPLEMENT
-	void picker_take_item_from_stock (int pickerId);	// IMPLEMENT
+	void picker_take_item_from_receiving (int pickerId);
+	void picker_take_item_from_stock (int pickerId);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
 	void picker_place_item_into_shipping (int pickerId, std::string itemName);
 	void picker_place_item_into_stock (int pickerId);	// IMPLEMENT
