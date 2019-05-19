@@ -60,7 +60,7 @@ namespace Database {
 	void picker_assign_receiving_task (int pickerId, std::string item, int binId);	// IMPLEMENT
 	int picker_get_yield_count (int pickerId);
 	void picker_increment_yield_count (int pickerId);
-	void picker_reset_yield_count (int pickerId);		// IMPLEMENT
+	void picker_reset_yield_count (int pickerId);
 }
 
 #endif

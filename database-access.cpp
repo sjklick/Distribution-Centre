@@ -734,5 +734,15 @@ namespace Database {
 	}
 
 	void picker_reset_yield_count (int pickerId) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "UPDATE pickers SET yield_count=0 WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_reset_yield_count - "+e.message());
+		}
 	}
 }
