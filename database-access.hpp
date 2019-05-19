@@ -46,9 +46,8 @@ namespace Database {
 	void picker_take_item_from_receiving (int pickerId);
 	void picker_take_item_from_stock (int pickerId);
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId);
-	void picker_place_item_into_shipping (int pickerId, std::string itemName);
 	void picker_place_item_into_stock (int pickerId);	// IMPLEMENT
-	void picker_place_item_into_shipping (int pickerId);	// IMPLEMENT
+	void picker_place_item_into_shipping (int pickerId);
 	bool picker_check_if_assigned (int pickerId);
 	bool picker_is_task_complete (int pickerId);
 	bool picker_is_task_ship (int pickerId);
