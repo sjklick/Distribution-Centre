@@ -4,19 +4,42 @@
 #include <thread>
 #include <iostream>
 #include <fstream>
-#include "controller.hpp"
+#include "floor-map.hpp"
+#include "order-picker.hpp"
+#include "database-access.hpp"
 #include "database-exception.hpp"
 
 int main() {
+	int timeUntilRestock;
 	try {
-		Controller controller;
-		controller.init();
 		while (true) {
-			controller.updateState();
-			// Sleep for 1 second.
+			if (Database::receiving_get_items().empty() && (timeUntilRestock == 0)) {
+				Database::receiving_replenish();
+				timeUntilRestock = 30;
+			} else if (Database::receiving_get_items().empty()){
+				timeUntilRestock--;
+			}
+			Map::reset();
+			for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
+				Map::set_obstructed(Picker::get_position(*it));
+				if (!Picker::is_assigned(*it)) {
+					if (Database::order_get_next_item_to_ship(Database::order_get_current()) != "") {
+						int orderId = Database::order_get_current();
+						std::string nextItem = Database::order_get_next_item_to_ship(orderId);
+						int bin = Database::stock_where_to_take_item(nextItem);
+						Picker::assign_shipping_task(*it, nextItem, bin);
+					} else if (Database::receiving_get_next_item_to_stock() != "") {
+						std::string nextItem = Database::receiving_get_next_item_to_stock();
+						int bin = Database::stock_where_to_place_item();
+						Picker::assign_shipping_task(*it, nextItem, bin);
+					}
+				}
+			}
+			for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
+				Picker::update(*it);
+			}
 			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
 		}
-		controller.~Controller();
 	} catch (DatabaseException& e) {
 		std::ofstream logFile;
 		std::time_t errorTime;
