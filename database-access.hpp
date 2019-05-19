@@ -9,7 +9,7 @@
 
 namespace Database {
 	// Stock bin related functions.
-	std::vector<int> stock_get_id_list ();	// IMPLEMENT
+	std::vector<int> stock_get_id_list ();
 	Position stock_get_position (int binId);
 	int stock_get_item_count (int binId);
 	std::vector<Item> stock_get_contents (int binId);
