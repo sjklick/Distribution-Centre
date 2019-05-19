@@ -40,7 +40,7 @@ namespace Database {
 	void picker_set_state (int pickerId, State state);
 	Position picker_get_home (int pickerId);
 	Position picker_get_current (int pickerId);
-	Position picker_get_target (int pickerId);	// IMPLEMENT
+	Position picker_get_target (int pickerId);
 	void picker_set_current (int pickerId, Position current);
 	void picker_set_target (int pickerId, Position current);	// IMPLEMENT
 	void picker_take_item_from_receiving (int pickerId, std::string itemName);

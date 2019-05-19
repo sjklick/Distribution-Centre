@@ -506,8 +506,27 @@ namespace Database {
 	}
 
 	Position picker_get_target (int pickerId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
 		Position target;
-		return target;
+		std::string query;
+		try {
+			connection = connect();
+			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				target.row = std::stoi(row[7]);
+				target.column = std::stoi(row[8]);
+				target.facing = CharToDirection(row[9][0]);
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return target;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_target - "+e.message());
+		}
 	}
 
 	void picker_set_current (int pickerId, Position current) {
