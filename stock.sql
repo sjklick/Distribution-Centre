@@ -176,8 +176,12 @@ CREATE TABLE `pickers` (
   `curr_row` int(11) NOT NULL,
   `curr_col` int(11) NOT NULL,
   `curr_dir` char(1) NOT NULL,
+  `trgt_row` int(11) DEFAULT NULL,
+  `trgt_col` int(11) DEFAULT NULL,
+  `trgt_dir` char(1) DEFAULT NULL,
   `state` varchar(9) NOT NULL,
   `has_item` tinyint(1) DEFAULT '0',
+  `yield_count` int(11) DEFAULT '0',
   `task_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`picker_id`),
   KEY `fk_state` (`state`),
@@ -193,7 +197,7 @@ CREATE TABLE `pickers` (
 
 LOCK TABLES `pickers` WRITE;
 /*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
-INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r','idle',0,NULL),(2,1,2,'r',1,2,'r','idle',0,NULL),(3,1,3,'r',1,3,'r','idle',0,NULL),(4,1,4,'r',1,4,'r','idle',0,NULL);
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(2,1,2,'r',1,2,'r',NULL,NULL,NULL,'idle',0,0,NULL),(3,1,3,'r',1,3,'r',NULL,NULL,NULL,'idle',0,0,NULL),(4,1,4,'r',1,4,'r',NULL,NULL,NULL,'idle',0,0,NULL);
 /*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -396,4 +400,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-16 22:56:07
+-- Dump completed on 2019-05-19 12:43:48
