@@ -401,8 +401,24 @@ namespace Database {
 	// Picker related functions.
 
 	std::vector<int> picker_get_id_list () {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
 		std::vector<int> id;
-		return id;
+		try {
+			connection = connect();	
+			query = "SELECT picker_id FROM pickers;";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				id.push_back(std::stoi(row[0]));
+			}
+			mysql_free_result(result);
+			return id;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_id_list - "+e.message());
+		}
 	}
 
 	State picker_get_state (int pickerId) {

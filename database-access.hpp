@@ -35,7 +35,7 @@ namespace Database {
 	void order_remove (int orderId);
 
 	// Picker related functions.
-	std::vector<int> picker_get_id_list ();	// IMPLEMENT
+	std::vector<int> picker_get_id_list ();
 	State picker_get_state (int pickerId);
 	void picker_set_state (int pickerId, State state);
 	Position picker_get_home (int pickerId);
