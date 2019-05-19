@@ -424,4 +424,8 @@ namespace Picker {
 			default:				updateStateIdle(pickerId);
 		}
 	}
+
+	Position get_position (int pickerId) {
+		return Database::picker_get_current(pickerId);
+	}
 }

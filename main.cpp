@@ -10,28 +10,39 @@
 #include "database-exception.hpp"
 
 int main() {
-	int timeUntilRestock;
+	int timeUntilRestock = 30;
+	int timeUntilStartNextOrder = 5;
 	try {
 		while (true) {
-			if (Database::receiving_get_items().empty() && (timeUntilRestock == 0)) {
-				Database::receiving_replenish();
-				timeUntilRestock = 30;
-			} else if (Database::receiving_get_items().empty()){
-				timeUntilRestock--;
+			if (Database::receiving_get_items().empty()) {
+				if (timeUntilRestock == 0) {
+					Database::receiving_replenish();
+					timeUntilRestock = 30;
+				} else {
+					timeUntilRestock--;
+				}
+			}
+			if (Database::order_check_if_ready(Database::order_get_current())) {
+				if (timeUntilStartNextOrder == 0) {
+					Database::order_remove_items(Database::order_get_current());
+					Database::order_remove(Database::order_get_current());
+					timeUntilStartNextOrder = 5;
+				} else {
+					timeUntilStartNextOrder--;
+				}
 			}
 			Map::reset();
 			for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
 				Map::set_obstructed(Picker::get_position(*it));
 				if (!Picker::is_assigned(*it)) {
-					if (Database::order_get_next_item_to_ship(Database::order_get_current()) != "") {
-						int orderId = Database::order_get_current();
-						std::string nextItem = Database::order_get_next_item_to_ship(orderId);
-						int bin = Database::stock_where_to_take_item(nextItem);
-						Picker::assign_shipping_task(*it, nextItem, bin);
-					} else if (Database::receiving_get_next_item_to_stock() != "") {
-						std::string nextItem = Database::receiving_get_next_item_to_stock();
+					int orderId = Database::order_get_current();
+					std::string next;
+					if ((next = Database::order_get_next_item_to_ship(orderId)) != "") {
+						int bin = Database::stock_where_to_take_item(next);
+						Picker::assign_shipping_task(*it, next, bin);
+					} else if ((next = Database::receiving_get_next_item_to_stock()) != "") {
 						int bin = Database::stock_where_to_place_item();
-						Picker::assign_shipping_task(*it, nextItem, bin);
+						Picker::assign_shipping_task(*it, next, bin);
 					}
 				}
 			}

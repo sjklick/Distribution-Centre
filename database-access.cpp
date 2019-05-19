@@ -82,6 +82,11 @@ static MYSQL_RES* get_result (MYSQL* connection) {
 namespace Database {
 	// Stock bin related functions.
 
+	std::vector<int> stock_get_id_list () {
+		std::vector<int> id;
+		return id;
+	}
+
 	Position stock_get_position (int binId) {
 		MYSQL* connection;
 		MYSQL_RES* result;
@@ -468,6 +473,11 @@ namespace Database {
 		}
 	}
 
+	Position picker_get_target (int pickerId) {
+		Position target;
+		return target;
+	}
+
 	void picker_set_current (int pickerId, Position current) {
 		MYSQL* connection;
 		std::string query;
@@ -485,6 +495,9 @@ namespace Database {
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_set_current - "+e.message());
 		}
+	}
+
+	void picker_set_target (int pickerId, Position current) {
 	}
 
 	void picker_take_item_from_receiving (int pickerId, std::string itemName) {
@@ -535,6 +548,12 @@ namespace Database {
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_take_item_from_stock - "+e.message());
 		}
+	}
+
+	void picker_take_item_from_receiving (int pickerId) {
+	}
+
+	void picker_take_item_from_stock (int pickerId) {
 	}
 
 	void picker_place_item_into_stock (int pickerId, std::string itemName, int binId) {
@@ -610,7 +629,29 @@ namespace Database {
 		}
 	}
 
+	void picker_place_item_into_stock (int pickerId) {
+	}
+
+	void picker_place_item_into_shipping (int pickerId) {
+	}
+
 	bool picker_check_if_assigned (int pickerId) {
+		return false;
+	}
+
+	bool picker_is_task_complete (int pickerId) {
+		return false;
+	}
+
+	bool picker_is_task_ship (int pickerId) {
+		return false;
+	}
+
+	bool picker_is_task_receive (int pickerId) {
+		return false;
+	}
+
+	bool picker_has_item (int pickerId) {
 		return false;
 	}
 
@@ -618,5 +659,15 @@ namespace Database {
 	}
 
 	void picker_assign_receiving_task (int pickerId, std::string item, int binId) {
+	}
+
+	int picker_get_yield_count (int pickerId) {
+		return 0;
+	}
+
+	void picker_increment_yield_count (int pickerId) {
+	}
+
+	void picker_reset_yield_count (int pickerId) {
 	}
 }
