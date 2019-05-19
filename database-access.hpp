@@ -56,7 +56,7 @@ namespace Database {
 	bool picker_is_task_ship (int pickerId);
 	bool picker_is_task_receive (int pickerId);
 	bool picker_has_item (int pickerId);
-	void picker_assign_shipping_task (int pickerId, std::string item, int binId);	// IMPLEMENT
+	void picker_assign_shipping_task (int pickerId, std::string item, int binId);
 	void picker_assign_receiving_task (int pickerId, std::string item, int binId);	// IMPLEMENT
 	int picker_get_yield_count (int pickerId);
 	void picker_increment_yield_count (int pickerId);

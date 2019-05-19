@@ -829,6 +829,33 @@ namespace Database {
 	}
 
 	void picker_assign_shipping_task (int pickerId, std::string item, int binId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		int taskId;
+		try {
+			connection = connect();
+			disable_auto_commit(connection);
+			query = "INSERT INTO picker_tasks (task_type, item_name, bin_id) VALUES (";
+			query += "\"ship\", ";
+			query += "\""+item+"\", ";
+			query += std::to_string(binId);
+			query += ");";
+			make_query(connection, query);
+			query = "SELECT LAST_INSERT_ID();";
+			make_query(connection, query);
+			if (row = mysql_fetch_row(result)) {
+				taskId = std::stoi(row[0]);
+			}
+			query = "UPDATE pickers SET task_id="+std::to_string(taskId);
+			query += " WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			commit(connection);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_assign_shipping_task - "+e.message());
+		}
 	}
 
 	void picker_assign_receiving_task (int pickerId, std::string item, int binId) {
