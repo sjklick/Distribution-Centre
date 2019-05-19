@@ -548,7 +548,23 @@ namespace Database {
 		}
 	}
 
-	void picker_set_target (int pickerId, Position current) {
+	void picker_set_target (int pickerId, Position target) {
+		MYSQL* connection;
+		std::string query;
+		try {
+			connection = connect();
+			query = "UPDATE pickers SET trgt_row=";
+			query += std::to_string(target.row);
+			query += ", trgt_col=";
+			query += std::to_string(target.column);
+			query += ", trgt_dir=\"";
+			query += DirectionToChar(target.facing);
+			query += "\" WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			disconnect(connection);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_set_target - "+e.message());
+		}
 	}
 
 	void picker_take_item_from_receiving (int pickerId, std::string itemName) {
