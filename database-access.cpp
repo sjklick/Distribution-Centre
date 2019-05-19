@@ -700,11 +700,61 @@ namespace Database {
 	}
 
 	bool picker_is_task_ship (int pickerId) {
-		return false;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "SELECT task_type FROM picker_tasks WHERE task_id=";
+			query += "(SELECT task_id FROM pickers WHERE picker_id="+std::to_string(pickerId)+");";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				std::string taskType = row[0];
+				mysql_free_result(result);
+				disconnect(connection);
+				if (taskType == "ship") return true;
+				return false;
+			} else {
+				mysql_free_result(result);
+				disconnect(connection);
+				std::string error;
+				error = "Failed to get task type.";
+				throw DatabaseException(error);
+			}
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_is_task_ship - "+e.message());
+		}
 	}
 
 	bool picker_is_task_receive (int pickerId) {
-		return false;
+			MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();	
+			query = "SELECT task_type FROM picker_tasks WHERE task_id=";
+			query += "(SELECT task_id FROM pickers WHERE picker_id="+std::to_string(pickerId)+");";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				std::string taskType = row[0];
+				mysql_free_result(result);
+				disconnect(connection);
+				if (taskType == "receive") return true;
+				return false;
+			} else {
+				mysql_free_result(result);
+				disconnect(connection);
+				std::string error;
+				error = "Failed to get task type.";
+				throw DatabaseException(error);
+			}
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_is_task_receive - "+e.message());
+		}
 	}
 
 	bool picker_has_item (int pickerId) {
