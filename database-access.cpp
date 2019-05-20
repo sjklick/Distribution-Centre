@@ -741,12 +741,11 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				if (row[0] == NULL) quantity = 0;
+				if (row[0] == NULL) quantity = -1;
 				else quantity = std::stoi(row[0]);
 			}
 			mysql_free_result(result);
-			quantity--;
-			if (quantity > 0) {
+			if (quantity > 1) {
 				query = "UPDATE stock_items SET quantity=quantity-1 WHERE bin_id=";
 				query += std::to_string(binId)+" AND name=\""+itemName+"\";";
 			} else {
@@ -806,7 +805,7 @@ namespace Database {
 				query += std::to_string(binId)+" AND name=\""+itemName+"\";";
 			} else {
 				query = "INSERT INTO stock_items (name, quantity) VALUES (";
-				query += "\""+itemName+"\", 0) ";
+				query += "\""+itemName+"\", 1) ";
 				query += "WHERE bin_id="+std::to_string(binId)+";";
 			}
 			make_query(connection, query);
@@ -848,8 +847,9 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				if (row[0] == NULL) quantity = 0;
-				else quantity = std::stoi(row[0]);
+				quantity = std::stoi(row[0]);
+			} else {
+				quantity = 0;
 			}
 			mysql_free_result(result);
 			if (quantity > 0) {
@@ -857,10 +857,12 @@ namespace Database {
 				query += "\""+itemName+"\";";
 			} else {
 				query = "INSERT INTO shipping_items (name, quantity) VALUES (";
-				query += "\""+itemName+"\", 0);";
+				query += "\""+itemName+"\", 1);";
 			}
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			query = "UPDATE pickers SET task_id=NULL WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
 			query = "DELETE FROM picker_tasks WHERE task_id="+std::to_string(taskId)+";";
 			make_query(connection, query);
@@ -969,7 +971,7 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				bool hasItem = bool(row[0]);
+				bool hasItem = bool(std::stoi(row[0]));
 				mysql_free_result(result);
 				disconnect(connection);
 				return hasItem;
