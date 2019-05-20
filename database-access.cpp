@@ -230,9 +230,9 @@ namespace Database {
 		std::string query;
 		try {
 			connection = connect();
-			query = "SELECT bin_id AS id FROM stock_items WHERE ";
-			query += "quantity+COUNT(SELECT * FROM picker_tasks WHERE bin_id=id AND ";
-			query += "task_type=\"receive\")<12 LIMIT 1;";
+			query = "SELECT bin_id FROM stock_items WHERE ";
+			query += "quantity+(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_items.bin_id ";
+			query += "AND task_type=\"receive\")<12 LIMIT 1;";
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
@@ -265,8 +265,8 @@ namespace Database {
 			receivingItems = Database::receiving_get_items();
 			connection = connect();
 			for (std::vector<std::string>::iterator it = receivingItems.begin(); it != receivingItems.end(); it++) {
-				query = "SELECT COUNT(SELECT * FROM picker_tasks WHERE item_name=";
-				query += "\""+(*it)+"\" AND task_type=\"receive\");";
+				query = "SELECT COUNT(*) FROM picker_tasks WHERE item_name=";
+				query += "\""+(*it)+"\" AND task_type=\"receive\";";
 				make_query(connection, query);
 				result = get_result(connection);
 				if (row = mysql_fetch_row(result)) {
