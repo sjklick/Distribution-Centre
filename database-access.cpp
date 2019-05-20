@@ -223,7 +223,33 @@ namespace Database {
 	}
 
 	int stock_where_to_place_item () {
-		return 0;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();
+			query = "SELECT bin_id AS id FROM stock_items WHERE ";
+			query += "quantity+COUNT(SELECT * FROM picker_tasks WHERE bin_id=id AND ";
+			query += "task_type=\"receive\")<12 LIMIT 1;";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				if (row[0] != NULL) {
+					int binId = std::stoi(row[0]);
+					mysql_free_result(result);
+					disconnect(connection);
+					return binId;
+				}
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			std::string error;
+			error = "Insufficient room.";
+			throw DatabaseException(error);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("stock_where_to_place_item - "+e.message());
+		}
 	}
 
 	// Receiving bin related functions.
