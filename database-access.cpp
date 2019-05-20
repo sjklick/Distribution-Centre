@@ -224,8 +224,33 @@ namespace Database {
 	// Receiving bin related functions.
 
 	std::string receiving_get_next_item_to_stock () {
-		std::string nextItem = "";
-		return nextItem;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<std::string> receivingItems;
+		try {
+			receivingItems = Database::receiving_get_items();
+			connection = connect();
+			for (std::vector<std::string>::iterator it = receivingItems.begin(); it != receivingItems.end(); it++) {
+				query = "SELECT COUNT(SELECT * FROM picker_tasks WHERE item_name=";
+				query += "\""+(*it)+"\" AND task_type=\"receive\");";
+				make_query(connection, query);
+				result = get_result(connection);
+				if (row = mysql_fetch_row(result)) {
+					if (std::stoi(row[0]) == 0) {
+						mysql_free_result(result);
+						disconnect(connection);
+						return (*it);
+					}
+				}
+				mysql_free_result(result);
+			}
+			disconnect(connection);
+			return "";
+		} catch (DatabaseException& e) {
+			throw DatabaseException("receiving_get_next_item_to_stock - "+e.message());
+		}
 	}
 
 	std::vector<std::string> receiving_get_items () {
@@ -692,6 +717,8 @@ namespace Database {
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
+			make_query(connection, query);
+			query = "UPDATE picker_tasks SET task_complete=TRUE WHERE task_id="+std::to_string(taskId)+";";
 			commit(connection);
 			disconnect(connection);
 		} catch (DatabaseException& e) {

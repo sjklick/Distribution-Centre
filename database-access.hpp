@@ -19,7 +19,7 @@ namespace Database {
 	int stock_where_to_place_item ();	// IMPLEMENT
 
 	// Receiving bin related functions.
-	std::string receiving_get_next_item_to_stock ();	// IMPLEMENT
+	std::string receiving_get_next_item_to_stock ();
 	std::vector<std::string> receiving_get_items ();
 	void receiving_replenish ();
 
