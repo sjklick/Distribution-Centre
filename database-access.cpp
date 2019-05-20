@@ -1064,9 +1064,11 @@ namespace Database {
 			make_query(connection, query);
 			query = "SELECT LAST_INSERT_ID();";
 			make_query(connection, query);
+			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				taskId = std::stoi(row[0]);
 			}
+			mysql_free_result(result);
 			query = "UPDATE pickers SET task_id="+std::to_string(taskId);
 			query += " WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);

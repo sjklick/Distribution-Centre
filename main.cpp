@@ -43,7 +43,7 @@ int main() {
 						Picker::assign_shipping_task(*it, next, bin);
 					} else if ((next = Database::receiving_get_next_item_to_stock()) != "") {
 						int bin = Database::stock_where_to_place_item();
-						Picker::assign_shipping_task(*it, next, bin);
+						Picker::assign_receiving_task(*it, next, bin);
 					}
 				}
 			}
