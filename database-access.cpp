@@ -797,12 +797,13 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				if (row[0] == NULL) quantity = 0;
-				else quantity = std::stoi(row[0]);
+				quantity = std::stoi(row[0]);
+			} else {
+				quantity = 0;
 			}
 			mysql_free_result(result);
 			if (quantity > 0) {
-				query = "UPDATE stock_items SET quantity=quantity-1 WHERE bin_id=";
+				query = "UPDATE stock_items SET quantity=quantity+1 WHERE bin_id=";
 				query += std::to_string(binId)+" AND name=\""+itemName+"\";";
 			} else {
 				query = "INSERT INTO stock_items (name, quantity) VALUES (";
@@ -811,6 +812,8 @@ namespace Database {
 			}
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
+			make_query(connection, query);
+			query = "UPDATE pickers SET task_id=NULL WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
 			query = "DELETE FROM picker_tasks WHERE task_id="+std::to_string(taskId)+";";
 			make_query(connection, query);
