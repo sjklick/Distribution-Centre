@@ -25,10 +25,11 @@ namespace Database {
 
 	// Shipping bin related functions.
 	void shipping_clear ();
+	std::vector<Item> shipping_get_items ();
 
 	// Customer order related functions.
 	int order_get_current ();
-	std::string order_get_next_item_to_ship (int orderId);	// IMPLEMENT
+	std::string order_get_next_item_to_ship (int orderId);
 	bool order_check_if_ready (int orderId);
 	std::vector<Item> order_get_items (int orderId);
 	void order_remove_items (int orderId);

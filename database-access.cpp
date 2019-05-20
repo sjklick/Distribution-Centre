@@ -316,6 +316,31 @@ namespace Database {
 		}
 	}
 
+	std::vector<Item> shipping_get_items () {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<Item> shippingItems;
+		try {
+			connection = connect();
+			query = "SELECT * FROM shipping_items;";
+			make_query(connection, query);
+			result = get_result(connection);
+			while (row = mysql_fetch_row(result)) {
+				Item temp;
+				temp.name = std::string(row[0]);
+				temp.quantity = std::stoi(row[1]);
+				shippingItems.push_back(temp);
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			return shippingItems;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("shipping_get_items - "+e.message());
+		}
+	}
+
 	// Customer order related functions.
 
 	int order_get_current () {
@@ -340,8 +365,42 @@ namespace Database {
 	}
 
 	std::string order_get_next_item_to_ship (int orderId) {
-		std::string nextItem = "";
-		return nextItem;
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		std::vector<Item> orderItems, shippingItems;
+		try {
+			orderItems = Database::order_get_items(orderId);
+			shippingItems = Database::shipping_get_items();
+			for (std::vector<Item>::iterator it = orderItems.begin(); it != orderItems.end(); it++) {
+				for (std::vector<Item>::iterator it2 = shippingItems.begin(); it2 != shippingItems.end(); it2++) {
+					if ((*it).name == (*it2).name) {
+						(*it).quantity -= (*it2).quantity;
+					}
+				}
+			}
+			connection = connect();
+			for (std::vector<Item>::iterator it = orderItems.begin(); it != orderItems.end(); it++) {
+				query = "SELECT COUNT(SELECT * FROM picker_tasks WHERE item_name=";
+				query += "\""+(*it).name+"\" AND task_type=\"ship\");";
+				make_query(connection, query);
+				result = get_result(connection);
+				if (row = mysql_fetch_row(result)) {
+					(*it).quantity -= std::stoi(row[0]);
+				}
+				mysql_free_result(result);
+			}
+			disconnect(connection);
+			for (std::vector<Item>::iterator it = orderItems.begin(); it != orderItems.end(); it++) {
+				if ((*it).quantity > 0) {
+					return (*it).name;
+				}
+			}
+			return "";
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_get_next_item_to_ship - "+e.message());
+		}
 	}
 
 	bool order_check_if_ready (int orderId) {
