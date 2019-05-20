@@ -8,9 +8,4 @@ struct Item {
 	int quantity;
 };
 
-struct ShippingItem {
-	std::string name;
-	int quantity, needed;
-};
-
 #endif

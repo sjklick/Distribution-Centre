@@ -409,7 +409,8 @@ namespace Picker {
 	}
 
 	void update (int pickerId) {
-		switch (Database::picker_get_state(pickerId)) {
+		State state = Database::picker_get_state(pickerId);
+		switch (state) {
 			case State::yield:		updateStateYield(pickerId);		break;
 			case State::home:		updateStateHome(pickerId);		break;
 			case State::retrieve:	updateStateRetrieve(pickerId);	break;

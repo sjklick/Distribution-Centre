@@ -107,25 +107,26 @@ namespace Database {
 		MYSQL* connection;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
-		Position bin;
 		std::string query;
 		try {
 			connection = connect();	
 			query = "SELECT * FROM stock_bins WHERE bin_id="+std::to_string(binId)+";";
 			make_query(connection, query);
 			result = get_result(connection);
-			if(row = mysql_fetch_row(result)) {
+			if (row = mysql_fetch_row(result)) {
+				Position bin;
 				bin.row = std::stoi(row[1]);
 				bin.column = std::stoi(row[2]);
 				bin.facing = CharToDirection(row[3][0]);
-			} else {
-				bin.row = -1;
-				bin.column = -1;
-				bin.facing = invalid;
+				mysql_free_result(result);
+				disconnect(connection);
+				return bin;
 			}
 			mysql_free_result(result);
 			disconnect(connection);
-			return bin;
+			std::string error;
+			error = "Invalid stock bin.";
+			throw DatabaseException(error);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("stock_get_position - "+e.message());
 		}
@@ -200,7 +201,7 @@ namespace Database {
 		try {
 			connection = connect();
 			query = "SELECT * FROM stock_items WHERE name=\""+item+"\" AND ";
-			query += "quantity>COUNT(SELECT * FROM picker_tasks WHERE item_name=";
+			query += "quantity>(SELECT COUNT(*) FROM picker_tasks WHERE item_name=";
 			query += "\""+item+"\" AND task_type=\"ship\") LIMIT 1;";
 			make_query(connection, query);
 			result = get_result(connection);
@@ -413,8 +414,8 @@ namespace Database {
 			}
 			connection = connect();
 			for (std::vector<Item>::iterator it = orderItems.begin(); it != orderItems.end(); it++) {
-				query = "SELECT COUNT(SELECT * FROM picker_tasks WHERE item_name=";
-				query += "\""+(*it).name+"\" AND task_type=\"ship\");";
+				query = "SELECT COUNT(*) FROM picker_tasks WHERE item_name=";
+				query += "\""+(*it).name+"\" AND task_type=\"ship\";";
 				make_query(connection, query);
 				result = get_result(connection);
 				if (row = mysql_fetch_row(result)) {
@@ -523,7 +524,7 @@ namespace Database {
 		std::vector<int> id;
 		try {
 			connection = connect();	
-			query = "SELECT picker_id FROM pickers;";
+			query = "SELECT picker_id FROM pickers ORDER BY picker_id;";
 			make_query(connection, query);
 			result = get_result(connection);
 			while (row = mysql_fetch_row(result)) {
@@ -542,17 +543,21 @@ namespace Database {
 		MYSQL_ROW row;
 		std::string query;
 		try {
-			query = "SELECT * FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
 			connection = connect();
+			query = "SELECT state FROM pickers WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				std::string state = row[7];
+				std::string state = std::string(row[0]);
+				mysql_free_result(result);
 				disconnect(connection);
 				return StringToState(state);
 			}
+			mysql_free_result(result);
 			disconnect(connection);
-			return State::invalid;
+			std::string error;
+			error = "Failed to get a state.";
+			throw DatabaseException(error);
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_get_state - "+e.message());
 		}
@@ -1025,9 +1030,11 @@ namespace Database {
 			make_query(connection, query);
 			query = "SELECT LAST_INSERT_ID();";
 			make_query(connection, query);
+			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				taskId = std::stoi(row[0]);
 			}
+			mysql_free_result(result);
 			query = "UPDATE pickers SET task_id="+std::to_string(taskId);
 			query += " WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);

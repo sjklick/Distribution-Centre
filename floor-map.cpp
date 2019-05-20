@@ -14,7 +14,8 @@ namespace Map {
                 }
             }
         }
-        for (std::vector<int>::iterator it; it != Database::stock_get_id_list().end(); it++) {
+        std::vector<int> binList = Database::stock_get_id_list();
+        for (std::vector<int>::iterator it = binList.begin(); it != binList.end(); it++) {
             Map::set_obstructed(Database::stock_get_position(*it));
         }
     }

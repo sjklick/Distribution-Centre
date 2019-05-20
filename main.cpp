@@ -2,7 +2,6 @@
 #include <chrono>
 #include <ctime>
 #include <thread>
-#include <iostream>
 #include <fstream>
 #include "floor-map.hpp"
 #include "order-picker.hpp"
@@ -33,7 +32,8 @@ int main() {
 				}
 			}
 			Map::reset();
-			for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
+			std::vector<int> pickerList = Database::picker_get_id_list();
+			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {
 				Map::set_obstructed(Picker::get_position(*it));
 				if (!Picker::is_assigned(*it)) {
 					int orderId = Database::order_get_current();
@@ -47,7 +47,7 @@ int main() {
 					}
 				}
 			}
-			for (std::vector<int>::iterator it; it != Database::picker_get_id_list().end(); it++) {
+			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {
 				Picker::update(*it);
 			}
 			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
