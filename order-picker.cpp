@@ -9,52 +9,85 @@
 static std::vector<Position> findPath(Position start, Position end);
 
 static void updateStateIdle (int pickerId) {
-	// Nothing to do here.
+	if (Database::picker_check_if_assigned(pickerId)) {
+		Position target;
+		if (Database::picker_is_task_receive(pickerId)) {
+			Database::picker_set_state(pickerId, State::receive);
+			target.row = 0;
+			target.column = 8;
+			target.facing = down;
+		} else {
+			Database::picker_set_state(pickerId, State::retrieve);
+			int binId = Database::picker_get_assigned_bin(pickerId);
+			target = Database::stock_get_position(binId);	
+		}
+		target = getFacingPosition(target);
+		Database::picker_set_target(pickerId, target);
+	}
 }
 
 static void updateStateYield (int pickerId) {
-	State state = State::yield;
+	Position target;
 	Database::picker_increment_yield_count(pickerId);
 	if (Database::picker_get_yield_count(pickerId) > 5) {
-		state = State::extricate;
 		// Pick a random position to target.
-		Position extricate;
-		extricate.row = rand() % 10;
-		extricate.column = rand() % 10;
+		target.row = rand() % 10;
+		target.column = rand() % 10;
 		switch (rand() % 4) {
-			case 0:	extricate.facing = up;
-			case 1: extricate.facing = down;
-			case 2: extricate.facing = left;
-			case 3: extricate.facing = right;
+			case 0:	target.facing = up;
+			case 1: target.facing = down;
+			case 2: target.facing = left;
+			case 3: target.facing = right;
 		}
-		Database::picker_set_target(pickerId, extricate);
-		Database::picker_set_state(pickerId, state);
+		Database::picker_set_target(pickerId, target);
+		Database::picker_set_state(pickerId, State::extricate);
+		return;
 	}
 	if (Database::picker_is_task_complete(pickerId)) {
-		state = State::home;
+		Position target;
+		target = Database::picker_get_home(pickerId);
+		Database::picker_set_target(pickerId, target);
+		Database::picker_set_state(pickerId, State::home);
 	} else if (Database::picker_has_item(pickerId)) {
 		if (Database::picker_is_task_ship(pickerId)) {
-			state = State::ship;
+			target.row = 9;
+			target.column = 1;
+			target.facing = up;
+			target = getFacingPosition(target);
+			Database::picker_set_target(pickerId, target);
+			Database::picker_set_state(pickerId, State::ship);
 		} else if (Database::picker_is_task_receive(pickerId)) {
-			state = State::stock;
+			int binId = Database::picker_get_assigned_bin(pickerId);
+			target = Database::stock_get_position(binId);
+			target = getFacingPosition(target);
+			Database::picker_set_target(pickerId, target);
+			Database::picker_set_state(pickerId, State::stock);
 		}
-	} else if (!Database::picker_has_item(pickerId)) {
+	} else {
 		if (Database::picker_is_task_ship(pickerId)) {
-			state = State::retrieve;
+			int binId = Database::picker_get_assigned_bin(pickerId);
+			target = Database::stock_get_position(binId);
+			target = getFacingPosition(target);
+			Database::picker_set_target(pickerId, target);
+			Database::picker_set_state(pickerId, State::retrieve);
 		} else if (Database::picker_is_task_receive(pickerId)) {
-			state = State::receive;
+			target.row = 0;
+			target.column = 8;
+			target.facing = down;
+			target = getFacingPosition(target);
+			Database::picker_set_target(pickerId, target);
+			Database::picker_set_state(pickerId, State::receive);
 		}
 	}
-	Database::picker_set_state(pickerId, state);
 }
 
 static void updateStateHome (int pickerId) {
-	State state = State::home;
-	Position current, home;
+	State state;
+	Position current, target;
 	current = Database::picker_get_current(pickerId);
-	home = Database::picker_get_home(pickerId);
-	if (current != home) {
-		std::vector<Position> path = findPath(current, home);
+	target = Database::picker_get_target(pickerId);
+	if (current != target) {
+		std::vector<Position> path = findPath(current, target);
 		if (path.empty()) {
 			state = State::yield;
 			Database::picker_set_state(pickerId, state);
@@ -70,7 +103,7 @@ static void updateStateHome (int pickerId) {
 }
 
 static void updateStateRetrieve (int pickerId) {
-	State state = State::retrieve;
+	State state;
 	Position current, target;
 	current = Database::picker_get_current(pickerId);
 	target = Database::picker_get_target(pickerId);
@@ -91,7 +124,7 @@ static void updateStateRetrieve (int pickerId) {
 }
 
 static void updateStateStock (int pickerId) {
-	State state = State::stock;
+	State state;
 	Position current, target;
 	current = Database::picker_get_current(pickerId);
 	target = Database::picker_get_target(pickerId);
@@ -112,16 +145,12 @@ static void updateStateStock (int pickerId) {
 }
 
 static void updateStateReceive (int pickerId) {
-	State state = State::receive;
-	Position bin;
-	bin.row = 0;
-	bin.column = 8;
-	bin.facing = down;
-	bin = getFacingPosition(bin);
-	Position current;
+	State state;
+	Position current, target;
 	current = Database::picker_get_current(pickerId);
-	if (current != bin) {
-		std::vector<Position> path = findPath(current, bin);
+	target = Database::picker_get_target(pickerId);
+	if (current != target) {
+		std::vector<Position> path = findPath(current, target);
 		if (path.empty()) {
 			state = State::yield;
 			Database::picker_set_state(pickerId, state);
@@ -137,16 +166,12 @@ static void updateStateReceive (int pickerId) {
 }
 
 static void updateStateShip (int pickerId) {
-	State state = State::ship;
-	Position bin;
-	bin.row = 9;
-	bin.column = 1;
-	bin.facing = up;
-	bin = getFacingPosition(bin);
-	Position current;
+	State state;
+	Position current, target;
 	current = Database::picker_get_current(pickerId);
-	if (current != bin) {
-		std::vector<Position> path = findPath(current, bin);
+	target = Database::picker_get_target(pickerId);
+	if (current != target) {
+		std::vector<Position> path = findPath(current, target);
 		if (path.empty()) {
 			state = State::yield;
 			Database::picker_set_state(pickerId, state);
@@ -162,23 +187,31 @@ static void updateStateShip (int pickerId) {
 }
 
 static void updateStateExtend (int pickerId) {
-	State state = State::extend;
+	State state;
 	if (Database::picker_has_item(pickerId)) state = State::place;
 	else state = State::pick;
 	Database::picker_set_state(pickerId, state);
 }
 
 static void updateStateRetract (int pickerId) {
-	State state = State::retract;
+	State state;
+	Position target;
 	if (!Database::picker_has_item(pickerId)) {
 		state = State::home;
+		target = Database::picker_get_home(pickerId);
+	} else if (Database::picker_is_task_ship(pickerId)) {
+		state = State::ship;
+		target.row = 9;
+		target.column = 1;
+		target.facing = up;
+		target = getFacingPosition(target);
 	} else {
-		if (Database::picker_is_task_ship(pickerId)) {
-			state = State::ship;
-		} else if (Database::picker_is_task_receive(pickerId)) {
-			state = State::stock;
-		}
+		state = State::stock;
+		int binId = Database::picker_get_assigned_bin(pickerId);
+		target = Database::stock_get_position(binId);
+		target = getFacingPosition(target);
 	}
+	Database::picker_set_target(pickerId, target);
 	Database::picker_set_state(pickerId, state);
 }
 
@@ -193,20 +226,20 @@ static void updateStatePick (int pickerId) {
 
 static void updateStatePlace (int pickerId) {
 	if (Database::picker_is_task_ship(pickerId)) {
-		Database::picker_place_item_into_stock(pickerId);
-	} else if (Database::picker_is_task_receive(pickerId)) {
 		Database::picker_place_item_into_shipping(pickerId);
+	} else if (Database::picker_is_task_receive(pickerId)) {
+		Database::picker_place_item_into_stock(pickerId);
 	}
 	Database::picker_set_state(pickerId, State::retract);
 }
 
 static void updateStateExtricate (int pickerId) {
-	State state = State::extricate;
-	Position current, extricate;
+	State state;
+	Position current, target;
 	current = Database::picker_get_current(pickerId);
-	extricate = Database::picker_get_target(pickerId);
-	if (current != extricate) {
-		std::vector<Position> path = findPath(current, extricate);
+	target = Database::picker_get_target(pickerId);
+	if (current != target) {
+		std::vector<Position> path = findPath(current, target);
 		if (path.empty()) {
 			state = State::yield;
 			Database::picker_set_state(pickerId, state);
@@ -217,21 +250,7 @@ static void updateStateExtricate (int pickerId) {
 		}
 		return;
 	}
-	if (Database::picker_is_task_complete(pickerId)) {
-		state = State::home;
-	} else if (Database::picker_has_item(pickerId)) {
-		if (Database::picker_is_task_ship(pickerId)) {
-			state = State::ship;
-		} else if (Database::picker_is_task_receive(pickerId)) {
-			state = State::stock;
-		}
-	} else if (!Database::picker_has_item(pickerId)) {
-		if (Database::picker_is_task_ship(pickerId)) {
-			state = State::retrieve;
-		} else if (Database::picker_is_task_receive(pickerId)) {
-			state = State::receive;
-		}
-	}
+	state = State::yield;
 	Database::picker_set_state(pickerId, state);
 }
 

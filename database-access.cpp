@@ -1013,6 +1013,33 @@ namespace Database {
 		}
 	}
 
+	int picker_get_assigned_bin (int pickerId) {
+		MYSQL* connection;
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		try {
+			connection = connect();
+			query = "SELECT bin_id FROM picker_tasks WHERE task_id=(SELECT task_id FROM pickers ";
+			query += "WHERE picker_id="+std::to_string(pickerId)+");";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				int binId = std::stoi(row[0]);
+				mysql_free_result(result);
+				disconnect(connection);
+				return binId;
+			}
+			mysql_free_result(result);
+			disconnect(connection);
+			std::string error;
+			error = "Failed to get bin ID.";
+			throw DatabaseException(error);
+		} catch (DatabaseException& e) {
+			throw DatabaseException("picker_get_assigned_bin - "+e.message());
+		}
+	}
+
 	void picker_assign_shipping_task (int pickerId, std::string item, int binId) {
 		MYSQL* connection;
 		MYSQL_RES* result;
