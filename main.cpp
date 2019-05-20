@@ -26,6 +26,7 @@ int main() {
 				if (timeUntilStartNextOrder == 0) {
 					Database::order_remove_items(Database::order_get_current());
 					Database::order_remove(Database::order_get_current());
+					Database::shipping_clear();
 					timeUntilStartNextOrder = 5;
 				} else {
 					timeUntilStartNextOrder--;
