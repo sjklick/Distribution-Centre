@@ -192,29 +192,34 @@ namespace Database {
 		}
 	}
 
-	int stock_find_first_item_location (std::string item) {
+	int stock_where_to_take_item (std::string item) {
 		MYSQL* connection;
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
-		int binId;
 		try {
 			connection = connect();
-			query = "SELECT * FROM stock_items WHERE name=\""+item+"\" AND QUANTITY>0 LIMIT 1;";
+			query = "SELECT * FROM stock_items WHERE name=\""+item+"\" AND ";
+			query += "quantity>COUNT(SELECT * FROM picker_tasks WHERE item_name=";
+			query += "\""+item+"\" AND task_type=\"ship\") LIMIT 1;";
 			make_query(connection, query);
 			result = get_result(connection);
-			if (row = mysql_fetch_row(result)) binId = std::stoi(row[0]);
-			else binId = -1;
+			if (row = mysql_fetch_row(result)) {
+				if (row[0] != NULL) {
+					int binId = std::stoi(row[0]);
+					mysql_free_result(result);
+					disconnect(connection);
+					return binId;
+				}
+			}
 			mysql_free_result(result);
 			disconnect(connection);
-			return binId;
+			std::string error;
+			error = "Insufficient stock.";
+			throw DatabaseException(error);
 		} catch (DatabaseException& e) {
-			throw DatabaseException("stock_find_first_item_location - "+e.message());
+			throw DatabaseException("stock_where_to_take_item - "+e.message());
 		}
-	}
-
-	int stock_where_to_take_item (std::string item) {
-		return 0;
 	}
 
 	int stock_where_to_place_item () {

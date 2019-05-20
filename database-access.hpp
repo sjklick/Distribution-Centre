@@ -14,8 +14,7 @@ namespace Database {
 	int stock_get_item_count (int binId);
 	std::vector<Item> stock_get_contents (int binId);
 	std::vector<int> stock_find_bins_with_room ();
-	int stock_find_first_item_location (std::string item);
-	int stock_where_to_take_item (std::string item);	// IMPLEMENT
+	int stock_where_to_take_item (std::string item);
 	int stock_where_to_place_item ();	// IMPLEMENT
 
 	// Receiving bin related functions.
