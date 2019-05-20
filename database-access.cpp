@@ -812,8 +812,8 @@ namespace Database {
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
+			query = "DELETE FROM picker_tasks WHERE task_id="+std::to_string(taskId)+";";
 			make_query(connection, query);
-			query = "UPDATE picker_tasks SET task_complete=TRUE WHERE task_id="+std::to_string(taskId)+";";
 			commit(connection);
 			disconnect(connection);
 		} catch (DatabaseException& e) {
@@ -862,7 +862,7 @@ namespace Database {
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
 			make_query(connection, query);
-			query = "UPDATE picker_tasks SET task_complete=TRUE WHERE task_id="+std::to_string(taskId)+";";
+			query = "DELETE FROM picker_tasks WHERE task_id="+std::to_string(taskId)+";";
 			make_query(connection, query);
 			commit(connection);
 			disconnect(connection);
@@ -897,34 +897,6 @@ namespace Database {
 			}
 		} catch (DatabaseException& e) {
 			throw DatabaseException("picker_check_if_assigned - "+e.message());
-		}
-	}
-
-	bool picker_is_task_complete (int pickerId) {
-		MYSQL* connection;
-		MYSQL_RES* result;
-		MYSQL_ROW row;
-		std::string query;
-		try {
-			connection = connect();	
-			query = "SELECT task_complete FROM picker_tasks WHERE task_id=";
-			query += "(SELECT task_id FROM pickers WHERE picker_id="+std::to_string(pickerId)+");";
-			make_query(connection, query);
-			result = get_result(connection);
-			if (row = mysql_fetch_row(result)) {
-				bool taskComplete = bool(row[0]);
-				mysql_free_result(result);
-				disconnect(connection);
-				return taskComplete;
-			} else {
-				mysql_free_result(result);
-				disconnect(connection);
-				std::string error;
-				error = "Failed to get task status.";
-				throw DatabaseException(error);
-			}
-		} catch (DatabaseException& e) {
-			throw DatabaseException("picker_is_task_complete - "+e.message());
 		}
 	}
 

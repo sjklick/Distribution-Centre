@@ -48,7 +48,6 @@ namespace Database {
 	void picker_place_item_into_stock (int pickerId);
 	void picker_place_item_into_shipping (int pickerId);
 	bool picker_check_if_assigned (int pickerId);
-	bool picker_is_task_complete (int pickerId);
 	bool picker_is_task_ship (int pickerId);
 	bool picker_is_task_receive (int pickerId);
 	bool picker_has_item (int pickerId);

@@ -43,7 +43,7 @@ static void updateStateYield (int pickerId) {
 		Database::picker_set_state(pickerId, State::extricate);
 		return;
 	}
-	if (Database::picker_is_task_complete(pickerId)) {
+	if (!Database::picker_check_if_assigned(pickerId)) {
 		Position target;
 		target = Database::picker_get_home(pickerId);
 		Database::picker_set_target(pickerId, target);
