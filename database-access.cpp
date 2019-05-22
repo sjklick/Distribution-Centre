@@ -806,9 +806,8 @@ namespace Database {
 				query = "UPDATE stock_items SET quantity=quantity+1 WHERE bin_id=";
 				query += std::to_string(binId)+" AND name=\""+itemName+"\";";
 			} else {
-				query = "INSERT INTO stock_items (name, quantity) VALUES (";
-				query += "\""+itemName+"\", 1) ";
-				query += "WHERE bin_id="+std::to_string(binId)+";";
+				query = "INSERT INTO stock_items (bin_id, name, quantity) VALUES (";
+				query += std::to_string(binId)+", \""+itemName+"\", 1) ";
 			}
 			make_query(connection, query);
 			query = "UPDATE pickers SET has_item=FALSE WHERE picker_id="+std::to_string(pickerId)+";";
