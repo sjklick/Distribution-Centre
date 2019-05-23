@@ -97,6 +97,7 @@ namespace Database {
 				id.push_back(std::stoi(row[0]));
 			}
 			mysql_free_result(result);
+			disconnect(connection);
 			return id;
 		} catch (DatabaseException& e) {
 			throw DatabaseException("stock_get_id_list - "+e.message());
