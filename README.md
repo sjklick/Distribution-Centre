@@ -26,7 +26,6 @@ Todo
 - API should include options for whether emails should be sent or not on order start/finish
 - Add "about" panel to warehouse view
 - Finalize available products and descriptions
-- Make order-picker assignments be stored in database to simplify controller logic
 - Warehouse needs to send email on order submission/completion
 - Host live demo
 
