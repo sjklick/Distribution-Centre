@@ -230,8 +230,9 @@ namespace Database {
 		std::string query;
 		try {
 			connection = connect();
-			query = "SELECT bin_id FROM stock_items WHERE ";
-			query += "quantity+(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_items.bin_id ";
+			query = "SELECT bin_id FROM stock_bins WHERE ";
+			query += "(SELECT SUM(quantity) FROM stock_items WHERE stock_items.bin_id=stock_bins.bin_id)+";
+			query += "(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_bins.bin_id ";
 			query += "AND task_type=\"receive\")<12 LIMIT 1;";
 			make_query(connection, query);
 			result = get_result(connection);
