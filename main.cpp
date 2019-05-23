@@ -12,6 +12,7 @@ int main() {
 	int timeUntilRestock = 30;
 	int timeUntilStartNextOrder = 5;
 	try {
+		Database::connection_create();
 		while (true) {
 			if (Database::receiving_get_items().empty()) {
 				if (timeUntilRestock == 0) {
@@ -54,6 +55,7 @@ int main() {
 			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(100));
 		}
 	} catch (DatabaseException& e) {
+		Database::connection_destroy();
 		std::ofstream logFile;
 		std::time_t errorTime;
 		std::string timeString;

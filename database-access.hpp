@@ -8,6 +8,10 @@
 #include "state.hpp"
 
 namespace Database {
+	// Connection related functions.
+	void connection_create ();
+	void connection_destroy ();
+
 	// Stock bin related functions.
 	std::vector<int> stock_get_id_list ();
 	Position stock_get_position (int binId);
