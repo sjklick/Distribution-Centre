@@ -21,11 +21,13 @@ int main() {
 					timeUntilRestock--;
 				}
 			}
-			if (Database::order_check_if_ready(Database::order_get_current())) {
+			int orderId = Database::order_get_current();
+			if (Database::order_check_if_ready(orderId)) {
 				if (timeUntilStartNextOrder == 0) {
 					Database::order_remove_items(Database::order_get_current());
 					Database::order_remove(Database::order_get_current());
 					Database::shipping_clear();
+					orderId = Database::order_get_current();
 					timeUntilStartNextOrder = 5;
 				} else {
 					timeUntilStartNextOrder--;
@@ -36,7 +38,6 @@ int main() {
 			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {
 				Map::set_obstructed(Picker::get_position(*it));
 				if (!Picker::is_assigned(*it)) {
-					int orderId = Database::order_get_current();
 					std::string next;
 					if ((next = Database::order_get_next_item_to_ship(orderId)) != "") {
 						int bin = Database::stock_where_to_take_item(next);
