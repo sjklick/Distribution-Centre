@@ -51,7 +51,7 @@ int main() {
 			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {
 				Picker::update(*it);
 			}
-			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
+			std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(100));
 		}
 	} catch (DatabaseException& e) {
 		std::ofstream logFile;

@@ -37,7 +37,7 @@ static MYSQL* connect () {
 }
 
 static void disconnect (MYSQL* connection) {
-	if (connection != NULL) mysql_close(connection);
+	mysql_close(connection);
 }
 
 static void disable_auto_commit (MYSQL* connection) {
@@ -233,7 +233,7 @@ namespace Database {
 			query = "SELECT bin_id FROM stock_bins WHERE ";
 			query += "(SELECT SUM(quantity) FROM stock_items WHERE stock_items.bin_id=stock_bins.bin_id)+";
 			query += "(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_bins.bin_id ";
-			query += "AND task_type=\"receive\")<12 LIMIT 1;";
+			query += "AND task_type=\"receive\")<12 ORDER BY RAND() LIMIT 1;";
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
