@@ -24,7 +24,6 @@ Todo
 - Expand API to allow pages of products to be selected
 - Make API use pretty URLs
 - API should include options for whether emails should be sent or not on order start/finish
-- Add "about" panel to warehouse view
 - Finalize available products and descriptions
 - Warehouse needs to send email on order submission/completion
 - Host live demo

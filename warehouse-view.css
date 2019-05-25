@@ -168,6 +168,7 @@
 }
 
 #order {
+	background-color: var(--color-orders);
 	text-align: center;
 }
 
@@ -211,15 +212,17 @@ td {
 	flex-direction: column;
 }
 
-#about {
+button {
 	min-height: var(--tile);
 	border: none;
 	color: white;
 	background-color: var(--color-button);
 	border: 1px solid var(--color-borders);
+	padding-left: var(--tile);
+	padding-right: var(--tile);
 }
 
-#about:hover {
+button:hover {
 	background-color: var(--color-button-hover);
 }
 
@@ -233,7 +236,46 @@ td {
 	background-color: var(--color-back);
 }
 
+h1 {
+	font-size: calc(2*var(--font-sizing));
+	font-weight: bold;
+}
+
+h2 {
+	font-weight: bold;
+}
+
+h1, h2, p, a, i {
+	background-color: var(--color-back);
+}
+
+#hidden-content {
+	display: block;
+	background-color: var(--color-back);
+	position: absolute;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	visibility: hidden;
+}
+
+#inner-content {
+	display: block;
+	background-color: var(--color-back);
+	margin: var(--tile) var(--tile);
+	width: calc(100vw - 2*var(--tile));
+	height: calc(100vh - 2*var(--tile));
+}
+
 @media only screen and (orientation: portrait) {
+	h1 {
+		font-size: calc(1.5*var(--font-sizing));
+		font-weight: bold;
+	}
+
 	#layout-div {
 		flex-direction: column;
 		justify-content: center;
@@ -257,6 +299,11 @@ td {
 }
 
 @media only screen and (orientation: landscape) {
+	h1 {
+		font-size: calc(2*var(--font-sizing));
+		font-weight: bold;
+	}
+
 	#layout-div {
 		flex-direction: row;
 		justify-content: space-around;

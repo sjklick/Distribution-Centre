@@ -21,6 +21,16 @@ warehouse[7] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[8] = ['X', '.', '.', '.', '.', '.', '.', '.', '.', 'X'];
 warehouse[9] = ['X', 'S', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'];
 
+function toggle_hidden_content() {
+    var hidden_content;
+	hidden_content = document.getElementById("hidden-content");
+	if (hidden_content.style.visibility === "visible") {
+		hidden_content.style.visibility = "hidden";
+	} else {
+		hidden_content.style.visibility = "visible";
+	}
+}
+
 function onTileClick(tile_div) {
 	for (let b=0; b<22; b++) {
 		if (bin_tile_div[b].id == tile_div.id) {
