@@ -94,7 +94,7 @@ static void updateStateHome (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
@@ -115,7 +115,7 @@ static void updateStateRetrieve (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
@@ -136,7 +136,7 @@ static void updateStateStock (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
@@ -157,7 +157,7 @@ static void updateStateReceive (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
@@ -178,7 +178,7 @@ static void updateStateShip (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
@@ -246,7 +246,7 @@ static void updateStateExtricate (int pickerId) {
 		} else {
 			Database::picker_reset_yield_count(pickerId);
 			Database::picker_set_current(pickerId, path.back());
-			Map::set_obstructed(current);
+			Map::set_obstructed(path.back());
 		}
 		return;
 	}
