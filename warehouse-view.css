@@ -49,35 +49,43 @@
 }
 
 .picker-up {
-	background-image: url(./graphics/picker-up.svg);
+	background-image: url(./graphics/picker-up.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-up-extend {
-	background-image: url(./graphics/picker-up-extend.svg);
+	background-image: url(./graphics/picker-up-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-right {
-	background-image: url(./graphics/picker-right.svg);
+	background-image: url(./graphics/picker-right.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-right-extend {
-	background-image: url(./graphics/picker-right-extend.svg);
+	background-image: url(./graphics/picker-right-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-down {
-	background-image: url(./graphics/picker-down.svg);
+	background-image: url(./graphics/picker-down.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-down-extend {
-	background-image: url(./graphics/picker-down-extend.svg);
+	background-image: url(./graphics/picker-down-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-left {
-	background-image: url(./graphics/picker-left.svg);
+	background-image: url(./graphics/picker-left.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .picker-left-extend {
-	background-image: url(./graphics/picker-left-extend.svg);
+	background-image: url(./graphics/picker-left-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
 }
 
 .shipping {
