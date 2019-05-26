@@ -92,6 +92,7 @@ CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `customer` varchar(50) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
+  `confirmation` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`order_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -102,7 +103,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (3,'Test_1',NULL),(4,'Test_2',NULL),(5,'Test_3',NULL);
+INSERT INTO `orders` VALUES (3,'Test_1',NULL,1),(4,'Test_2',NULL,0),(5,'Test_3',NULL,1);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -399,4 +400,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-20 15:48:41
+-- Dump completed on 2019-05-25 23:16:49
