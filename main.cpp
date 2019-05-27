@@ -30,6 +30,8 @@ int main() {
 						customer = Database::order_get_customer_name(orderId);
 						email = Database::order_get_customer_email(orderId);
 						systemCall = "php ./confirmation.php ";
+						systemCall += std::to_string(orderId);
+						systemCall += " ";
 						systemCall += customer;
 						systemCall += " ";
 						systemCall += email;

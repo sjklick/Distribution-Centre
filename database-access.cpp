@@ -495,7 +495,7 @@ namespace Database {
 			make_query(connection, query);
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
-				email = std::string(row[0]);
+				if (row[0] != NULL) email = std::string(row[0]);
 			}
 			mysql_free_result(result);
 			return email;
