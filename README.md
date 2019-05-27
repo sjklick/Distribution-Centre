@@ -13,19 +13,13 @@ Automated-Order-Picker
 Summary
 -------
 
-This is a simplified simulation of an automated distribution centre. An SQL database (MariaDB) maintains a list of products,
-locations in the warehouse, order-queue, and products in shipping/stock/receiving. A C++ program simulates a series of automated
-order pickers that handle incoming stock in receiving, and move items from stock to shipping to satisfy the current order. A web
-interface is provided for viewing the warehouse. An API will be provided to allow anyone to create a front-end to interact with the
-warehouse and place fictitious orders.
+This is a simplified simulation of an automated distribution centre. An SQL database (MariaDB) maintains a list of products, locations in the warehouse, order-queue, and products in shipping/stock/receiving. A C++ program simulates a series of automated order pickers that handle incoming stock in receiving, and move items from stock to shipping to satisfy the current order. A web interface is provided for viewing the warehouse. An API will be provided to allow anyone to create a front-end to interact with the warehouse and place fictitious orders.
 
 Todo
 ----
 - Expand API to allow pages of products to be selected
 - Make API use pretty URLs
-- API should include options for whether emails should be sent or not on order start/finish
 - Finalize available products and descriptions
-- Warehouse needs to send email on order submission/completion
 - Host live demo
 
 Contact
