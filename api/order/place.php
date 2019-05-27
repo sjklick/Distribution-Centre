@@ -63,14 +63,21 @@ if ($order->confirmReceived) {
 	$subject = "Confirmation: Fictitious Order Received";
 	$message = "Hi ".$order->customer.",\n\n";
 	$message .= "This email is to confirm that your fictitious order has been received.";
-	$message .= " Your order ID is ".$id.".";
-	if ($order->confirmShipped) {
-		$message .= " A confirmation email will be sent when you order ships.";
+	$message .= " Your order ID is ".$id.".\n\n";
+	for ($i=0; $i<count($order->items); $i++) {
+		$message .= $order->items[$i]->name;
+		$message .= " (";
+		$message .= $order->items[$i]->quantity;
+		$message .= ")\n";
 	}
-	$message .= "\n\n";
+	$message .= "\n";
+	if ($order->confirmShipped) {
+		$message .= " A confirmation email will be sent when your order ships.";
+	}
 	$message .= "Thank you for choosing our fictitous service.";
 	$message = wordwrap($message, 70);
-	if (mail($to, $subject, $message)) {
+	$additional_headers = "From: sjk.dev.test@gmail.com";
+	if (mail($to, $subject, $message, $additional_headers)) {
 		echo "Order confirmation sent successfully.\n";
 	} else {
 		echo "Failed to send order confirmation.\n";
