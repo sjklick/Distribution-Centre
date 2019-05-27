@@ -88,6 +88,46 @@
 	background-blend-mode: normal;
 }
 
+.picker-up-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-up.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-up-extend-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-up-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-right-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-right.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-right-extend-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-right-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-down-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-down.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-down-extend-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-down-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-left-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-left.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
+.picker-left-extend-item {
+	background-image: url(./graphics/item.svg), url(./graphics/picker-left-extend.svg), url(./graphics/floor.svg);
+	background-blend-mode: normal;
+}
+
 .shipping {
 	background-color: blue;
 }

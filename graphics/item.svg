@@ -1,0 +1,11 @@
+<svg version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" standalone="yes">
+	<ellipse cx="50" cy="57" rx="18" ry="12" fill="saddlebrown" stroke="white"/>
+	<path d="	M 50 42
+				L 45 42
+				L 40 32
+				L 60 32
+				L 55 42
+				L 50 42
+			" fill="saddlebrown" stroke="white" />
+	<rect x="42" y="42" width="16" height="5" fill="gold" stroke="white" />
+</svg>

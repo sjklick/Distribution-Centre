@@ -208,14 +208,7 @@ function updatePickers() {
 			if (typeof previous_tile_id !== "undefined") {
 				for (let p=0; p<4; p++) {
 					let tile_div = document.getElementById(previous_tile_id[p]);
-					tile_div.classList.remove("picker-up");
-					tile_div.classList.remove("picker-up-extend");
-					tile_div.classList.remove("picker-right");
-					tile_div.classList.remove("picker-right-extend");
-					tile_div.classList.remove("picker-down");
-					tile_div.classList.remove("picker-down-extend");
-					tile_div.classList.remove("picker-left");
-					tile_div.classList.remove("picker-left-extend");
+					tile_div.className = "tile floor";
 				}
 			}
 			// Update old positions for next call.
@@ -225,16 +218,30 @@ function updatePickers() {
 				let id = data[p].row.toString()+","+data[p].column.toString();				
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
-				if ((data[p].state == "extend") || (data[p].state == "pick") || (data[p].state == "place")) {
-					if (data[p].facing == 'u') tile_div.classList.add("picker-up-extend");
-					else if (data[p].facing == 'r') tile_div.classList.add("picker-right-extend");
-					else if (data[p].facing == 'd') tile_div.classList.add("picker-down-extend");
-					else tile_div.classList.add("picker-left-extend");
+				if (data[p].item == true) {
+					if ((data[p].state == "extend") || (data[p].state == "pick") || (data[p].state == "place")) {
+						if (data[p].facing == 'u') tile_div.classList.add("picker-up-extend-item");
+						else if (data[p].facing == 'r') tile_div.classList.add("picker-right-extend-item");
+						else if (data[p].facing == 'd') tile_div.classList.add("picker-down-extend-item");
+						else tile_div.classList.add("picker-left-extend-item");
+					} else {
+						if (data[p].facing == 'u') tile_div.classList.add("picker-up-item");
+						else if (data[p].facing == 'r') tile_div.classList.add("picker-right-item");
+						else if (data[p].facing == 'd') tile_div.classList.add("picker-down-item");
+						else tile_div.classList.add("picker-left-item");
+					}
 				} else {
-					if (data[p].facing == 'u') tile_div.classList.add("picker-up");
-					else if (data[p].facing == 'r') tile_div.classList.add("picker-right");
-					else if (data[p].facing == 'd') tile_div.classList.add("picker-down");
-					else tile_div.classList.add("picker-left");
+					if ((data[p].state == "extend") || (data[p].state == "pick") || (data[p].state == "place")) {
+						if (data[p].facing == 'u') tile_div.classList.add("picker-up-extend");
+						else if (data[p].facing == 'r') tile_div.classList.add("picker-right-extend");
+						else if (data[p].facing == 'd') tile_div.classList.add("picker-down-extend");
+						else tile_div.classList.add("picker-left-extend");
+					} else {
+						if (data[p].facing == 'u') tile_div.classList.add("picker-up");
+						else if (data[p].facing == 'r') tile_div.classList.add("picker-right");
+						else if (data[p].facing == 'd') tile_div.classList.add("picker-down");
+						else tile_div.classList.add("picker-left");
+					}
 				}
 			}
 			setTimeout(updatePickers, 500);

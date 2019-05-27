@@ -8,6 +8,7 @@ if (isset($connection)) {
 		public $column;
 		public $facing;
 		public $state;
+		public $item;
 	}
 	$pickers = array();
 	$query = "SELECT * FROM pickers";
@@ -17,6 +18,7 @@ if (isset($connection)) {
 		$picker->column = intval($row['curr_col']);
 		$picker->facing = $row['curr_dir'];
 		$picker->state = $row['state'];
+		$picker->item = $row['has_item'];
 		array_push($pickers, $picker);
 	}
 	echo json_encode($pickers);
