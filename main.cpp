@@ -25,8 +25,18 @@ int main() {
 			int orderId = Database::order_get_current();
 			if (Database::order_check_if_ready(orderId)) {
 				if (timeUntilStartNextOrder == 0) {
-					Database::order_remove_items(Database::order_get_current());
-					Database::order_remove(Database::order_get_current());
+					if (Database::order_confirmation_needed(orderId)) {
+						std::string customer, email, systemCall;
+						customer = Database::order_get_customer_name(orderId);
+						email = Database::order_get_customer_email(orderId);
+						systemCall = "php ./confirmation.php ";
+						systemCall += customer;
+						systemCall += " ";
+						systemCall += email;
+						std::system(systemCall.c_str());
+					}
+					Database::order_remove_items(orderId);
+					Database::order_remove(orderId);
 					Database::shipping_clear();
 					orderId = Database::order_get_current();
 					timeUntilStartNextOrder = 5;
