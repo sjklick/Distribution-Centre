@@ -35,6 +35,9 @@ namespace Database {
 	std::string order_get_next_item_to_ship (int orderId);
 	bool order_check_if_ready (int orderId);
 	std::vector<Item> order_get_items (int orderId);
+	std::string order_get_customer_name (int orderId);
+	std::string order_get_customer_email (int orderId);
+	bool order_confirmation_needed (int orderId);
 	void order_remove_items (int orderId);
 	void order_remove (int orderId);
 

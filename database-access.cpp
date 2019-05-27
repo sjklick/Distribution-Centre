@@ -466,6 +466,64 @@ namespace Database {
 		return items;
 	}
 
+	std::string order_get_customer_name (int orderId) {
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query, customer;
+		try {
+			customer = "";
+			query = "SELECT customer FROM orders WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				customer = std::string(row[0]);
+			}
+			mysql_free_result(result);
+			return customer;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_get_customer_name - "+e.message());
+		}
+	}
+
+	std::string order_get_customer_email (int orderId) {
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query, email;
+		try {
+			email = "";
+			query = "SELECT email FROM orders WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				email = std::string(row[0]);
+			}
+			mysql_free_result(result);
+			return email;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_get_customer_email - "+e.message());
+		}
+	}
+
+	bool order_confirmation_needed (int orderId) {
+		MYSQL_RES* result;
+		MYSQL_ROW row;
+		std::string query;
+		bool needed;
+		try {
+			needed = false;
+			query = "SELECT confirmation FROM orders WHERE order_id="+std::to_string(orderId)+";";
+			make_query(connection, query);
+			result = get_result(connection);
+			if (row = mysql_fetch_row(result)) {
+				needed = bool(std::stoi(row[0]));
+			}
+			mysql_free_result(result);
+			return needed;
+		} catch (DatabaseException& e) {
+			throw DatabaseException("order_confirmation_needed - "+e.message());
+		}
+	}
+
 	void order_remove_items (int orderId) {
 		std::string query;
 		try {
