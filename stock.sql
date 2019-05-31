@@ -62,7 +62,6 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
-INSERT INTO `order_items` VALUES (3,'banana',2),(3,'beef',1),(4,'chair',1),(4,'cup',1),(4,'fork',1),(4,'knife',1),(4,'plate',1),(4,'table',1),(4,'table cloth',1),(5,'carrot',2),(5,'grapes',2),(5,'milk',1);
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -103,7 +102,6 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (3,'Test_1',NULL,1),(4,'Test_2',NULL,0),(5,'Test_3',NULL,1);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -326,7 +324,6 @@ CREATE TABLE `stock_items` (
 
 LOCK TABLES `stock_items` WRITE;
 /*!40000 ALTER TABLE `stock_items` DISABLE KEYS */;
-INSERT INTO `stock_items` VALUES (1,'apple',2),(2,'banana',3),(3,'beef',3),(4,'bread',4),(5,'carrot',2),(6,'chair',2),(7,'chicken',5),(8,'cup',2),(9,'fork',6),(10,'grapes',4),(11,'knife',2),(12,'milk',3),(13,'plate',4),(14,'table',1),(15,'table cloth',4);
 /*!40000 ALTER TABLE `stock_items` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -400,4 +397,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-25 23:16:49
+-- Dump completed on 2019-05-30 20:42:32

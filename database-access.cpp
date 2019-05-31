@@ -237,7 +237,7 @@ namespace Database {
 		std::string query;
 		try {
 			query = "SELECT bin_id FROM stock_bins WHERE ";
-			query += "(SELECT SUM(quantity) FROM stock_items WHERE stock_items.bin_id=stock_bins.bin_id)+";
+			query += "(SELECT COALESCE(SUM(quantity), 0) FROM stock_items WHERE stock_items.bin_id=stock_bins.bin_id)+";
 			query += "(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_bins.bin_id ";
 			query += "AND task_type=\"receive\")<12 ORDER BY RAND() LIMIT 1;";
 			make_query(connection, query);
