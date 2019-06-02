@@ -67,13 +67,23 @@ UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER order_item_insert AFTER INSERT ON order_items FOR EACH ROW UPDATE products SET quantity=quantity-NEW.quantity WHERE name=NEW.name */;;
+/*!50003 CREATE OR REPLACE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER order_item_insert
+BEFORE INSERT
+ON order_items
+FOR EACH ROW
+BEGIN
+    IF NEW.quantity>(SELECT quantity FROM products WHERE name=NEW.name) THEN
+    	SIGNAL SQLSTATE '45000';
+	ELSE
+       	UPDATE products SET quantity=quantity-NEW.quantity WHERE name=NEW.name;
+	END IF;
+END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -93,7 +103,7 @@ CREATE TABLE `orders` (
   `email` varchar(100) DEFAULT NULL,
   `confirmation` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,7 +233,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food',2),('banana',NULL,'food',1),('beef',NULL,'food',2),('bread',NULL,'food',4),('carrot',NULL,'food',0),('chair',NULL,'furniture',1),('chicken',NULL,'food',5),('cup',NULL,'symbel',1),('fork',NULL,'symbel',5),('grapes',NULL,'food',2),('knife',NULL,'symbel',1),('milk',NULL,'food',2),('plate',NULL,'symbel',3),('table',NULL,'furniture',0),('table cloth',NULL,'symbel',3);
+INSERT INTO `products` VALUES ('apple',NULL,'food',-2),('banana',NULL,'food',-1),('beef',NULL,'food',0),('bread',NULL,'food',0),('carrot',NULL,'food',0),('chair',NULL,'furniture',0),('chicken',NULL,'food',0),('cup',NULL,'symbel',0),('fork',NULL,'symbel',0),('grapes',NULL,'food',0),('knife',NULL,'symbel',0),('milk',NULL,'food',0),('plate',NULL,'symbel',0),('table',NULL,'furniture',0),('table cloth',NULL,'symbel',0);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -397,4 +407,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-30 20:42:32
+-- Dump completed on 2019-06-02  7:57:11

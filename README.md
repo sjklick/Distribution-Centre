@@ -20,7 +20,6 @@ Todo
 - Expand API to allow pages of products to be selected
 - Make API use pretty URLs
 - Finalize available products and descriptions
-- Fix bug in order placement so orders cannot be placed when inventory is lacking
 - Document the web API
 - Host live demo
 
