@@ -12,7 +12,7 @@ function connect() {
 		return $connection;
 	}
 	try {
-		$dsn = "mysql:host=localhost;dbname=stock";
+		$dsn = "mysql:host=localhost;dbname=model";
 		$connection = new PDO($dsn, $username, $password);
 		$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	} catch (PDOexception $exception) {

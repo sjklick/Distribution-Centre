@@ -14,7 +14,7 @@ static MYSQL* connect () {
 	std::ifstream configFile;
 	std::string socket, username, password;
 	error = "Failed to load database credentials.";
-	configFile.open("config.txt", std::ios::in);
+	configFile.open("../config.txt", std::ios::in);
 	if (!configFile.good()) throw DatabaseException(error);
 	configFile >> socket;
 	if (!configFile.good()) throw DatabaseException(error);
@@ -28,7 +28,7 @@ static MYSQL* connect () {
 	error = "Failed to connect to database.";
 	conn = mysql_init(NULL);
 	if (conn != NULL) {
-		if (!mysql_real_connect(conn, "localhost", username.c_str(), password.c_str(), "stock", 0, socket.c_str(), 0)) {
+		if (!mysql_real_connect(conn, "localhost", username.c_str(), password.c_str(), "model", 0, socket.c_str(), 0)) {
 			error = "Failed to connect to database - ";
 			error += mysql_error(conn);
 			error += ".";

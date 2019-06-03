@@ -1,6 +1,6 @@
 -- MySQL dump 10.16  Distrib 10.1.38-MariaDB, for Linux (x86_64)
 --
--- Host: localhost    Database: stock
+-- Host: localhost    Database: model
 -- ------------------------------------------------------
 -- Server version	10.1.38-MariaDB
 
@@ -407,4 +407,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-02  7:57:11
+-- Dump completed on 2019-06-03  1:16:14
