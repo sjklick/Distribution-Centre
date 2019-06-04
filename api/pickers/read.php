@@ -18,7 +18,7 @@ if (isset($connection)) {
 		$picker->column = intval($row['curr_col']);
 		$picker->facing = $row['curr_dir'];
 		$picker->state = $row['state'];
-		$picker->item = $row['has_item'];
+		$picker->item = boolval($row['has_item']);
 		array_push($pickers, $picker);
 	}
 	echo json_encode($pickers);
