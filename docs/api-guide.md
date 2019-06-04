@@ -24,12 +24,12 @@ Description: Returns information regarding all automated order pickers including
 Method: GET
 
 >[  
->    {  
->        "row": *\<int\>*,  
->        "column": *\<int\>*,  
->        "facing": *\<string\>*,  
->        "state": *\<string\>*,  
->        "item": *\<bool\>*  
->    },  
->    ...  
+>	{  
+>		"row": *\<int\>*,  
+>		"column": *\<int\>*,  
+>		"facing": *\<string\>*,  
+>		"state": *\<string\>*,  
+>		"item": *\<bool\>*  
+>	},  
+>	...  
 >]
