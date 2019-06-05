@@ -18,7 +18,6 @@ This is a simplified simulation of an automated distribution centre. An SQL data
 Todo
 ----
 - Expand API to allow pages of products to be selected
-- Make API use pretty URLs
 - Finalize available products and descriptions
 - Host live demo
 

@@ -11,6 +11,7 @@ Summary of API Requests
 * \<host-domain\>/api/order/place.php
 * \<host-domain\>/api/orders/read.php
 * \<host-domain\>/api/pickers/read.php
+* \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
 * \<host-domain\>/api/products/read.php
 * \<host-domain\>/api/products/read.php?category=\<string\>
 
@@ -108,10 +109,9 @@ The body of the response will take the following format:
 		"ERROR_server_side"
 		"SUCCESS_order_placed"
 		*/
+		// The following are only returned upon success.
 		"orderId": <string>
 	}
-
-Note that the "orderId" field is only present upon a successful order submission.
 
 ---
 
@@ -140,6 +140,26 @@ Returns information regarding all automated order pickers including position, st
 		},  
 		...  
 	]
+
+---
+
+**\<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>**
+
+Returns the number of pages needed to list all of the products. An optional category may be provided, otherwise "all" is assumed. An optional limit on the number of items per page may be provided, otherwise 10 is assumed. Use request method GET.
+
+	{
+		"status": <string>,
+		/*
+		"status" may be one of:
+		"SUCCESS",
+		"ERROR_invalid_limit",
+		"ERROR_invalid_category"
+		*/
+		// The following are only returned upon success.
+		"limit": <int>,
+		"pages": <int>,
+		"category": <string>
+	}
 
 ---
 

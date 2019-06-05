@@ -2,7 +2,9 @@
 
 function connect() {
 	try {
-		$configFile = fopen("../../config.txt", "r");
+		$path = $_SERVER['DOCUMENT_ROOT'];
+		$path .= "/Distribution-Centre/config.txt";
+		$configFile = fopen($path, "r");
 		fgets($configFile);
 		$username = trim(fgets($configFile));
 		$password = trim(fgets($configFile));
