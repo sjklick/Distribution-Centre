@@ -17,7 +17,38 @@ Summary of API Requests
 API Request Details
 -------------------
 
+**\<host-domain\>/api/bin_item_counts/read.php**
+
+---
+
+**\<host-domain\>/api/bin_positions/read.php**
+
+---
+
+**\<host-domain\>/api/bin/read.php**
+
+---
+
+**\<host-domain\>/api/categories/read.php**
+
+---
+
+**\<host-domain\>/api/order/place.php**
+
+---
+
+**\<host-domain\>/api/orders/read.php**
+
+Returns the order IDs of all placed orders, starting with the order currently being processed.
+
+	[
+		<int>,
+		...
+	]
+
 **\<host-domain\>/api/pickers/read.php**
+
+---
 
 Returns information regarding all automated order pickers including position, state, and whether or not an item is being transported. Use request method GET.
 
@@ -31,3 +62,11 @@ Returns information regarding all automated order pickers including position, st
 		},  
 		...  
 	]
+
+---
+
+**\<host-domain\>/api/products/read.php**
+
+---
+
+**\<host-domain\>/api/products/read.php?category=furniture**
