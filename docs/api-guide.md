@@ -96,7 +96,7 @@ The body of the request must take the following format:
 		]
 	}
 
-The response will take the following format:
+The body of the response will take the following format:
 
 	{
 		"status": <string>,
