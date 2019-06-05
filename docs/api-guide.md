@@ -145,6 +145,16 @@ Returns information regarding all automated order pickers including position, st
 
 **\<host-domain\>/api/products/read.php**
 
+Returns all of the products, including name and quantity, from every category. Use request method GET.
+
+	[
+		{
+			"name": <string>,
+			"quantity": <string>
+		},
+		...
+	]
+
 ---
 
 **\<host-domain\>/api/products/read.php?category=furniture**
