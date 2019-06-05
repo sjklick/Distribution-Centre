@@ -47,7 +47,7 @@ Returns all stock bin positions, ordered by bin ID. Use request method GET.
 
 ---
 
-**\<host-domain\>/api/bin/read.php?id=<string>**
+**\<host-domain\>/api/bin/read.php?id=\<string\>**
 
 Returns the contents of a stock bin, specified by ID. ID is can be a valid stock bin ID, "shipping", or "receiving". Use request method GET.
 
