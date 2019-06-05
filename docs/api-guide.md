@@ -24,7 +24,7 @@ Returns the total count of items (0-12) in each bin. Use request method GET.
 	{
 		"stock": [
 			<int>,
-
+			...
   		],
   		"receiving": <int>,
 		"shipping": <int>
@@ -76,6 +76,34 @@ Returns a list of all valid product categories. Use request method GET.
 ---
 
 **\<host-domain\>/api/order/place.php**
+
+Places an order with the distribution centre. Can specify whether the customer should be emailed upon order being received and/or shipped. Use request method POST.
+
+The body of the request must take the following format:
+
+	{
+    	"customer": <string>,
+		"email": <string>,
+		"confirmReceived": <bool>,
+		"confirmShipped": <bool>,
+		"items":
+		[
+			{
+				"name": <string>,
+				"quantity": <int>
+			},
+			...
+		]
+	}
+
+The response will take the following format (where "orderId" is only included upon success of order submission):
+
+	{
+		"status": <string>,
+		"orderId": <string>
+	}
+
+Note that the "orderId" field is only present upon a successful order submission.
 
 ---
 
