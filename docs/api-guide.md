@@ -58,6 +58,7 @@ Returns the contents of a stock bin, specified by ID. ID is can be a valid stock
 				"name": <string>,
 				"quantity": <int>
 			},
+			...
 		]
 	}
 
