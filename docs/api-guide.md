@@ -96,10 +96,18 @@ The body of the request must take the following format:
 		]
 	}
 
-The response will take the following format (where "orderId" is only included upon success of order submission):
+The response will take the following format:
 
 	{
 		"status": <string>,
+		/*
+		"status" may be one of:
+		"ERROR_customer_info_refused"
+		"ERROR_invalid_order_request_format"
+		"ERROR_insufficient_stock"
+		"ERROR_server_side"
+		"SUCCESS_order_placed"
+		*/
 		"orderId": <string>
 	}
 
