@@ -19,6 +19,15 @@ API Request Details
 
 **\<host-domain\>/api/bin_item_counts/read.php**
 
+	{
+		"stock": [
+			<int>,
+
+  		],
+  		"receiving": <int>,
+		"shipping": <int>
+	}
+
 ---
 
 **\<host-domain\>/api/bin_positions/read.php**
@@ -39,7 +48,7 @@ API Request Details
 
 **\<host-domain\>/api/orders/read.php**
 
-Returns the order IDs of all placed orders, starting with the order currently being processed.
+Returns the order IDs of all placed orders, starting with the order currently being processed.  Use request method GET.
 
 	[
 		<int>,
