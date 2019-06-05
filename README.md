@@ -20,7 +20,6 @@ Todo
 - Expand API to allow pages of products to be selected
 - Make API use pretty URLs
 - Finalize available products and descriptions
-- Document the web API
 - Host live demo
 
 Contact
