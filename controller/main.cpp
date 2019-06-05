@@ -52,13 +52,13 @@ int main() {
 				Map::set_obstructed(Picker::get_position(*it));
 				if (!Picker::is_assigned(*it)) {
 					std::string next;
+					int bin;
 					if ((next = Database::order_get_next_item_to_ship(orderId)) != "") {
-						int bin = Database::stock_where_to_take_item(next);
-						Picker::assign_shipping_task(*it, next, bin);
+						bin = Database::stock_where_to_take_item(next);
 					} else if ((next = Database::receiving_get_next_item_to_stock()) != "") {
-						int bin = Database::stock_where_to_place_item();
-						Picker::assign_receiving_task(*it, next, bin);
+						bin = Database::stock_where_to_place_item();
 					}
+					if (bin != -1) Picker::assign_shipping_task(*it, next, bin);
 				}
 			}
 			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {

@@ -209,7 +209,9 @@ namespace Database {
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
+		int binId;
 		try {
+			binId = -1;
 			query = "SELECT * FROM stock_items WHERE name=\""+item+"\" AND ";
 			query += "quantity>(SELECT COUNT(*) FROM picker_tasks WHERE item_name=";
 			query += "\""+item+"\" AND task_type=\"ship\") LIMIT 1;";
@@ -217,15 +219,11 @@ namespace Database {
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				if (row[0] != NULL) {
-					int binId = std::stoi(row[0]);
-					mysql_free_result(result);
-					return binId;
+					binId = std::stoi(row[0]);
 				}
 			}
 			mysql_free_result(result);
-			std::string error;
-			error = "Insufficient stock.";
-			throw DatabaseException(error);
+			return binId;
 		} catch (DatabaseException& e) {
 			throw DatabaseException("stock_where_to_take_item - "+e.message());
 		}
@@ -235,7 +233,9 @@ namespace Database {
 		MYSQL_RES* result;
 		MYSQL_ROW row;
 		std::string query;
+		int binId;
 		try {
+			binId = -1;
 			query = "SELECT bin_id FROM stock_bins WHERE ";
 			query += "(SELECT COALESCE(SUM(quantity), 0) FROM stock_items WHERE stock_items.bin_id=stock_bins.bin_id)+";
 			query += "(SELECT COUNT(*) FROM picker_tasks WHERE picker_tasks.bin_id=stock_bins.bin_id ";
@@ -244,15 +244,11 @@ namespace Database {
 			result = get_result(connection);
 			if (row = mysql_fetch_row(result)) {
 				if (row[0] != NULL) {
-					int binId = std::stoi(row[0]);
-					mysql_free_result(result);
-					return binId;
+					binId = std::stoi(row[0]);
 				}
 			}
 			mysql_free_result(result);
-			std::string error;
-			error = "Insufficient room.";
-			throw DatabaseException(error);
+			return binId;
 		} catch (DatabaseException& e) {
 			throw DatabaseException("stock_where_to_place_item - "+e.message());
 		}
