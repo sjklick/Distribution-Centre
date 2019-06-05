@@ -55,10 +55,15 @@ int main() {
 					int bin;
 					if ((next = Database::order_get_next_item_to_ship(orderId)) != "") {
 						bin = Database::stock_where_to_take_item(next);
-					} else if ((next = Database::receiving_get_next_item_to_stock()) != "") {
-						bin = Database::stock_where_to_place_item();
+						if (bin != -1) {
+							Picker::assign_shipping_task(*it, next, bin);
+							continue;
+						}
 					}
-					if (bin != -1) Picker::assign_shipping_task(*it, next, bin);
+					if ((next = Database::receiving_get_next_item_to_stock()) != "") {
+						bin = Database::stock_where_to_place_item();
+						if (bin != -1) Picker::assign_receiving_task(*it, next, bin);
+					}
 				}
 			}
 			for (std::vector<int>::iterator it = pickerList.begin(); it != pickerList.end(); it++) {
