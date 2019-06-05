@@ -12,7 +12,7 @@ Summary of API Requests
 * \<host-domain\>/api/orders/read.php
 * \<host-domain\>/api/pickers/read.php
 * \<host-domain\>/api/products/read.php
-* \<host-domain\>/api/products/read.php?category=furniture
+* \<host-domain\>/api/products/read.php?category=\<string\>
 
 API Request Details
 -------------------
@@ -157,4 +157,14 @@ Returns all of the products, including name and quantity, from every category. U
 
 ---
 
-**\<host-domain\>/api/products/read.php?category=furniture**
+**\<host-domain\>/api/products/read.php?category=\<string\>**
+
+Returns all of the products, including name and quantity, from a valid category. Use request method GET.
+
+	[
+		{
+			"name": <string>,
+			"quantity": <string>
+		},
+		...
+	]
