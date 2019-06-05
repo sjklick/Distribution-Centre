@@ -34,6 +34,17 @@ Returns the total count of items (0-12) in each bin. Use request method GET.
 
 **\<host-domain\>/api/bin_positions/read.php**
 
+Returns all stock bin positions, ordered by bin ID. Use request method GET.
+
+	[
+		{
+			"row": <int>,
+			"column": <int>,
+			"facing": <string>
+		},
+		...
+	]
+
 ---
 
 **\<host-domain\>/api/bin/read.php**
