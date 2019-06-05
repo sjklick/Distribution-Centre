@@ -46,9 +46,9 @@ Returns the order IDs of all placed orders, starting with the order currently be
 		...
 	]
 
-**\<host-domain\>/api/pickers/read.php**
-
 ---
+
+**\<host-domain\>/api/pickers/read.php**
 
 Returns information regarding all automated order pickers including position, state, and whether or not an item is being transported. Use request method GET.
 
