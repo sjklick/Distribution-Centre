@@ -19,6 +19,8 @@ API Request Details
 
 **\<host-domain\>/api/bin_item_counts/read.php**
 
+Returns the total count of items (0-12) in each bin. Use request method GET.
+
 	{
 		"stock": [
 			<int>,
@@ -48,7 +50,7 @@ API Request Details
 
 **\<host-domain\>/api/orders/read.php**
 
-Returns the order IDs of all placed orders, starting with the order currently being processed.  Use request method GET.
+Returns the order IDs of all placed orders, starting with the order currently being processed. Use request method GET.
 
 	[
 		<int>,
