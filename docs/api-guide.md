@@ -66,6 +66,13 @@ Returns the contents of a stock bin, specified by ID. ID is can be a valid stock
 
 **\<host-domain\>/api/categories/read.php**
 
+Returns a list of all valid product categories. Use request method GET.
+
+	[
+		<string>,
+		...
+	]
+
 ---
 
 **\<host-domain\>/api/order/place.php**
