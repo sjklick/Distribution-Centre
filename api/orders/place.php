@@ -15,7 +15,8 @@ $statusCode = array(
 	"ERROR_server_side",
 	"ERROR_customer_info_refused",
 	"ERROR_insufficient_stock",
-	"ERROR_maximum_items_exceeded"
+	"ERROR_maximum_items_exceeded",
+	"ERROR_maximum_orders_exceeded"
 );
 
 // Get order in JSON format.
@@ -62,6 +63,19 @@ if (isset($connection)) {
 		$connection = null;
 		$result = new Failure;
 		$result->status = $statusCode[2];
+		$response = json_encode($result);
+		echo $response;
+		die();
+	}
+	// Verify that another order can be accepted.
+	$query = "SELECT COUNT(*) FROM orders";
+	foreach ($connection->query($query) as $row) {
+		$orderCount = intval($row[0]);
+	}
+	if ($orderCount > 4) {
+		$connection = null;
+		$result = new Failure;
+		$result->status = $statusCode[6];
 		$response = json_encode($result);
 		echo $response;
 		die();

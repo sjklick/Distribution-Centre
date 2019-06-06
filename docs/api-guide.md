@@ -66,7 +66,7 @@ Returns all stock bin positions, ordered by bin ID. Use request method GET.
 
 **\<host-domain\>/api/orders/place.php**
 
-Places an order with the distribution centre. Can specify whether the customer should be emailed upon order being received and/or shipped. Maximum of 12 items per order accepted. Use request method POST.
+Places an order with the distribution centre. Can specify whether the customer should be emailed upon order being received and/or shipped. Maximum of 12 items per order accepted. Maximum of 5 orders may be queued. Use request method POST.
 
 The body of the request must take the following format:
 
@@ -96,7 +96,8 @@ The body of the response will take the following format:
 		"ERROR_server_side",
 		"ERROR_customer_info_refused",
 		"ERROR_insufficient_stock",
-		"ERROR_maximum_items_exceeded"
+		"ERROR_maximum_items_exceeded",
+		"ERROR_maximum_orders_exceeded"
 		*/
 		// The following are only returned upon success.
 		"orderId": <string>
