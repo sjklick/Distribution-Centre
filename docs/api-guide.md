@@ -150,13 +150,21 @@ Returns a page of products. An optional category may be provided, otherwise "all
 
 	{
 		"status": <string>,
+		/*
+		"status" may be one of:
+		"SUCCESS",
+		"ERROR_invalid_limit",
+		"ERROR_invalid_category",
+		"Error_invalid_page"
+		*/
+		// The following are only returned upon success.
 		"limit": <int>,
 		"page": <int>,
 		"category": <string>,
 		"products": [
 			{
 				"name": <string>,
-				"quantity": <string>
+				"quantity": <int>
 			},
 			...
 		]

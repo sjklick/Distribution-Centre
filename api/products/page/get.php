@@ -126,7 +126,7 @@ if (isset($connection)) {
 	foreach ($connection->query($query) as $row) {
 		$item = new Item;
 		$item->name = $row['name'];
-		$item->quantity = $row['quantity'];
+		$item->quantity = intval($row['quantity']);
 		array_push($selectedProducts, $item);
 	}
 	// Return response.
