@@ -2,7 +2,6 @@
 
 class Item {
 	public $name;
-	public $quantity;
 }
 
 class Success {
@@ -21,45 +20,56 @@ $statusCode = array(
 	"SUCCESS",
 	"ERROR_invalid_limit",
 	"ERROR_invalid_category",
-	"ERROR_invalid_page"
+	"ERROR_invalid_page",
+	"ERROR_invalid_page_request_format"
 );
+
+// Get page details in JSON format.
+$details = json_decode(file_get_contents("php://input"));
+
+// Verify that the contents are in a valid order format.
+$success = true;
+if (!isset($details)) $success = false;
+if (!array_key_exists("page", $details)) $success = false;
+if (!array_key_exists("limit", $details)) $success = false;
+if (!array_key_exists("category", $details)) $success = false;
+if (!array_key_exists("quantity", $details)) $success = false;
+if (!is_bool($details->quantity)) $success = false;
+if (!array_key_exists("description", $details)) $success = false;
+if (!is_bool($details->description)) $success = false;
+if (!array_key_exists("image_url", $details)) $success = false;
+if (!is_bool($details->image_url)) $success = false;
+if (! $success) {
+	$result = new Failure;
+	$result->status = $statusCode[4];
+	$response = json_encode($result);
+	echo $response;
+	die();
+}
 
 include "../../connection/connect.php";
 $connection = connect();
 if (isset($connection)) {
 	// Validate category.
-	if (isset($_GET["category"])) {
-		$selectedCategory = $_GET["category"];
-		if ($selectedCategory != "all") {
-			$query = "SELECT EXISTS(SELECT * FROM categories WHERE category=\"".$selectedCategory."\")";
-			foreach ($connection->query($query) as $row) {
-				$exists = boolval($row[0]);
-			}
-			if (! $exists) {
-				$connection = null;
-				$result = new Failure;
-				$result->status = $statusCode[2];
-				$response = json_encode($result);
-				echo $response;
-				die();
-			}
+	$selectedCategory = $details->category;
+	if ($selectedCategory != "all") {
+		$query = "SELECT EXISTS(SELECT * FROM categories WHERE category=\"".$selectedCategory."\")";
+		foreach ($connection->query($query) as $row) {
+			$exists = boolval($row[0]);
 		}
-	} else {
-		$selectedCategory = "all";
+		if (! $exists) {
+			$connection = null;
+			$result = new Failure;
+			$result->status = $statusCode[2];
+			$response = json_encode($result);
+			echo $response;
+			die();
+		}
 	}
 	// Validate limit.
-	if (isset($_GET["limit"])) {
-		if (ctype_digit($_GET["limit"])) {
-			$selectedLimit = intval($_GET["limit"]);
-			if ($selectedLimit < 1) {
-				$connection = null;
-				$result = new Failure;
-				$result->status = $statusCode[1];
-				$response = json_encode($result);
-				echo $response;
-				die();
-			}
-		} else {
+	if (is_int($details->limit)) {
+		$selectedLimit = $details->limit;
+		if ($selectedLimit < 1) {
 			$connection = null;
 			$result = new Failure;
 			$result->status = $statusCode[1];
@@ -68,21 +78,17 @@ if (isset($connection)) {
 			die();
 		}
 	} else {
-		$selectedLimit = 10;
+		$connection = null;
+		$result = new Failure;
+		$result->status = $statusCode[1];
+		$response = json_encode($result);
+		echo $response;
+		die();
 	}
 	// Validate page.
-	if (isset($_GET["page"])) {
-		if (ctype_digit($_GET["page"])) {
-			$selectedPage = intval($_GET["page"]);
-			if ($selectedPage < 1) {
-				$connection = null;
-				$result = new Failure;
-				$result->status = $statusCode[3];
-				$response = json_encode($result);
-				echo $response;
-				die();
-			}
-		} else {
+	if (is_int($details->page)) {
+		$selectedPage = $details->page;
+		if ($selectedPage < 1) {
 			$connection = null;
 			$result = new Failure;
 			$result->status = $statusCode[3];
@@ -91,7 +97,12 @@ if (isset($connection)) {
 			die();
 		}
 	} else {
-		$selectedPage = 1;
+		$connection = null;
+		$result = new Failure;
+		$result->status = $statusCode[3];
+		$response = json_encode($result);
+		echo $response;
+		die();
 	}
 	// Get how many pages are needed.
 	if ($selectedCategory != "all") {
@@ -126,7 +137,15 @@ if (isset($connection)) {
 	foreach ($connection->query($query) as $row) {
 		$item = new Item;
 		$item->name = $row['name'];
-		$item->quantity = intval($row['quantity']);
+		if ($details->quantity) $item->quantity = intval($row['quantity']);
+		if ($details->description) {
+			$item->description = $row['description'];
+			if (is_null($item->description)) $item->description = "";
+		}
+		if ($details->image_url) {
+			$item->image_url = $row['image_url'];
+			if (is_null($item->image_url)) $item->image_url = "";
+		}
 		array_push($selectedProducts, $item);
 	}
 	// Return response.

@@ -11,7 +11,7 @@ Summary of API Requests
 * \<host-domain\>/api/orders/get.php
 * \<host-domain\>/api/pickers/read.php
 * \<host-domain\>/api/products/categories/get.php
-* \<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>
+* \<host-domain\>/api/products/page/get.php
 * \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
 
 API Request Details
@@ -144,9 +144,22 @@ Returns a list of all valid product categories. Use request method GET.
 
 ---
 
-**\<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>**
+**\<host-domain\>/api/products/page/get.php**
 
-Returns a page of products. An optional category may be provided, otherwise "all" is assumed. An optional limit on the number of items per page may be provided, otherwise 10 is assumed. An optional page may be given, otherwise the first page is assumed. Use request method GET.
+Returns a page of products. Use request method POST.
+
+The body of the request must take the following format:
+
+	{
+		"page": <int>,
+		"limit": <int>,
+		"category": <string>,
+		"quantity": <bool>,
+		"description": <bool>,
+		"image_url": <bool>
+	}
+
+The body of the response will take the following format:
 
 	{
 		"status": <string>,
@@ -155,7 +168,8 @@ Returns a page of products. An optional category may be provided, otherwise "all
 		"SUCCESS",
 		"ERROR_invalid_limit",
 		"ERROR_invalid_category",
-		"ERROR_invalid_page"
+		"ERROR_invalid_page",
+		"ERROR_invalid_page_request_format"
 		*/
 		// The following are only returned upon success.
 		"limit": <int>,
@@ -164,7 +178,12 @@ Returns a page of products. An optional category may be provided, otherwise "all
 		"products": [
 			{
 				"name": <string>,
-				"quantity": <int>
+				// Only returned if quantity set true.
+				"quantity": <int>,
+				// Only returned if description set true.
+				"description": <string>,
+				// Only returned if image_url set true.
+      			"image_url": <string>
 			},
 			...
 		]
