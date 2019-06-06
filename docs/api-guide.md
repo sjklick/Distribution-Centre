@@ -7,8 +7,8 @@ Summary of API Requests
 * \<host-domain\>/api/bins/contents/get.php?id=\<string\>
 * \<host-domain\>/api/bins/item_counts/get.php
 * \<host-domain\>/api/bins/positions/get.php
-* \<host-domain\>/api/order/place.php
-* \<host-domain\>/api/orders/read.php
+* \<host-domain\>/api/orders/place.php
+* \<host-domain\>/api/orders/get.php
 * \<host-domain\>/api/pickers/read.php
 * \<host-domain\>/api/products/categories/get.php
 * \<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>
@@ -64,7 +64,7 @@ Returns all stock bin positions, ordered by bin ID. Use request method GET.
 
 ---
 
-**\<host-domain\>/api/order/place.php**
+**\<host-domain\>/api/orders/place.php**
 
 Places an order with the distribution centre. Can specify whether the customer should be emailed upon order being received and/or shipped. Use request method POST.
 
@@ -103,7 +103,7 @@ The body of the response will take the following format:
 
 ---
 
-**\<host-domain\>/api/orders/read.php**
+**\<host-domain\>/api/orders/get.php**
 
 Returns the order IDs of all placed orders, starting with the order currently being processed. Use request method GET.
 

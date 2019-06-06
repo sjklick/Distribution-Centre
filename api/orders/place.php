@@ -9,6 +9,15 @@ class Failure {
 	public $status;
 }
 
+$statusCode = array(
+	"SUCCESS",
+	"ERROR_invalid_order_request_format",
+	"ERROR_server_side",
+	"ERROR_customer_info_refused",
+	"ERROR_insufficient_stock",
+	"ERROR_maximum_items_exceeded"
+);
+
 // Get order in JSON format.
 $order = json_decode(file_get_contents("php://input"));
 
@@ -26,7 +35,20 @@ for ($i=0; $i<count($order->items); $i++) {
 }
 if (! $success) {
 	$result = new Failure;
-	$result->status = "ERROR_invalid_order_request_format";
+	$result->status = $statusCode[1];
+	$response = json_encode($result);
+	echo $response;
+	die();
+}
+
+// Verify that the order does not exceed 12 items total.
+$totalItems = 0;
+for ($i=0; $i<count($order->items); $i++) {
+	$totalItems += $order->items[$i]->quantity;
+}
+if ($totalItems > 12) {
+	$result = new Failure;
+	$result->status = $statusCode[5];
 	$response = json_encode($result);
 	echo $response;
 	die();
@@ -39,7 +61,7 @@ if (isset($connection)) {
 	if (! $connection->beginTransaction()) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = "ERROR_server_side";
+		$result->status = $statusCode[2];
 		$response = json_encode($result);
 		echo $response;
 		die();
@@ -58,7 +80,7 @@ if (isset($connection)) {
 	} catch (PDOexception $exception) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = "ERROR_customer_info_refused";
+		$result->status = $statusCode[3];
 		$response = json_encode($result);
 		echo $response;
 		die();
@@ -79,7 +101,7 @@ if (isset($connection)) {
 		} catch (PDOexception $exception) {
 			$connection = null;
 			$result = new Failure;
-			$result->status = "ERROR_insufficient_stock";
+			$result->status = $statusCode[4];
 			$response = json_encode($result);
 			echo $response;
 			die();
@@ -88,7 +110,7 @@ if (isset($connection)) {
 	if (! $connection->commit()) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = "ERROR_server_side";
+		$result->status = $statusCode[2];
 		$response = json_encode($result);
 		echo $response;
 		die();
@@ -97,7 +119,7 @@ if (isset($connection)) {
 } else {
 	$connection = null;
 	$result = new Failure;
-	$result->status = "ERROR_server_side";
+	$result->status = $statusCode[2];
 	$response = json_encode($result);
 	echo $response;
 	die();
@@ -105,7 +127,7 @@ if (isset($connection)) {
 
 // Order was placed without error.
 $result = new Success;
-$result->status = "SUCCESS_order_placed";
+$result->status = $statusCode[0];
 $result->orderId = $id;
 $response = json_encode($result);
 echo $response;
