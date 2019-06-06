@@ -7,10 +7,10 @@ Summary of API Requests
 * \<host-domain\>/api/bin_item_counts/read.php
 * \<host-domain\>/api/bin_positions/read.php
 * \<host-domain\>/api/bin/read.php?id=\<string\>
-* \<host-domain\>/api/categories/read.php
 * \<host-domain\>/api/order/place.php
 * \<host-domain\>/api/orders/read.php
 * \<host-domain\>/api/pickers/read.php
+* \<host-domain\>/api/products/categories/get.php
 * \<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>
 * \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
 
@@ -61,17 +61,6 @@ Returns the contents of a stock bin, specified by ID. ID is can be a valid stock
 			...
 		]
 	}
-
----
-
-**\<host-domain\>/api/categories/read.php**
-
-Returns a list of all valid product categories. Use request method GET.
-
-	[
-		<string>,
-		...
-	]
 
 ---
 
@@ -138,6 +127,17 @@ Returns information regarding all automated order pickers including position, st
 			"item": <bool>  
 		},  
 		...  
+	]
+
+---
+
+**\<host-domain\>/api/products/categories/get.php**
+
+Returns a list of all valid product categories. Use request method GET.
+
+	[
+		<string>,
+		...
 	]
 
 ---
