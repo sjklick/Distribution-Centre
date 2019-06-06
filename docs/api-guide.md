@@ -11,6 +11,7 @@ Summary of API Requests
 * \<host-domain\>/api/order/place.php
 * \<host-domain\>/api/orders/read.php
 * \<host-domain\>/api/pickers/read.php
+* \<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>
 * \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
 * \<host-domain\>/api/products/read.php
 * \<host-domain\>/api/products/read.php?category=\<string\>
@@ -140,6 +141,26 @@ Returns information regarding all automated order pickers including position, st
 		},  
 		...  
 	]
+
+---
+
+**\<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>**
+
+Returns a page of products. An optional category may be provided, otherwise "all" is assumed. An optional limit on the number of items per page may be provided, otherwise 10 is assumed. An optional page may be given, otherwise the first page is assumed. Use request method GET.
+
+	{
+		"status": <string>,
+		"limit": <int>,
+		"page": <int>,
+		"category": <string>,
+		"products": [
+			{
+				"name": <string>,
+				"quantity": <string>
+			},
+			...
+		]
+	}
 
 ---
 
