@@ -21,7 +21,7 @@ $statusCode = array(
 	"SUCCESS",
 	"ERROR_invalid_limit",
 	"ERROR_invalid_category",
-	"Error_invalid_page"
+	"ERROR_invalid_page"
 );
 
 include "../../connection/connect.php";

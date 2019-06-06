@@ -13,8 +13,6 @@ Summary of API Requests
 * \<host-domain\>/api/pickers/read.php
 * \<host-domain\>/api/products/page/get.php?category=\<string\>&limit=\<int\>&page=\<int\>
 * \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
-* \<host-domain\>/api/products/read.php
-* \<host-domain\>/api/products/read.php?category=\<string\>
 
 API Request Details
 -------------------
@@ -155,7 +153,7 @@ Returns a page of products. An optional category may be provided, otherwise "all
 		"SUCCESS",
 		"ERROR_invalid_limit",
 		"ERROR_invalid_category",
-		"Error_invalid_page"
+		"ERROR_invalid_page"
 		*/
 		// The following are only returned upon success.
 		"limit": <int>,
@@ -189,31 +187,3 @@ Returns the number of pages needed to list all of the products. An optional cate
 		"pages": <int>,
 		"category": <string>
 	}
-
----
-
-**\<host-domain\>/api/products/read.php**
-
-Returns all of the products, including name and quantity, from every category. Use request method GET.
-
-	[
-		{
-			"name": <string>,
-			"quantity": <string>
-		},
-		...
-	]
-
----
-
-**\<host-domain\>/api/products/read.php?category=\<string\>**
-
-Returns all of the products, including name and quantity, from a valid category. Use request method GET.
-
-	[
-		{
-			"name": <string>,
-			"quantity": <string>
-		},
-		...
-	]
