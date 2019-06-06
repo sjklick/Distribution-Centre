@@ -1,6 +1,6 @@
 <?php
 
-include "../connection/connect.php";
+include "../../connection/connect.php";
 $connection = connect();
 if (isset($connection)) {
 	class Item {

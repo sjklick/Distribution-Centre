@@ -4,9 +4,9 @@ Distribution-Centre Web API User Guide
 Summary of API Requests
 -----------------------
 
-* \<host-domain\>/api/bin_item_counts/read.php
-* \<host-domain\>/api/bin_positions/read.php
-* \<host-domain\>/api/bin/read.php?id=\<string\>
+* \<host-domain\>/api/bins/contents/get.php?id=\<string\>
+* \<host-domain\>/api/bins/item_counts/get.php
+* \<host-domain\>/api/bins/positions/get.php
 * \<host-domain\>/api/order/place.php
 * \<host-domain\>/api/orders/read.php
 * \<host-domain\>/api/pickers/read.php
@@ -17,7 +17,24 @@ Summary of API Requests
 API Request Details
 -------------------
 
-**\<host-domain\>/api/bin_item_counts/read.php**
+**\<host-domain\>/api/bins/contents/get.php?id=\<string\>**
+
+Returns the contents of a stock bin, specified by ID. ID is can be a valid stock bin ID, "shipping", or "receiving". Use request method GET.
+
+	{
+		"id": <string>,
+		"item": [
+			{
+				"name": <string>,
+				"quantity": <int>
+			},
+			...
+		]
+	}
+
+---
+
+**\<host-domain\>/api/bins/item_counts/get.php**
 
 Returns the total count of items (0-12) in each bin. Use request method GET.
 
@@ -32,7 +49,7 @@ Returns the total count of items (0-12) in each bin. Use request method GET.
 
 ---
 
-**\<host-domain\>/api/bin_positions/read.php**
+**\<host-domain\>/api/bins/positions/get.php**
 
 Returns all stock bin positions, ordered by bin ID. Use request method GET.
 
@@ -44,23 +61,6 @@ Returns all stock bin positions, ordered by bin ID. Use request method GET.
 		},
 		...
 	]
-
----
-
-**\<host-domain\>/api/bin/read.php?id=\<string\>**
-
-Returns the contents of a stock bin, specified by ID. ID is can be a valid stock bin ID, "shipping", or "receiving". Use request method GET.
-
-	{
-		"id": <string>,
-		"item": [
-			{
-				"name": <string>,
-				"quantity": <int>
-			},
-			...
-		]
-	}
 
 ---
 
