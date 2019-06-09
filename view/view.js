@@ -139,7 +139,7 @@ function updateStockBinPositions() {
 			setTimeout(updateStockBinPositions, 100);
 		}
 	}
-	xhttpStockBinPositions.open("GET", "../api/bin_positions/read.php", true);
+	xhttpStockBinPositions.open("GET", "../api/bins/positions/get.php", true);
 	xhttpStockBinPositions.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	xhttpStockBinPositions.send();
 }
@@ -174,7 +174,7 @@ function updateBinItemCount() {
 			setTimeout(updateBinItemCount, 1000);
 		}
 	}
-	xhttpBinItemCount.open("GET", "../api/bin_item_counts/read.php", true);
+	xhttpBinItemCount.open("GET", "../api/bins/item_counts/get.php", true);
 	xhttpBinItemCount.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	xhttpBinItemCount.send();
 }
@@ -194,7 +194,7 @@ function updateOrders() {
 			setTimeout(updateOrders, 1000);
 		}
 	}
-	xhttpOrders.open("GET", "../api/orders/read.php", true);
+	xhttpOrders.open("GET", "../api/orders/get.php", true);
 	xhttpOrders.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	xhttpOrders.send();
 }
@@ -274,7 +274,7 @@ function updateBinTable() {
 			setTimeout(updateBinTable, 500);
 		}
 	}
-	let request = "../api/bin/read.php?id=";
+	let request = "../api/bins/contents/get.php?id=";
 	if (selected_shipping) request += "shipping";
 	else if (selected_receiving) request += "receiving";
 	else request += selected_bin_id.toString();
