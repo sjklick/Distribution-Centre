@@ -234,7 +234,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food',-2,NULL),('banana',NULL,'food',-1,NULL),('beef',NULL,'food',0,NULL),('bread',NULL,'food',0,NULL),('carrot',NULL,'food',0,NULL),('chair',NULL,'furniture',0,NULL),('chicken',NULL,'food',0,NULL),('cup',NULL,'symbel',0,NULL),('fork',NULL,'symbel',0,NULL),('grapes',NULL,'food',0,NULL),('knife',NULL,'symbel',0,NULL),('milk',NULL,'food',0,NULL),('plate',NULL,'symbel',0,NULL),('table',NULL,'furniture',0,NULL),('table cloth',NULL,'symbel',0,NULL);
+INSERT INTO `products` VALUES ('apple',NULL,'food',0,NULL),('banana',NULL,'food',0,NULL),('beef',NULL,'food',0,NULL),('bread',NULL,'food',0,NULL),('carrot',NULL,'food',0,NULL),('chair',NULL,'furniture',0,NULL),('chicken',NULL,'food',0,NULL),('cup',NULL,'symbel',0,NULL),('fork',NULL,'symbel',0,NULL),('grapes',NULL,'food',0,NULL),('knife',NULL,'symbel',0,NULL),('milk',NULL,'food',0,NULL),('plate',NULL,'symbel',0,NULL),('table',NULL,'furniture',0,NULL),('table cloth',NULL,'symbel',0,NULL);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -408,4 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-05 23:06:38
+-- Dump completed on 2019-06-09 20:01:17
