@@ -307,7 +307,7 @@ namespace Database {
 		std::string query;
 		std::vector<std::string> items;
 		try {		
-			query = "SELECT * FROM products ORDER BY quantity LIMIT 5;";
+			query = "SELECT * FROM products ORDER BY quantity LIMIT 12;";
 			make_query(connection, query);
 			result = get_result(connection);
 			while (row = mysql_fetch_row(result)) {
