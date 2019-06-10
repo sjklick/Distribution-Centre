@@ -19,6 +19,7 @@ Todo
 ----
 
 - Finalize available products and descriptions
+- Reduce bandwidth from warehouse view.
 - Host live demo
 
 Contact
