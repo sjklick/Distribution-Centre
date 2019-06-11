@@ -7,6 +7,7 @@ var receiving_tile_div;
 var selected_receiving = false;
 var table_item = [];
 var table_quantity = [];
+var last_bin_count = -1;
 
 // Create warehouse map.
 var warehouse = [];
@@ -37,6 +38,7 @@ function onTileClick(tile_div) {
 			selected_bin_id = b+1;
 			selected_shipping = false;
 			selected_receiving = false;
+			updateBinTable();
 			return;
 		}
 	}
@@ -44,12 +46,14 @@ function onTileClick(tile_div) {
 		selected_bin_id = -1;
 		selected_shipping = true;
 		selected_receiving = false;
+		updateBinTable();
 		return;
 	}
 	if (receiving_tile_div.id == tile_div.id) {
 		selected_bin_id = -1;
 		selected_shipping = false;
 		selected_receiving = true;
+		updateBinTable();
 	}
 }
 
@@ -156,18 +160,36 @@ function updateBinItemCount() {
 					bin_tile_div[b].style.backgroundRepeat = "no-repeat";
 					bin_tile_div[b].style.backgroundPosition = "center";
 				}
+				if (selected_bin_id != -1) {
+					if (last_bin_count != data.stock[selected_bin_id-1]) {
+						last_bin_count = data.stock[selected_bin_id-1];
+						updateBinTable();
+					}
+				}
 			}
 			if (typeof receiving_tile_div != 'undefined') {
 				receiving_tile_div.style.backgroundImage = "url(./graphics/item-"+data.receiving.toString()+".svg)";
 				receiving_tile_div.style.backgroundSize = "80% 80%";
 				receiving_tile_div.style.backgroundRepeat = "no-repeat";
 				receiving_tile_div.style.backgroundPosition = "center";
+				if (selected_receiving) {
+					if (last_bin_count != data.receiving) {
+						last_bin_count = data.receiving;
+						updateBinTable();
+					}
+				}
 			}
 			if (typeof shipping_tile_div != 'undefined') {
 				shipping_tile_div.style.backgroundImage = "url(./graphics/item-"+data.shipping.toString()+".svg)";
 				shipping_tile_div.style.backgroundSize = "80% 80%";
 				shipping_tile_div.style.backgroundRepeat = "no-repeat";
 				shipping_tile_div.style.backgroundPosition = "center";
+				if (selected_shipping) {
+					if (last_bin_count != data.shipping) {
+						last_bin_count = data.shipping;
+						updateBinTable();
+					}
+				}
 			}
 			setTimeout(updateBinItemCount, 1000);
 		} else if (this.readyState == 4 && this.status != 200) {
@@ -269,7 +291,6 @@ function updateBinTable() {
 					table_quantity[i].innerText = " ";
 				}
 			}
-			setTimeout(updateBinTable, 500);	
 		} else if (this.readyState == 4 && this.status != 200) {
 			setTimeout(updateBinTable, 500);
 		}
