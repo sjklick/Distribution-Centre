@@ -234,7 +234,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apple',NULL,'food',0,NULL),('banana',NULL,'food',0,NULL),('beef',NULL,'food',0,NULL),('bread',NULL,'food',0,NULL),('carrot',NULL,'food',0,NULL),('chair',NULL,'furniture',0,NULL),('chicken',NULL,'food',0,NULL),('cup',NULL,'symbel',0,NULL),('fork',NULL,'symbel',0,NULL),('grapes',NULL,'food',0,NULL),('knife',NULL,'symbel',0,NULL),('milk',NULL,'food',0,NULL),('plate',NULL,'symbel',0,NULL),('table',NULL,'furniture',0,NULL),('table cloth',NULL,'symbel',0,NULL);
+INSERT INTO `products` VALUES ('apples (1 lb)','Keeps the doctor away!','food',0,'https://source.unsplash.com/JnRgmNRNoME'),('bananas (1 lb)','A great source of Potassium.','food',0,'https://source.unsplash.com/rxUQda-9Rkk'),('bread (700 g)','Freshly baked!','food',0,'https://source.unsplash.com/PvAl4A6hHh8'),('carrots (1 lb)','Excellent in salads.','food',0,'https://source.unsplash.com/yNB8niq1qCk'),('chair',NULL,'furniture',0,NULL),('cookies (200 g)','Pairs well with milk.','food',0,'https://source.unsplash.com/ot1luip6jbk'),('cup',NULL,'symbel',0,NULL),('fork',NULL,'symbel',0,NULL),('grapes (1 lb)','Used to make jams, wine, etc.','food',0,'https://source.unsplash.com/F_ilCik66Hg'),('ham (8 oz)','Perfect for a sandwich.','food',0,'https://source.unsplash.com/1OfPse1qVLM'),('knife',NULL,'symbel',0,NULL),('milk (500 mL)','Pairs well with cookies.','food',0,'https://source.unsplash.com/S1HuosAnX-Y'),('plate',NULL,'symbel',0,NULL),('table',NULL,'furniture',0,NULL),('table cloth',NULL,'symbel',0,NULL);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -408,4 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-09 20:01:17
+-- Dump completed on 2019-06-12 22:44:56
