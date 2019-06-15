@@ -1047,8 +1047,8 @@ namespace Database {
 			enable_auto_commit(connection);
 		} catch (DatabaseException& e) {
 			std::string info;
-			info = "item: \"";
-			info += item;
+			info = "last query: \"";
+			info += query;
 			info += "\" - ";
 			throw DatabaseException("picker_assign_receiving_task - "+info+e.message());
 		}
