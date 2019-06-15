@@ -1046,7 +1046,11 @@ namespace Database {
 			commit(connection);
 			enable_auto_commit(connection);
 		} catch (DatabaseException& e) {
-			throw DatabaseException("picker_assign_receiving_task - "+e.message());
+			std::string info;
+			info = "item: \"";
+			info += item;
+			info += "\" - ";
+			throw DatabaseException("picker_assign_receiving_task - "+info+e.message());
 		}
 	}
 
