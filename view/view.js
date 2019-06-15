@@ -228,7 +228,7 @@ function updatePickers() {
 			let data = JSON.parse(this.responseText);
 			// Remove old picker positions from display.
 			if (typeof previous_tile_id !== "undefined") {
-				for (let p=0; p<4; p++) {
+				for (let p=0; p<data.length; p++) {
 					let tile_div = document.getElementById(previous_tile_id[p]);
 					tile_div.className = "tile floor";
 				}
@@ -236,7 +236,7 @@ function updatePickers() {
 			// Update old positions for next call.
 			// Update picker positions on display.
 			previous_tile_id = [];
-			for (let p=0; p<4; p++) {
+			for (let p=0; p<data.length; p++) {
 				let id = data[p].row.toString()+","+data[p].column.toString();				
 				previous_tile_id[p] = id;
 				let tile_div = document.getElementById(id);
