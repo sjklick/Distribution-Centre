@@ -196,7 +196,7 @@ CREATE TABLE `pickers` (
   KEY `fk_task_id` (`task_id`),
   CONSTRAINT `fk_state` FOREIGN KEY (`state`) REFERENCES `picker_states` (`state`),
   CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `picker_tasks` (`task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,6 +222,7 @@ CREATE TABLE `products` (
   `category` varchar(15) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
   `image_url` varchar(255) DEFAULT NULL,
+  `price` decimal(7,2) DEFAULT '0.00',
   PRIMARY KEY (`name`),
   KEY `category` (`category`),
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category`) REFERENCES `categories` (`category`)
@@ -234,7 +235,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('apples (1 lb)','Keeps the doctor away!','food',0,'https://source.unsplash.com/JnRgmNRNoME'),('bagels','Freshly baked! 6 per package.','food',0,'https://source.unsplash.com/3QfyS7y-vyY'),('bananas (1 lb)','A great source of Potassium.','food',0,'https://source.unsplash.com/rxUQda-9Rkk'),('beige table cloth','Cotton.','symbel',0,'https://source.unsplash.com/l9SxQSi7MGI'),('bread (700 g)','Freshly baked!','food',0,'https://source.unsplash.com/PvAl4A6hHh8'),('carrots (1 lb)','Excellent in salads.','food',0,'https://source.unsplash.com/yNB8niq1qCk'),('chair','Brown; made from wood.','furniture',0,'https://source.unsplash.com/9v7UJS92HYc'),('cookies (200 g)','Pairs well with milk.','food',0,'https://source.unsplash.com/ot1luip6jbk'),('cup','Made from glass.','symbel',0,'https://source.unsplash.com/gh14y3gpAS4'),('fancy chair','Stylish wooden chair.','furniture',0,'https://source.unsplash.com/9v7UJS92HYc'),('fork','Made from stainless steel.','symbel',0,'https://source.unsplash.com/Pvclb-iHHYY'),('grapes (1 lb)','Used to make jams, wine, etc.','food',0,'https://source.unsplash.com/F_ilCik66Hg'),('ham (8 oz)','Perfect for a sandwich.','food',0,'https://source.unsplash.com/1OfPse1qVLM'),('knife','Made from stainless steel.','symbel',0,'https://source.unsplash.com/AeqhbbHm5zk'),('milk (500 mL)','Pairs well with cookies.','food',0,'https://source.unsplash.com/S1HuosAnX-Y'),('modern table','A stylish table for a modern dining experience.','furniture',0,'https://source.unsplash.com/tleCJiDOri0'),('orange juice (2 L)','From concentrate.','food',0,'https://source.unsplash.com/a2AFt1wESNc'),('plate','Blue; ceramic.','symbel',0,'https://source.unsplash.com/6ZidnWu4h3w'),('red/white table cloth','Vinyl.','symbel',0,'https://source.unsplash.com/dALwKW85F00'),('table','Light brown; wooden.','furniture',0,'https://source.unsplash.com/0FAkmy9d3Jg');
+INSERT INTO `products` VALUES ('apples','1 lb. Keeps the doctor away!','food',0,'https://source.unsplash.com/JnRgmNRNoME',2.99),('bagels','Freshly baked! 6 per package.','food',0,'https://source.unsplash.com/3QfyS7y-vyY',4.75),('bananas','1 lb. A great source of Potassium.','food',0,'https://source.unsplash.com/rxUQda-9Rkk',1.99),('beige table cloth','Cotton.','symbel',0,'https://source.unsplash.com/l9SxQSi7MGI',10.00),('bread','700 g. Freshly baked!','food',0,'https://source.unsplash.com/PvAl4A6hHh8',2.50),('carrots','1 lb. Excellent in salads.','food',0,'https://source.unsplash.com/yNB8niq1qCk',1.65),('chair','Brown; made from wood.','furniture',0,'https://source.unsplash.com/9v7UJS92HYc',45.99),('cookies','200 g. Pairs well with milk.','food',0,'https://source.unsplash.com/ot1luip6jbk',3.50),('cup','Made from glass.','symbel',0,'https://source.unsplash.com/gh14y3gpAS4',2.00),('fancy chair','Stylish wooden chair.','furniture',0,'https://source.unsplash.com/9v7UJS92HYc',75.00),('fork','Made from stainless steel.','symbel',0,'https://source.unsplash.com/Pvclb-iHHYY',1.25),('grapes','1 lb. Used to make jams, wine, etc.','food',0,'https://source.unsplash.com/F_ilCik66Hg',6.50),('ham','8 oz. Perfect for a sandwich.','food',0,'https://source.unsplash.com/1OfPse1qVLM',3.50),('knife','Made from stainless steel.','symbel',0,'https://source.unsplash.com/AeqhbbHm5zk',1.25),('milk','500 mL. Pairs well with cookies.','food',0,'https://source.unsplash.com/S1HuosAnX-Y',1.00),('modern table','A stylish table for a modern dining experience.','furniture',0,'https://source.unsplash.com/tleCJiDOri0',1299.00),('orange juice','2 L. From concentrate.','food',0,'https://source.unsplash.com/a2AFt1wESNc',4.75),('plate','Blue; ceramic.','symbel',0,'https://source.unsplash.com/6ZidnWu4h3w',4.00),('red/white table cloth','Vinyl.','symbel',0,'https://source.unsplash.com/dALwKW85F00',8.00),('table','Light brown; wooden.','furniture',0,'https://source.unsplash.com/0FAkmy9d3Jg',450.00);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -408,4 +409,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-15  9:41:20
+-- Dump completed on 2019-06-15 11:59:19
