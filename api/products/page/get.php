@@ -38,6 +38,7 @@ if (!is_bool($details->quantity)) $success = false;
 if (!array_key_exists("description", $details)) $success = false;
 if (!is_bool($details->description)) $success = false;
 if (!array_key_exists("image_url", $details)) $success = false;
+if (!array_key_exists("price", $details)) $success = false;
 if (!is_bool($details->image_url)) $success = false;
 if (! $success) {
 	$result = new Failure;
@@ -145,6 +146,9 @@ if (isset($connection)) {
 		if ($details->image_url) {
 			$item->image_url = $row['image_url'];
 			if (is_null($item->image_url)) $item->image_url = "";
+		}
+		if ($details->price) {
+			$item->price = floatval($row['price']);
 		}
 		array_push($selectedProducts, $item);
 	}

@@ -156,7 +156,8 @@ The body of the request must take the following format:
 		"category": <string>,
 		"quantity": <bool>,
 		"description": <bool>,
-		"image_url": <bool>
+		"image_url": <bool>,
+		"price": <bool>
 	}
 
 The body of the response will take the following format:
@@ -184,6 +185,8 @@ The body of the response will take the following format:
 				"description": <string>,
 				// Only returned if image_url set true.
       			"image_url": <string>
+				// Only returned if price set true.
+      			"price": <float>
 			},
 			...
 		]
