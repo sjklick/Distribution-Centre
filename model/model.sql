@@ -148,7 +148,7 @@ DROP TABLE IF EXISTS `picker_tasks`;
 CREATE TABLE `picker_tasks` (
   `task_id` int(11) NOT NULL AUTO_INCREMENT,
   `task_type` varchar(9) DEFAULT NULL,
-  `item_name` varchar(20) DEFAULT NULL,
+  `item_name` varchar(50) DEFAULT NULL,
   `bin_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`task_id`),
   KEY `fk_item_name` (`item_name`),
@@ -205,7 +205,7 @@ CREATE TABLE `pickers` (
 
 LOCK TABLES `pickers` WRITE;
 /*!40000 ALTER TABLE `pickers` DISABLE KEYS */;
-INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(2,2,1,'r',2,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(3,3,1,'r',3,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(4,4,1,'r',4,1,'r',NULL,NULL,NULL,'idle',0,0,NULL);
+INSERT INTO `pickers` VALUES (1,1,1,'r',1,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(2,2,1,'r',2,1,'r',NULL,NULL,NULL,'idle',0,0,NULL),(3,3,1,'r',3,1,'r',NULL,NULL,NULL,'idle',0,0,NULL);
 /*!40000 ALTER TABLE `pickers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -408,4 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-15  8:32:56
+-- Dump completed on 2019-06-15  9:41:20
