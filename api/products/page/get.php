@@ -148,7 +148,7 @@ if (isset($connection)) {
 			if (is_null($item->image_url)) $item->image_url = "";
 		}
 		if ($details->price) {
-			$item->price = floatval($row['price']);
+			$item->price = number_format($row['price'], 2, ".", "");
 		}
 		array_push($selectedProducts, $item);
 	}

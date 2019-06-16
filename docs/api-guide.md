@@ -186,7 +186,8 @@ The body of the response will take the following format:
 				// Only returned if image_url set true.
       			"image_url": <string>
 				// Only returned if price set true.
-      			"price": <float>
+				// String format is "####.##".
+      			"price": <string>
 			},
 			...
 		]
