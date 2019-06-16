@@ -19,7 +19,7 @@ API Request Details
 
 **\<host-domain\>/api/bins/contents/get.php?id=\<string\>**
 
-Returns the contents of a stock bin, specified by ID. ID is can be a valid stock bin ID, "shipping", or "receiving". Use request method GET.
+Returns the contents of a stock bin, specified by ID. ID can be a valid stock bin ID, "shipping", or "receiving". Use request method GET.
 
 	{
 		"id": <string>,
