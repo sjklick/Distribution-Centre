@@ -197,7 +197,7 @@ The body of the response will take the following format:
 
 **\<host-domain\>/api/products/page_count/get.php**
 
-Returns the number of pages needed to list all of the products. A valid category must be provided, or "all". A limit on the number of items per page msu be provided. Use request method POST.
+Returns the number of pages needed to list all of the products. A valid category must be provided, or "all". A limit on the number of items per page must be provided. Use request method POST.
 
 The body of the request must take the following format:
 
