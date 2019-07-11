@@ -1,71 +1,63 @@
 <?php
 
 class Success {
-	public $status;
+	public $success = true;
 	public $limit;
 	public $pages;
 	public $category;
 }
 
 class Failure {
-	public $status;
+	public $success = false;
+	public $error;
 }
 
-$statusCode = array(
-	"SUCCESS",
-	"ERROR_invalid_limit",
-	"ERROR_invalid_category"
-);
+const errorRequestFormat = "invalid_page_count_request_format";
+const errorLimit = "invalid_limit";
+const errorCategory = "invalid_category";
+
+// Get POST body.
+$details = json_decode(file_get_contents("php://input"));
+
+// Validate POST body format.
+if (!isset($details) || !array_key_exists("category", $details) || !array_key_exists("limit", $details)) {
+	$connection = null;
+	$result = new Failure;
+	$result->error = errorRequestFormat;
+	$response = json_encode($result);
+	die($response);
+}
 
 include "../../connection/connect.php";
 $connection = connect();
 if (isset($connection)) {
 	// Validate category.
-	if (isset($_GET["category"])) {
-		$selectedCategory = $_GET["category"];
-		if ($selectedCategory != "all") {
-			$query = "SELECT EXISTS(SELECT * FROM categories WHERE category=\"".$selectedCategory."\")";
-			foreach ($connection->query($query) as $row) {
-				$exists = boolval($row[0]);
-			}
-			if (! $exists) {
-				$connection = null;
-				$result = new Failure;
-				$result->status = $statusCode[2];
-				$response = json_encode($result);
-				echo $response;
-				die();
-			}
+	if ($details->category != "all") {
+		$query = "SELECT EXISTS(SELECT * FROM categories WHERE category=\"".$details->category."\")";
+		foreach ($connection->query($query) as $row) {
+			$exists = boolval($row[0]);
 		}
-	} else {
-		$selectedCategory = "all";
-	}
-	// Validate limit.
-	if (isset($_GET["limit"])) {
-		if (ctype_digit($_GET["limit"])) {
-			$selectedLimit = intval($_GET["limit"]);
-			if ($selectedLimit < 1) {
-				$connection = null;
-				$result = new Failure;
-				$result->status = $statusCode[1];
-				$response = json_encode($result);
-				echo $response;
-				die();
-			}
-		} else {
+		if (! $exists) {
 			$connection = null;
 			$result = new Failure;
-			$result->status = $statusCode[1];
+			$result->error = errorCategory;
 			$response = json_encode($result);
-			echo $response;
-			die();
+			die($response);
 		}
-	} else {
-		$selectedLimit = 10;
 	}
+
+	// Validate limit.
+	if (!ctype_digit((string) $details->limit) || ($details->limit < 1)) {
+		$connection = null;
+		$result = new Failure;
+		$result->error = errorLimit;
+		$response = json_encode($result);
+		die($response);
+	}
+
 	// Get how many pages are needed.
-	if ($selectedCategory != "all") {
-		$query = "SELECT COUNT(*) FROM products WHERE category=\"".$selectedCategory."\"";
+	if ($details->category != "all") {
+		$query = "SELECT COUNT(*) FROM products WHERE category=\"".$details->category."\"";
 	} else {
 		$query = "SELECT COUNT(*) FROM products";
 	}
@@ -75,14 +67,13 @@ if (isset($connection)) {
 	if ($productCount == 0) {
 		$pageCount = 0;
 	} else {
-		$pageCount = ceil($productCount/$selectedLimit);
+		$pageCount = ceil($productCount/$details->limit);
 	}
 	// Return response.
 	$result = new Success;
-	$result->status = $statusCode[0];
-	$result->limit = $selectedLimit;
+	$result->limit = $details->limit;
 	$result->pages = $pageCount;
-	$result->category = $selectedCategory;
+	$result->category = $details->category;
 	$response = json_encode($result);
 	echo $response;
 }

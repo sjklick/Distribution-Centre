@@ -12,7 +12,7 @@ Summary of API Requests
 * \<host-domain\>/api/pickers/read.php
 * \<host-domain\>/api/products/categories/get.php
 * \<host-domain\>/api/products/page/get.php
-* \<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>
+* \<host-domain\>/api/products/page_count/get.php
 
 API Request Details
 -------------------
@@ -184,7 +184,7 @@ The body of the response will take the following format:
 				// Only returned if description set true.
 				"description": <string>,
 				// Only returned if image_url set true.
-      			"image_url": <string>
+      			"image_url": <string>,
 				// Only returned if price set true.
 				// String format is "####.##".
       			"price": <string>
@@ -195,17 +195,28 @@ The body of the response will take the following format:
 
 ---
 
-**\<host-domain\>/api/products/page_count/get.php?category=\<string\>&limit=\<int\>**
+**\<host-domain\>/api/products/page_count/get.php**
 
-Returns the number of pages needed to list all of the products. An optional category may be provided, otherwise "all" is assumed. An optional limit on the number of items per page may be provided, otherwise 10 is assumed. Use request method GET.
+Returns the number of pages needed to list all of the products. A valid category must be provided, or "all". A limit on the number of items per page msu be provided. Use request method POST.
+
+The body of the request must take the following format:
 
 	{
-		"status": <string>,
+		"limit": <int>,
+		"category": <string>
+	}
+
+The body of the response will take the following format:
+
+	{
+		"status": <bool>,
+		// The following is only returned upon failure.
+		"error": <string>,
 		/*
-		"status" may be one of:
-		"SUCCESS",
-		"ERROR_invalid_limit",
-		"ERROR_invalid_category"
+		"error" may be one of:
+		"invalid_page_count_request_format"
+		"invalid_limit",
+		"invalid_category"
 		*/
 		// The following are only returned upon success.
 		"limit": <int>,
