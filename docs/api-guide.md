@@ -214,7 +214,7 @@ The body of the response will take the following format:
 		"error": <string>,
 		/*
 		"error" may be one of:
-		"invalid_page_count_request_format"
+		"invalid_page_count_request_format",
 		"invalid_limit",
 		"invalid_category"
 		*/
