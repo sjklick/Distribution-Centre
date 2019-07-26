@@ -1,23 +1,21 @@
 <?php
 
 class Success {
-	public $status;
+	public $success = true;
 	public $orderId;
 }
 
 class Failure {
-	public $status;
+	public $success = false;
+	public $error;
 }
 
-$statusCode = array(
-	"SUCCESS",
-	"ERROR_invalid_order_request_format",
-	"ERROR_server_side",
-	"ERROR_customer_info_refused",
-	"ERROR_insufficient_stock",
-	"ERROR_maximum_items_exceeded",
-	"ERROR_maximum_orders_exceeded"
-);
+const errorRequestFormat = "invalid_order_request_format";
+const errorServer = "server_side";
+const errorCustomerInfo = "customer_info_refused";
+const errorStock = "insufficient_stock";
+const errorMaxItems = "maximum_items_exceeded";
+const errorMaxOrders = "maximum_orders_exceeded";
 
 // Get order in JSON format.
 $order = json_decode(file_get_contents("php://input"));
@@ -36,10 +34,9 @@ for ($i=0; $i<count($order->items); $i++) {
 }
 if (! $success) {
 	$result = new Failure;
-	$result->status = $statusCode[1];
+	$result->error = errorRequestFormat;
 	$response = json_encode($result);
-	echo $response;
-	die();
+	die($response);
 }
 
 // Verify that the order does not exceed 12 items total.
@@ -49,10 +46,9 @@ for ($i=0; $i<count($order->items); $i++) {
 }
 if ($totalItems > 12) {
 	$result = new Failure;
-	$result->status = $statusCode[5];
+	$result->error = errorMaxItems;
 	$response = json_encode($result);
-	echo $response;
-	die();
+	die($response);
 }
 
 // Place order in SQL database.
@@ -62,10 +58,9 @@ if (isset($connection)) {
 	if (! $connection->beginTransaction()) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = $statusCode[2];
+		$result->error = errorServer;
 		$response = json_encode($result);
-		echo $response;
-		die();
+		die($response);
 	}
 	// Verify that another order can be accepted.
 	$query = "SELECT COUNT(*) FROM orders";
@@ -75,10 +70,9 @@ if (isset($connection)) {
 	if ($orderCount > 4) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = $statusCode[6];
+		$result->error = errorMaxOrders;
 		$response = json_encode($result);
-		echo $response;
-		die();
+		die($response);
 	}
 	// Create customer entry.
 	$query = "INSERT INTO orders (customer, email, confirmation) VALUES (\"";
@@ -94,10 +88,9 @@ if (isset($connection)) {
 	} catch (PDOexception $exception) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = $statusCode[3];
+		$result->error = errorCustomerInfo;
 		$response = json_encode($result);
-		echo $response;
-		die();
+		die($response);
 	}
 	// Get order number.
 	$id = $connection->lastInsertId();
@@ -115,34 +108,30 @@ if (isset($connection)) {
 		} catch (PDOexception $exception) {
 			$connection = null;
 			$result = new Failure;
-			$result->status = $statusCode[4];
+			$result->error = errorStock;
 			$response = json_encode($result);
-			echo $response;
-			die();
+			die($response);
 		}
 	}
 	if (! $connection->commit()) {
 		$connection = null;
 		$result = new Failure;
-		$result->status = $statusCode[2];
+		$result->error = errorServer;
 		$response = json_encode($result);
-		echo $response;
-		die();
+		die($response);
 	}
 	$connection = null;
 } else {
 	$connection = null;
 	$result = new Failure;
-	$result->status = $statusCode[2];
+	$result->error = errorServer;
 	$response = json_encode($result);
-	echo $response;
-	die();
+	die($response);
 }
 
 // Order was placed without error.
 $result = new Success;
-$result->status = $statusCode[0];
-$result->orderId = $id;
+$result->orderId = intval($id);
 $response = json_encode($result);
 echo $response;
 

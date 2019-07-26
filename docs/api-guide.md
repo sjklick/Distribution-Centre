@@ -88,19 +88,20 @@ The body of the request must take the following format:
 The body of the response will take the following format:
 
 	{
-		"status": <string>,
+		"success": <bool>,
+		// The following is only returned upon failure.
+		"error": <string>,
 		/*
-		"status" may be one of:
-		"SUCCESS",
-		"ERROR_invalid_order_request_format",
-		"ERROR_server_side",
-		"ERROR_customer_info_refused",
-		"ERROR_insufficient_stock",
-		"ERROR_maximum_items_exceeded",
-		"ERROR_maximum_orders_exceeded"
+		"error" may be one of:
+		"invalid_order_request_format",
+		"server_side",
+		"customer_info_refused",
+		"insufficient_stock",
+		"maximum_items_exceeded",
+		"maximum_orders_exceeded"
 		*/
-		// The following are only returned upon success.
-		"orderId": <string>
+		// The following is only returned upon success.
+		"orderId": <int>
 	}
 
 ---
@@ -209,7 +210,7 @@ The body of the request must take the following format:
 The body of the response will take the following format:
 
 	{
-		"status": <bool>,
+		"success": <bool>,
 		// The following is only returned upon failure.
 		"error": <string>,
 		/*
